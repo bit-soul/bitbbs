@@ -1,0 +1,30 @@
+<%- partial('../sidebar') %>
+
+<div id='content'>
+  <div class='panel'>
+    <div class='header'>
+      <ul class='breadcrumb'>
+        <li><a href='/'>Home</a><span class='divider'>/</span></li>
+        <li class='active'>Top100 Score Rankings</li>
+      </ul>
+    </div>
+    <div class='inner'>
+      <% if(typeof(users) !== 'undefined' && users.length > 0){ %>
+      <table class='table table-condensed table-striped'>
+        <thead>
+          <th>#</th>
+          <th>Name</th>
+          <th>Score</th>
+          <th>Topics</th>
+          <th>Replys</th>
+        </thead>
+        <tbody>
+        <%- partial('../user/top100_user',{collection:users,as:'user'}) %>
+        </tbody>
+      </table>
+      <% }else{ %>
+      <p>No User</p>
+      <% } %>
+    </div>
+  </div>
+</div>

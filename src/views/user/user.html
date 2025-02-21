@@ -1,0 +1,20 @@
+<div class='user'>
+  <div>
+    <a href="/user/<%= user._id %>">
+      <img class='user_avatar' src="<%= proxy(user.avatar_url) %>" title="<%= user.name %>"/>
+    </a>
+    <span class='user_name'><a class='dark' href="/user/<%= user._id %>"><%= user.name %></a></span>
+
+    <div class='space'></div>
+    <span class='col_fade'><%= user.follower_count %> Follower </span>
+    <span class='space'></span>
+    <span class='col_fade'><%= user.following_count %> Following </span>
+  </div>
+  <div>
+		<span>
+			<a href='mailto:<%= user.email %>'>
+        <i class="fa fa-envelope-o" title='email'></i>
+      </a>
+		</span>
+  </div>
+</div>

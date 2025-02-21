@@ -1,0 +1,19 @@
+<%- partial('../sidebar') %>
+
+<div id='content'>
+  <div class='panel'>
+    <div class='header'>
+      <ul class='breadcrumb'>
+        <li><a href='/'>Home</a><span class='divider'>/</span></li>
+        <li class='active'><%= user.name %> Collected Topics</li>
+      </ul>
+    </div>
+    <div class='inner no-padding'>
+      <% if (topics.length > 0) { %>
+      <%- partial('../topic/list', { topics: topics, pages: pages, current_pages: current_page, base: '/user/' + user._id + '/collections' }) %>
+      <% } else { %>
+      <p>No Topic (T_T)</p>
+      <% } %>
+    </div>
+  </div>
+</div>

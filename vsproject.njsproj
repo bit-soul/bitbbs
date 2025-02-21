@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{ea132826-3c61-49f8-9639-6078562c76ac}</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <ProjectView>ShowAllFiles</ProjectView>
+    <StartupFile>vsdebug.js</StartupFile>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">17.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <StartWebBrowser>False</StartWebBrowser>
+    <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <ItemGroup>
+    <Content Include="main.js" />
+    <Content Include="package.json" />
+    <Content Include="README.md" />
+    <Content Include="src\app.js" />
+    <Content Include="src\common\at.js" />
+    <Content Include="src\common\cache.js" />
+    <Content Include="src\common\logger.js" />
+    <Content Include="src\common\mail.js" />
+    <Content Include="src\common\message.js" />
+    <Content Include="src\common\redis.js" />
+    <Content Include="src\common\render_helper.js" />
+    <Content Include="src\common\store.js" />
+    <Content Include="src\common\tools.js" />
+    <Content Include="src\config\default.js" />
+    <Content Include="src\config\local.js" />
+    <Content Include="src\controllers\github.js" />
+    <Content Include="src\controllers\message.js" />
+    <Content Include="src\controllers\reply.js" />
+    <Content Include="src\controllers\rss.js" />
+    <Content Include="src\controllers\search.js" />
+    <Content Include="src\controllers\sign.js" />
+    <Content Include="src\controllers\site.js" />
+    <Content Include="src\controllers\static.js" />
+    <Content Include="src\controllers\topic.js" />
+    <Content Include="src\controllers\user.js" />
+    <Content Include="src\controllers\wallet.js" />
+    <Content Include="src\middlewares\auth.js" />
+    <Content Include="src\middlewares\conf.js" />
+    <Content Include="src\middlewares\error_page.js" />
+    <Content Include="src\middlewares\github_strategy.js" />
+    <Content Include="src\middlewares\limit.js" />
+    <Content Include="src\middlewares\mongoose_log.js" />
+    <Content Include="src\middlewares\proxy.js" />
+    <Content Include="src\middlewares\render.js" />
+    <Content Include="src\middlewares\request_log.js" />
+    <Content Include="src\models\base_model.js" />
+    <Content Include="src\models\index.js" />
+    <Content Include="src\models\message.js" />
+    <Content Include="src\models\reply.js" />
+    <Content Include="src\models\topic.js" />
+    <Content Include="src\models\topic_collect.js" />
+    <Content Include="src\models\user.js" />
+    <Content Include="src\oneapm.js" />
+    <Content Include="src\proxy\index.js" />
+    <Content Include="src\proxy\message.js" />
+    <Content Include="src\proxy\reply.js" />
+    <Content Include="src\proxy\topic.js" />
+    <Content Include="src\proxy\topic_collect.js" />
+    <Content Include="src\proxy\user.js" />
+    <Content Include="src\router.js" />
+    <Content Include="src\views\editor_sidebar.html" />
+    <Content Include="src\views\includes\editor.html" />
+    <Content Include="src\views\index.html" />
+    <Content Include="src\views\layout.html" />
+    <Content Include="src\views\message\index.html" />
+    <Content Include="src\views\message\message.html" />
+    <Content Include="src\views\notify\notify.html" />
+    <Content Include="src\views\reply\edit.html" />
+    <Content Include="src\views\reply\reply.html" />
+    <Content Include="src\views\sidebar.html" />
+    <Content Include="src\views\sign\new_oauth.html" />
+    <Content Include="src\views\sign\no_github_email.html" />
+    <Content Include="src\views\sign\reset.html" />
+    <Content Include="src\views\sign\search_pass.html" />
+    <Content Include="src\views\sign\sidebar.html" />
+    <Content Include="src\views\sign\signin.html" />
+    <Content Include="src\views\sign\signup.html" />
+    <Content Include="src\views\static\about.html" />
+    <Content Include="src\views\topic\abstract.html" />
+    <Content Include="src\views\topic\edit.html" />
+    <Content Include="src\views\topic\index.html" />
+    <Content Include="src\views\topic\list.html" />
+    <Content Include="src\views\topic\small.html" />
+    <Content Include="src\views\topic\_top_good.html" />
+    <Content Include="src\views\user\card.html" />
+    <Content Include="src\views\user\collect_topics.html" />
+    <Content Include="src\views\user\followers.html" />
+    <Content Include="src\views\user\followings.html" />
+    <Content Include="src\views\user\index.html" />
+    <Content Include="src\views\user\replies.html" />
+    <Content Include="src\views\user\setting.html" />
+    <Content Include="src\views\user\star.html" />
+    <Content Include="src\views\user\stars.html" />
+    <Content Include="src\views\user\top.html" />
+    <Content Include="src\views\user\top100.html" />
+    <Content Include="src\views\user\top100_user.html" />
+    <Content Include="src\views\user\topics.html" />
+    <Content Include="src\views\user\user.html" />
+    <Content Include="src\views\_ads.html" />
+    <Content Include="static\assets.json" />
+    <Content Include="static\favicon.ico" />
+    <Content Include="static\github-card.html" />
+    <Content Include="static\javascripts\main.js" />
+    <Content Include="static\javascripts\responsive.js" />
+    <Content Include="static\javascripts\wallet.js" />
+    <Content Include="static\security.txt" />
+    <Content Include="static\stylesheets\common.css" />
+    <Content Include="static\stylesheets\style.less" />
+    <Content Include="test\app.test.js" />
+    <Content Include="test\env.js" />
+    <Content Include="test\common\at.test.js" />
+    <Content Include="test\common\cache.test.js" />
+    <Content Include="test\common\mail.test.js" />
+    <Content Include="test\common\message.test.js" />
+    <Content Include="test\common\render_helper.test.js" />
+    <Content Include="test\common\store_local.test.js" />
+    <Content Include="test\common\tools.test.js" />
+    <Content Include="test\controllers\github.test.js" />
+    <Content Include="test\controllers\message.test.js" />
+    <Content Include="test\controllers\reply.test.js" />
+    <Content Include="test\controllers\rss.test.js" />
+    <Content Include="test\controllers\search.test.js" />
+    <Content Include="test\controllers\sign.test.js" />
+    <Content Include="test\controllers\site.test.js" />
+    <Content Include="test\controllers\static.test.js" />
+    <Content Include="test\controllers\topic.test.js" />
+    <Content Include="test\controllers\user.test.js" />
+    <Content Include="test\middlewares\conf.test.js" />
+    <Content Include="test\middlewares\limit.test.js" />
+    <Content Include="test\middlewares\proxy.test.js" />
+    <Content Include="test\models\user.test.js" />
+    <Content Include="test\proxy\message.test.js" />
+    <Content Include="test\proxy\reply.test.js" />
+    <Content Include="test\proxy\topic.test.js" />
+    <Content Include="test\proxy\user.test.js" />
+    <Content Include="test\support\support.js" />
+    <Content Include="test\api\v1\message.test.js" />
+    <Content Include="test\api\v1\reply.test.js" />
+    <Content Include="test\api\v1\tools.test.js" />
+    <Content Include="test\api\v1\topic.test.js" />
+    <Content Include="test\api\v1\topic_collect.test.js" />
+    <Content Include="test\api\v1\user.test.js" />
+    <Content Include="vsdebug.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\" />
+    <Folder Include="src\common\" />
+    <Folder Include="src\config\" />
+    <Folder Include="src\controllers\" />
+    <Folder Include="src\middlewares\" />
+    <Folder Include="src\models\" />
+    <Folder Include="src\proxy\" />
+    <Folder Include="src\views\" />
+    <Folder Include="src\views\includes\" />
+    <Folder Include="src\views\message\" />
+    <Folder Include="src\views\notify\" />
+    <Folder Include="src\views\reply\" />
+    <Folder Include="src\views\sign\" />
+    <Folder Include="src\views\static\" />
+    <Folder Include="src\views\topic\" />
+    <Folder Include="src\views\user\" />
+    <Folder Include="static\" />
+    <Folder Include="static\images\" />
+    <Folder Include="static\img\" />
+    <Folder Include="static\javascripts\" />
+    <Folder Include="static\libs\" />
+    <Folder Include="static\stylesheets\" />
+    <Folder Include="static\upload\" />
+    <Folder Include="test" />
+    <Folder Include="test\api" />
+    <Folder Include="test\api\v1" />
+    <Folder Include="test\common" />
+    <Folder Include="test\controllers" />
+    <Folder Include="test\middlewares" />
+    <Folder Include="test\models" />
+    <Folder Include="test\proxy" />
+    <Folder Include="test\support" />
+    <Folder Include="vsproject" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:48022/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost:1337</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
