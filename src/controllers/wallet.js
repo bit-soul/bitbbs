@@ -24,7 +24,7 @@ exports.wallet_login = function (req, res, next) {
   {
       result.code = -1;
       result.mess = "please sync your local time!";
-      ctx.response.body = result;
+      res.send(JSON.stringify(result));
       return;
   }
 
@@ -43,36 +43,56 @@ exports.wallet_login = function (req, res, next) {
   {
       result.code = -1;
       result.mess = "sign error!";
-      ctx.response.body = result;
+      res.send(JSON.stringify(result));
       return;
   }
 
-  User.findOne({addr: addr}, function (err, user) {
-    if (err) {
-      return next(err);
-    }
-    if (user) {
-      user.save(function (err) {
-        if (err) {
-          return next(err);
-        }
-        authMiddleWare.gen_session(user, res);
-        res.send(JSON.stringify({ code: 1, mess: "redirect" }));
-      });
-    } else {
-      var user = new User({
-        addr: addr,
-        name: "nobody",
-        active: true,
-        accessToken: uuid.v4(),
-      });
-      user.save(function (err) {
-        if (err) {
-          return next(err);
-        }
-        authMiddleWare.gen_session(user, res);
-        res.send(JSON.stringify({ code: 1, mess: "redirect" }));
-      });
-    }
-  });
+  brcsoul.getPersonByAddr(addr)
+    .then(result => {
+      if (result.code >= 0) {
+        User.findOne({addr: addr}, function (err, user) {
+          if (err) {
+            return next(err);
+          }
+          if (user) {
+            user.name = result?.data?.attr?.name ? result.data.attr.name : 'nobody';
+            user.biog = result?.data?.attr?.biog ? result.data.attr.biog : '';
+            user.icon = result?.data?.attr?.icon ? brcsoul.getHttpUrl(result.data.attr.icon) : '';
+            user.save(function (err) {
+              if (err) {
+                return next(err);
+              }
+              authMiddleWare.gen_session(user, res);
+              res.send(JSON.stringify({ code: 1, mess: "redirect" }));
+            });
+          } else {
+            var user = new User({
+              addr: addr,
+              name: result?.data?.attr?.name ? result.data.attr.name : 'nobody',
+              biog: result?.data?.attr?.biog ? result.data.attr.biog : '',
+              icon: result?.data?.attr?.icon ? brcsoul.getHttpUrl(result.data.attr.icon) : '',
+              active: true,
+              accessToken: uuid.v4(),
+            });
+            user.save(function (err) {
+              if (err) {
+                return next(err);
+              }
+              authMiddleWare.gen_session(user, res);
+              res.send(JSON.stringify({ code: 1, mess: "redirect" }));
+            });
+          }
+        });
+      } else {
+        result.code = -1;
+        result.mess = result.mess;
+        res.send(JSON.stringify(result));
+      }
+    })
+    .catch(error => {
+      result.code = -2;
+      result.mess = error.message;
+      res.send(JSON.stringify(result));
+    })
+
 }

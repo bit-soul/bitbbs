@@ -66,12 +66,3 @@ exports.newAndSave = function (name, pass, email, icon, active, callback) {
 
   user.save(callback);
 };
-
-var makeGravatar = function (email) {
-  return 'http://www.gravatar.com/avatar/' + utility.md5(email.toLowerCase()) + '?size=48';
-};
-exports.makeGravatar = makeGravatar;
-
-exports.getGravatar = function (user) {
-  return user.icon || makeGravatar(user);
-};

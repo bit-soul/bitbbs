@@ -15,7 +15,15 @@
 
       <div class='user_profile'>
         <ul class='unstyled'>
-          <span class='big'><%= user.score %></span>&nbsp;Score 
+          <li>
+            <span class='big'><%= user.score %>&nbsp;Score</span>
+            <br />
+            <span class="biog">
+              <% if (user.biog) {%>
+                <%-escapeBiog(user.biog)%>
+              <%}%>
+            </span>
+          </li>
           <% if (user.collect_topic_count) {%>
           <li>
             <a class='dark' href="/user/<%= user._id %>/collections" target='_blank'>

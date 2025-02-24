@@ -109,7 +109,6 @@
     <Content Include="src\views\_ads.html" />
     <Content Include="static\assets.json" />
     <Content Include="static\favicon.ico" />
-    <Content Include="static\github-card.html" />
     <Content Include="static\javascripts\main.js" />
     <Content Include="static\javascripts\responsive.js" />
     <Content Include="static\javascripts\wallet.js" />
