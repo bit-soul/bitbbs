@@ -3,7 +3,7 @@ var path = require('path');
 var config = {
   debug: false,
   port: 3000,
-  socks_proxy_url: null,
+  proxyurl: null,
   get mini_assets() { return !this.debug; }, // 是否启用静态文件的合并压缩，详见视图中的Loader
 
   bbsname: 'BitBBS',

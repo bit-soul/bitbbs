@@ -3,10 +3,10 @@ var proxyagent = require('socks-proxy-agent');
 
 var agent = null;
 if (global.config.socks_proxy_url && global.config.socks_proxy_url !== '') {
-  agent = new proxyagent.SocksProxyAgent(global.config.socks_proxy_url);
+  agent = new proxyagent.SocksProxyAgent(global.config.proxyurl);
 }
 
-export async function fetchWithTimeout(url, options, timeout) {
+async function fetchWithTimeout(url, options, timeout = 15000) {
   const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => {
       reject(new Error('Request timed out: ' + url));
@@ -16,7 +16,7 @@ export async function fetchWithTimeout(url, options, timeout) {
   return Promise.race([fetch(url, options), timeoutPromise]);
 }
 
-export async function fetchData(url, method = 'GET', body = null) {
+exports.fetchData = async function (url, method = 'GET', body = null) {
   try {
     const options = {
       agent: agent,
@@ -33,11 +33,10 @@ export async function fetchData(url, method = 'GET', body = null) {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const json = await response.json();
-    if (!json || (typeof json.code).toLowerCase() !== 'number') {
-      throw new Error('API error! invalid json.code');
-    }
-    return json;
+    return {
+      code: 0,
+      data: await response.text(),
+    };
   } catch (err) {
     console.log(err);
     return {

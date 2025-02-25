@@ -3,7 +3,7 @@ var config_default = require('./default');
 var config = {
   debug: true,
   port: 3000,
-  socks_proxy_url: null,
+  proxyurl: 'socks://127.0.0.1:7890',
 
   mongodb_cfg: {
     host: '127.0.0.1',

@@ -2,6 +2,7 @@ var Models         = require('../models');
 var User           = Models.User;
 var authMiddleWare = require('../middlewares/auth');
 var tools          = require('../common/tools');
+var fetch          = require('../common/fetch');
 var eventproxy     = require('eventproxy');
 var uuid           = require('node-uuid');
 var validator      = require('validator');
@@ -19,6 +20,7 @@ exports.wallet_login = function (req, res, next) {
   var sign = validator.trim(req.body.sign);
   var addr = validator.trim(req.body.addr).toLowerCase();
 
+  var result = {};
   var date_now = new Date();
   if( !(time>0) || date_now.getTime()<(time-600000) || date_now.getTime()>(time+600000) )
   {
@@ -48,44 +50,68 @@ exports.wallet_login = function (req, res, next) {
   }
 
   brcsoul.getPersonByAddr(addr)
-    .then(result => {
-      if (result.code >= 0) {
-        User.findOne({addr: addr}, function (err, user) {
-          if (err) {
-            return next(err);
-          }
-          if (user) {
-            user.name = result?.data?.attr?.name ? result.data.attr.name : 'nobody';
-            user.biog = result?.data?.attr?.biog ? result.data.attr.biog : '';
-            user.icon = result?.data?.attr?.icon ? brcsoul.getHttpUrl(result.data.attr.icon) : '';
-            user.save(function (err) {
-              if (err) {
-                return next(err);
+    .then(respon => {
+      if (respon.code >= 0) {
+        function temp() {
+          User.findOne({addr: addr}, function (err, user) {
+            if (err) {
+              return next(err);
+            }
+            if (user) {
+              user.name = respon?.data?.attr?.name ? respon.data.attr.name : 'nobody';
+              user.biog = respon?.data?.attr?.biog ? respon.data.attr.biog : '';
+              user.icon = respon?.data?.attr?.icon ? brcsoul.httpExtralUrl(respon.data.attr.icon) : '';
+              user.save(function (err) {
+                if (err) {
+                  return next(err);
+                }
+                authMiddleWare.gen_session(user, res);
+                res.send(JSON.stringify({ code: 1, mess: "redirect" }));
+              });
+            } else {
+              var user = new User({
+                addr: addr,
+                name: respon?.data?.attr?.name ? respon.data.attr.name : 'nobody',
+                biog: respon?.data?.attr?.biog ? respon.data.attr.biog : '',
+                icon: respon?.data?.attr?.icon ? brcsoul.httpExtralUrl(respon.data.attr.icon) : '',
+                active: true,
+                accessToken: uuid.v4(),
+              });
+              user.save(function (err) {
+                if (err) {
+                  return next(err);
+                }
+                authMiddleWare.gen_session(user, res);
+                res.send(JSON.stringify({ code: 1, mess: "redirect" }));
+              });
+            }
+          });
+        }
+
+        //icon: inscription number to inscription id
+        if (respon?.data?.attr?.icon && /^[0-9]{1,16}$/.test(respon.data.attr.icon)) {
+          fetch.fetchData("https://ordinals.com/inscription/" + respon.data.attr.icon)
+            .then(result => {
+              if (result.code === 0) {
+                match = result.data.match(/\/content\/([a-f0-9]{64}.\d+)/)
+                if (match) {
+                  respon.data.attr.icon = "https://ordinals.com/content/" + match[1];
+                }
               }
-              authMiddleWare.gen_session(user, res);
-              res.send(JSON.stringify({ code: 1, mess: "redirect" }));
-            });
-          } else {
-            var user = new User({
-              addr: addr,
-              name: result?.data?.attr?.name ? result.data.attr.name : 'nobody',
-              biog: result?.data?.attr?.biog ? result.data.attr.biog : '',
-              icon: result?.data?.attr?.icon ? brcsoul.getHttpUrl(result.data.attr.icon) : '',
-              active: true,
-              accessToken: uuid.v4(),
-            });
-            user.save(function (err) {
-              if (err) {
-                return next(err);
-              }
-              authMiddleWare.gen_session(user, res);
-              res.send(JSON.stringify({ code: 1, mess: "redirect" }));
-            });
-          }
-        });
+              temp();
+            })
+            .catch(error => {
+              temp();
+            })
+        } else if (respon?.data?.attr?.icon && /^[a-f0-9]{64}.\d+$/.test(respon.data.attr.icon)) {
+          respon.data.attr.icon = "https://ordinals.com/content/" + respon.data.attr.icon;
+          temp();
+        } else {
+          temp();
+        }
       } else {
         result.code = -1;
-        result.mess = result.mess;
+        result.mess = respon.mess;
         res.send(JSON.stringify(result));
       }
     })
