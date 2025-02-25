@@ -94,5 +94,4 @@ exports.wallet_login = function (req, res, next) {
       result.mess = error.message;
       res.send(JSON.stringify(result));
     })
-
 }

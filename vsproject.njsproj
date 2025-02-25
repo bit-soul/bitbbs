@@ -24,6 +24,7 @@
     <Content Include="src\app.js" />
     <Content Include="src\common\at.js" />
     <Content Include="src\common\cache.js" />
+    <Content Include="src\common\fetch.js" />
     <Content Include="src\common\logger.js" />
     <Content Include="src\common\mail.js" />
     <Content Include="src\common\message.js" />
