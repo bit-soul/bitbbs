@@ -80,6 +80,23 @@
 
     var $body = $('body');
 
+    //添加@工具
+    var ToolAt = function(){
+        var self = this;
+    }
+    ToolAt.prototype.bind = function(editor){
+        var name = 'nobody';
+        var link= 'nobody';
+        this.editor = editor;
+        var cm = editor.codemirror;
+        var stat = getState(cm);
+        _replaceSelection(cm, stat.info, '[@'+ name +']('+ link +')');
+    };
+    var toolAt = new ToolAt();
+    replaceTool('info', function(editor){
+        toolAt.bind(editor);
+    });
+
     //添加链接工具
     var ToolLink = function(){
         var self = this;
