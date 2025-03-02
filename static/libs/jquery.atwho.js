@@ -3,6 +3,20 @@
 * homepage: http://ichord.github.com/At.js
 * Licensed MIT
 */
+var atwhoview = null;
+var choose_cb = null;
+
+function atwhoclicked(event) {
+  const parentUl = event.target.parentElement;
+  const allItems = parentUl.querySelectorAll('li');
+  allItems.forEach(item => item.classList.remove('cur'));
+  event.target.classList.add('cur');
+
+  atwhoview.choose(parentUl);
+  setTimeout(() => {
+    choose_cb();
+  }, 100)
+}
 
 (function() {
   (function(factory) {
@@ -248,6 +262,7 @@ Controller = (function() {
     }
     this.model = new Model(this);
     this.view = new View(this);
+    atwhoview = this.view;
   }
 
   Controller.prototype.init = function(setting) {
@@ -845,7 +860,7 @@ $.fn.atwho["default"] = {
   highlight_first: true,
   limit: 5,
   max_len: 20,
-  display_timeout: 300,
+  display_timeout: 100,
   delay: null
 };
 

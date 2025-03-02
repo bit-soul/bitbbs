@@ -85,12 +85,32 @@
         var self = this;
     }
     ToolAt.prototype.bind = function(editor){
-        var name = 'nobody';
-        var link= 'nobody';
-        this.editor = editor;
         var cm = editor.codemirror;
         var stat = getState(cm);
-        _replaceSelection(cm, stat.info, '[@'+ name +']('+ link +')');
+        var $input = $(editor.codemirror.display.input);
+        $input.focus();
+
+        var startPoint = cm.getCursor('start');
+        var endPoint = cm.getCursor('start');
+        endPoint.ch = endPoint.ch + 1;
+
+        var input_dom = $input[0];
+        var cursorPos = input_dom.selectionStart;
+        input_dom.setRangeText('@');
+        input_dom.selectionStart = input_dom.selectionEnd = cursorPos + 1;
+
+        setTimeout(() => {
+            $input.atwho('run');
+            choose_cb = () => {
+                var startPoint2 = cm.getCursor('start');
+                startPoint2.ch = startPoint2.ch-1; 
+                var endPoint2 = cm.getCursor('end');
+                endPoint2.ch = endPoint2.ch-1;
+                cm.setSelection(startPoint, endPoint);
+                cm.replaceSelection('');
+                cm.setSelection(startPoint2, endPoint2);
+            };
+        }, 150);
     };
     var toolAt = new ToolAt();
     replaceTool('info', function(editor){

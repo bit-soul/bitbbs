@@ -5,6 +5,8 @@ var config = {
   port: 3000,
   proxyurl: 'socks://127.0.0.1:7890',
 
+  admins: { '67bbd4927b051e20a87453e5': true }, // admin 可删除话题，编辑标签。把 user_id 换成你的id
+
   mongodb_cfg: {
     host: '127.0.0.1',
     db: 'mongodb://127.0.0.1/bitbbs_local',

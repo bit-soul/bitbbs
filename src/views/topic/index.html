@@ -221,23 +221,25 @@
       });
 
       // at.js 配置
-      //var codeMirrorGoLineUp = CodeMirror.commands.goLineUp;
-      //var codeMirrorGoLineDown = CodeMirror.commands.goLineDown;
-      //var codeMirrorNewlineAndIndent = CodeMirror.commands.newlineAndIndent;
-      //$input.atwho({
-      //  at: '@',
-      //  data: allUsers
-      //})
-      //.on('shown.atwho', function () {
-      //  CodeMirror.commands.goLineUp = _.noop;
-      //  CodeMirror.commands.goLineDown = _.noop;
-      //  CodeMirror.commands.newlineAndIndent = _.noop;
-      //})
-      //.on('hidden.atwho', function () {
-      //  CodeMirror.commands.goLineUp = codeMirrorGoLineUp;
-      //  CodeMirror.commands.goLineDown = codeMirrorGoLineDown;
-      //  CodeMirror.commands.newlineAndIndent = codeMirrorNewlineAndIndent;
-      //});
+      var codeMirrorGoLineUp = CodeMirror.commands.goLineUp;
+      var codeMirrorGoLineDown = CodeMirror.commands.goLineDown;
+      var codeMirrorNewlineAndIndent = CodeMirror.commands.newlineAndIndent;
+      $input.atwho({
+        at: '@',
+        data: allUsers,
+        tpl: "<li onclick='atwhoclicked(event)' data-value='[@${name}](/user/${id})'>${name}</li>",
+        insert_tpl: "<span id='${id}'>${atwho-data-value}</span>",
+      })
+      .on('shown.atwho', function () {
+        CodeMirror.commands.goLineUp = _.noop;
+        CodeMirror.commands.goLineDown = _.noop;
+        CodeMirror.commands.newlineAndIndent = _.noop;
+      })
+      .on('hidden.atwho', function () {
+        CodeMirror.commands.goLineUp = codeMirrorGoLineUp;
+        CodeMirror.commands.goLineDown = codeMirrorGoLineDown;
+        CodeMirror.commands.newlineAndIndent = codeMirrorNewlineAndIndent;
+      });
       // END at.js 配置
 
     });
