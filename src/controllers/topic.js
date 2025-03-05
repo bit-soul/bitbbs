@@ -438,6 +438,22 @@ exports.de_collect = function (req, res, next) {
   });
 };
 
+exports.presignedurl = function (req, res, next) {
+  var fileName = req.query.filename;
+  var fileType = req.query.filetype;
+  var fileSize = req.query.filesize;
+  try {
+    store.presignedUrl(fileName, fileType, fileSize).then((url) => {
+      res.json({
+        code: 0,
+        data: url,
+      });
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 exports.upload = function (req, res, next) {
   var isFileLimit = false;
   req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {

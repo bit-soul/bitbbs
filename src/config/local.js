@@ -5,7 +5,9 @@ var config = {
   port: 3000,
   proxyurl: 'socks://127.0.0.1:7890',
 
-  admins: { '67bbd4927b051e20a87453e5': true }, // admin 可删除话题，编辑标签。把 user_id 换成你的id
+  admins: {
+    '67bbd4927b051e20a87453e5': true,
+  },
 
   mongodb_cfg: {
     host: '127.0.0.1',
@@ -36,11 +38,11 @@ var config = {
   },
 
   s3_client: {
-    accessKeyId: 'your access key',
-    secretAccessKey: 'your secret key',
-    region: 'your region name',
-    bucket: 'your bucket name',
-    endpoint: 'url string or empty string',
+    region: 'auto',
+    bucket: 'bitbbs-dev',
+    endpoint: process.env.r2_endpoint,
+    accessKeyId: process.env.r2_access_key_id,
+    secretAccessKey: process.env.r2_secret_access_key,
   },
 };
 

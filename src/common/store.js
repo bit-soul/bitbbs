@@ -5,9 +5,8 @@ var fs      = require('fs');
 var s3sdk = require("@aws-sdk/client-s3");
 var s3presigner = require("@aws-sdk/s3-request-presigner");
 
-//s3 client
 var s3_client = null;
-if (global.config.s3_client && global.config.s3_client.secretAccessKey !== 'your secret key') {
+if (global.config.s3_client && global.config.s3_client.secretAccessKey) {
   s3_client = new s3sdk.S3Client({
     region: global.config.s3_client.region,
     endpoint: global.config.s3_client.endpoint === '' ? null : global.config.s3_client.endpoint,
@@ -18,20 +17,27 @@ if (global.config.s3_client && global.config.s3_client.secretAccessKey !== 'your
   });
 }
 
-async function createPresignedUrl(bucketName, key) {
-  const command = new s3sdk.PutObjectCommand();
+async function createPresignedUrl(fileName, fileType, fileSize) {
     return await s3presigner.getSignedUrl(s3_client, 
         new s3sdk.PutObjectCommand({
-            Bucket: bucketName,
-            Key: key,
-            ContentType: 'image/jpeg',
-            ContentLength: 12699,
+            Bucket: global.config.s3_client.bucket,
+            Key: fileName,
+            ContentType: fileType,
+            ContentLength: fileSize,
         }),
         { expiresIn: 3600, signableHeaders: new Set(['content-type', 'content-length']) });
 };
 
+var s3cloud = {
+  presignedUrl: createPresignedUrl,
+};
+
 
 var local = {
+  presignedurl: function () {
+    return '/upload';
+  },
+
   upload: function (file, options, callback) {
       var filename = options.filename;
     
@@ -53,4 +59,8 @@ var local = {
     },
 }
 
-module.exports = s3_client || local;
+if (s3_client) {
+  module.exports = s3cloud;
+} else {
+  module.exports = local; 
+}

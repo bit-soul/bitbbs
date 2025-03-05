@@ -80,11 +80,11 @@ var config = {
 
   // s3 and s3 compatible storate client
   s3_client: {
-    accessKeyId: 'your access key',
-    secretAccessKey: 'your secret key',
-    region: 'your region name',
-    bucket: 'your bucket name',
-    endpoint: 'url string or empty string',
+    region: null, //your region name,
+    bucket: null, //your bucket name,
+    endpoint: null, //url string or empty string,
+    accessKeyId: null, //your access key,
+    secretAccessKey: null, //your secret key,
   },
 
   file_limit: '1MB', // file upload size limit

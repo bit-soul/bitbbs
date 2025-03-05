@@ -87,6 +87,7 @@ router.get('/reply/:rid/edit', auth.userRequired, reply.showEdit); // 修改自�
 router.post('/reply/:rid/edit', auth.userRequired, reply.update); // 修改某评论
 router.post('/reply/:rid/delete', auth.userRequired, reply.delete); // 删除某评论
 router.post('/reply/:rid/up', auth.userRequired, reply.up); // 为评论点赞
+router.get('/presignedurl', auth.userRequired, topic.presignedurl); //上传图片
 router.post('/upload', auth.userRequired, topic.upload); //上传图片
 
 // static
