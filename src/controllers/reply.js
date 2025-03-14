@@ -75,7 +75,7 @@ exports.add = function (req, res, next) {
  * 删除回复信息
  */
 exports.delete = function (req, res, next) {
-  var rid = req.body.rid;
+  var rid = req.params.rid;
   Reply.getReplyById(rid, function (err, reply) {
     if (err) {
       return next(err);
