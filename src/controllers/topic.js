@@ -454,7 +454,7 @@ exports.presignedurl = function (req, res, next) {
       res.json({
         code: 0,
         data: {
-          readurl: global.config.s3_client.clienturl + '/' + global.config.s3_client.prefix + fileName,
+          readurl: global.config.s3_client.readpoint + '/' + global.config.s3_client.prefix + fileName,
           uploadurl: url,
         },
       });
