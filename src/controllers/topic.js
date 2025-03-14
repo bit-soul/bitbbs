@@ -450,11 +450,15 @@ exports.presignedurl = function (req, res, next) {
     return;
   }
   try {
-    store.presignedUrl(global.config.s3_client.prefix+fileName, fileType, fileSize).then((url) => {
+    userId = req.session.user._id;
+    formatDate = tools.getFormattedDate();
+    formatTime = tools.getFormattedTime();
+    file_name = global.config.s3_client.prefix + userId + '/' + formatDate + '/' + formatTime + '_' + fileName
+    store.presignedUrl(file_name , fileType, fileSize).then((url) => {
       res.json({
         code: 0,
         data: {
-          readurl: global.config.s3_client.readpoint + '/' + global.config.s3_client.prefix + fileName,
+          readurl: global.config.s3_client.readpoint + '/' + file_name,
           uploadurl: url,
         },
       });

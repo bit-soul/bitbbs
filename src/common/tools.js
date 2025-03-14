@@ -15,6 +15,20 @@ exports.formatDate = function (date, friendly) {
 
 };
 
+exports.getFormattedDate = function() {
+    const date = new Date();
+    return date.getFullYear() + 
+           String(date.getMonth() + 1).padStart(2, '0') + 
+           String(date.getDate()).padStart(2, '0');
+}
+
+exports.getFormattedTime = function() {
+    const date = new Date();
+    return String(date.getHours()).padStart(2, '0') +
+           String(date.getMinutes()).padStart(2, '0') +
+           String(date.getSeconds()).padStart(2, '0');
+}
+
 exports.validateId = function (str) {
   return (/^[a-zA-Z0-9\-_]+$/i).test(str);
 };
