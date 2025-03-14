@@ -7,7 +7,7 @@ var config = {
   get mini_assets() { return !this.debug; }, // 是否启用静态文件的合并压缩，详见视图中的Loader
 
   bbsname: 'BitBBS',
-  bbslogo: '/static/images/logo.jpg',
+  bbslogo: '/static/img/logo.jpg',
   keywords: 'nodejs, node, express, connect, socket.io',
   description: 'BitBBS, The Open BBS based on Bitcoin and Bitsoul',
 
