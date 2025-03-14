@@ -22,10 +22,11 @@ async function createPresignedUrl(fileName, fileType, fileSize) {
         new s3sdk.PutObjectCommand({
             Bucket: global.config.s3_client.bucket,
             Key: fileName,
+            ACL: 'public-read',
             ContentType: fileType,
             ContentLength: fileSize,
         }),
-        { expiresIn: 3600, signableHeaders: new Set(['content-type', 'content-length']) });
+        { expiresIn: 600, signableHeaders: new Set(['content-type', 'content-length']) });
 };
 
 var s3cloud = {

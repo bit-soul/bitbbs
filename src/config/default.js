@@ -82,6 +82,7 @@ var config = {
   s3_client: {
     region: null, //your region name,
     bucket: null, //your bucket name,
+    prefix: '',
     endpoint: null, //url string or empty string,
     accessKeyId: null, //your access key,
     secretAccessKey: null, //your secret key,

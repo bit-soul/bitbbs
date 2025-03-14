@@ -38,11 +38,13 @@ var config = {
   },
 
   s3_client: {
-    region: 'auto',
-    bucket: 'bitbbs-dev',
-    endpoint: process.env.r2_endpoint,
-    accessKeyId: process.env.r2_access_key_id,
-    secretAccessKey: process.env.r2_secret_access_key,
+    region: 'us-east-1',
+    bucket: 'bitbbsstore.bitsoul.xyz',
+    prefix: '_S3_DEV/',
+    endpoint: null,
+    clienturl: 'https://bitbbsstore.bitsoul.xyz',
+    accessKeyId: process.env.s3_access_key,
+    secretAccessKey: process.env.s3_Secret_access_key,
   },
 };
 

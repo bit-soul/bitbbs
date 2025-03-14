@@ -441,12 +441,22 @@ exports.de_collect = function (req, res, next) {
 exports.presignedurl = function (req, res, next) {
   var fileName = req.query.filename;
   var fileType = req.query.filetype;
-  var fileSize = req.query.filesize;
+  var fileSize = parseInt(req.query.filesize);
+  if(fileSize > 1*1024*1024) {
+    res.json({
+      code: -1,
+      mess: 'file size too large, max size is 1MB',
+    });
+    return;
+  }
   try {
-    store.presignedUrl(fileName, fileType, fileSize).then((url) => {
+    store.presignedUrl(global.config.s3_client.prefix+fileName, fileType, fileSize).then((url) => {
       res.json({
         code: 0,
-        data: url,
+        data: {
+          readurl: global.config.s3_client.clienturl + '/' + global.config.s3_client.prefix + fileName,
+          uploadurl: url,
+        },
       });
     });
   } catch (err) {

@@ -1,56 +1,54 @@
-(function(Editor, markdownit, WebUploader){
+var toolImage = null;
 
-    function _replaceSelection(cm, active, start, end) {
-        var text;
-        var startPoint = cm.getCursor('start');
-        var endPoint = cm.getCursor('end');
-        var end = end || '';
-        if (active) {
-            text = cm.getLine(startPoint.line);
-            start = text.slice(0, startPoint.ch);
-            end = text.slice(startPoint.ch);
-            cm.setLine(startPoint.line, start + end);
+function _replaceSelection(cm, active, start, end) {
+    var text;
+    var startPoint = cm.getCursor('start');
+    var endPoint = cm.getCursor('end');
+    var end = end || '';
+    if (active) {
+        text = cm.getLine(startPoint.line);
+        start = text.slice(0, startPoint.ch);
+        end = text.slice(startPoint.ch);
+        cm.setLine(startPoint.line, start + end);
+    } else {
+        text = cm.getSelection();
+        cm.replaceSelection(start + text + end);
+        startPoint.ch += start.length;
+        endPoint.ch += start.length;
+    }
+    cm.setSelection(startPoint, endPoint);
+    cm.focus();
+}
+
+function getState(cm, pos) {
+    pos = pos || cm.getCursor('start');
+    var stat = cm.getTokenAt(pos);
+    if (!stat.type) return {};
+    var types = stat.type.split(' ');
+    var ret = {}, data, text;
+    for (var i = 0; i < types.length; i++) {
+        data = types[i];
+        if (data === 'strong') {
+        ret.bold = true;
+        } else if (data === 'variable-2') {
+        text = cm.getLine(pos.line);
+        if (/^\s*\d+\.\s/.test(text)) {
+            ret['ordered-list'] = true;
         } else {
-            text = cm.getSelection();
-            cm.replaceSelection(start + text + end);
-
-            startPoint.ch += start.length;
-            endPoint.ch += start.length;
+            ret['unordered-list'] = true;
         }
-        cm.setSelection(startPoint, endPoint);
-        cm.focus();
-    }
-
-    /**
-     * The state of CodeMirror at the given position.
-     */
-    function getState(cm, pos) {
-        pos = pos || cm.getCursor('start');
-        var stat = cm.getTokenAt(pos);
-        if (!stat.type) return {};
-
-        var types = stat.type.split(' ');
-
-        var ret = {}, data, text;
-        for (var i = 0; i < types.length; i++) {
-            data = types[i];
-            if (data === 'strong') {
-            ret.bold = true;
-            } else if (data === 'variable-2') {
-            text = cm.getLine(pos.line);
-            if (/^\s*\d+\.\s/.test(text)) {
-                ret['ordered-list'] = true;
-            } else {
-                ret['unordered-list'] = true;
-            }
-            } else if (data === 'atom') {
-            ret.quote = true;
-            } else if (data === 'em') {
-            ret.italic = true;
-            }
+        } else if (data === 'atom') {
+        ret.quote = true;
+        } else if (data === 'em') {
+        ret.italic = true;
         }
-        return ret;
     }
+    return ret;
+}
+
+(function(Editor, markdownit){
+
+
 
     // Set default options
     var md = new markdownit();
@@ -189,7 +187,10 @@
                 '</div>',
                 '<div class="modal-body">',
                     '<div class="upload-img">',
-                        '<div class="button">Upload</div>',
+                        //'<!-- this input only run when file changed, so choose the same file no use -->'
+                        '<input id="upload_file" onchange="uploadFile(this.files)" type="file" style="position:absolute; z-index: -1; visibility: hidden;" accept=".gif, .png, .jpg, .jpeg" />',
+                        //'<!-- this label connected with input above, it implemented hide filename of input -->'
+                        '<label for="upload_file" class="button">Upload</label>',
                         '<span class="tip"></span>',
                         '<div class="alert alert-error hide"></div>',
                     '</div>',
@@ -207,82 +208,18 @@
         this.$uploadBtn = this.$upload.find('.button').css({
             width: 86,
             height: 40,
-            margin: '0 auto'
+            margin: '0 auto',
+            backgroundColor: '#00B7EE',
+            borderRadius: '4px',
+            lineHeight: '40px',
+            fontWeight: 'bold',
+            color: 'white',
         });
 
         this.$uploadTip = this.$upload.find('.tip').hide();
 
         this.file = false;
-        var _csrf = $('[name=_csrf]').val();
-
-        this.uploader = WebUploader.create({
-            swf: '/public/libs/webuploader/Uploader.swf',
-            server: '/upload?_csrf=' + _csrf,
-            pick: this.$uploadBtn[0],
-            paste: document.body,
-            dnd: this.$upload[0],
-            auto: true,
-            fileSingleSizeLimit: 1 * 1024 * 1024,
-            //sendAsBinary: true,
-            // 只允许选择图片文件。
-            accept: {
-                title: 'Images',
-                extensions: 'gif,jpg,jpeg,bmp,png',
-                mimeTypes: 'image/*'
-            }
-        });
-
-        this.uploader.on('beforeFileQueued', function(file){
-            if(self.file !== false || !self.editor){
-                return false;
-            }
-            self.showFile(file);
-        });
-
-        this.uploader.on('uploadProgress', function(file, percentage){
-            // console.log(percentage);
-            self.showProgress(file, percentage * 100);
-        });
-
-        this.uploader.on('uploadSuccess', function(file, res){
-            if(res.success){
-                self.$win.modal('hide');
-
-                var cm = self.editor.codemirror;
-                var stat = getState(cm);
-                _replaceSelection(cm, stat.image, '!['+ file.name +']('+ res.url +')');
-
-            }
-            else{
-                self.removeFile();
-                self.showError(res.msg || '服务器走神了，上传失败');
-            }
-        });
-
-        this.uploader.on('uploadComplete', function(file){
-            self.uploader.removeFile(file);
-            self.removeFile();
-        });
-
-        this.uploader.on('error', function(type){
-            self.removeFile();
-            switch(type){
-                case 'Q_EXCEED_SIZE_LIMIT':
-                case 'F_EXCEED_SIZE':
-                    self.showError('文件太大了, 不能超过1MB');
-                    break;
-                case 'Q_TYPE_DENIED':
-                    self.showError('只能上传图片');
-                    break;
-                default:
-                    self.showError('发生未知错误');
-            }
-        });
-
-        this.uploader.on('uploadError', function(){
-            self.removeFile();
-            self.showError('服务器走神了，上传失败');
-        });
+        this._csrf = $('[name=_csrf]').val();
     };
 
     ToolImage.prototype.removeFile = function(){
@@ -290,6 +227,7 @@
         this.file = false;
         this.$uploadBtn.show();
         this.$uploadTip.hide();
+        document.getElementById('upload_file').value = '';
     };
 
     ToolImage.prototype.showFile = function(file){
@@ -319,7 +257,7 @@
         this.$win.modal('show');
     };
 
-    var toolImage = new ToolImage();
+    toolImage = new ToolImage();
     replaceTool('image', function(editor){
         toolImage.bind(editor);
     });
@@ -340,4 +278,71 @@
         var line = cm.lastLine();
         cm.setLine(line, cm.getLine(line) + txt);
     };
-})(window.Editor, window.markdownit, window.WebUploader);
+})(window.Editor, window.markdownit);
+
+function uploadFile(files) {
+  var file, name, size, type;
+  if(files.length>0)
+  {
+      file = files[0];
+      name = file.name;
+      size = file.size;
+      type = file.type;
+
+      if(size > 1*1024*1024) {
+        alert('file size too large, max size is 1MB');
+        return;
+      }
+
+      var reader = new FileReader();
+      reader.onload = upload;
+      reader.readAsArrayBuffer(file);
+
+      toolImage.showFile(file);
+  }
+
+  async function upload(event)
+  {
+      var url = `/presignedurl?filename=${name}&filetype=${type}&filesize=${size}`;
+      var file_data = event.target.result;
+
+      try {
+        const response = await fetch(encodeURI(url), { method: 'GET' });
+        const data = await response.json();
+        
+        if (data.code === 0) {
+          try {
+            const uploadResponse = await fetch(data.data.uploadurl, {
+              method: 'PUT',
+              headers: { 'Content-Type': type, 'Content-Length': size },
+              body: file_data,
+            });
+
+            if(uploadResponse.status === 200) {
+              toolImage.$win.modal('hide');
+              var cm = toolImage.editor.codemirror;
+              var stat = getState(cm);
+              _replaceSelection(cm, stat.image, '!['+ file.name +']('+ data.data.readurl +')');
+              toolImage.removeFile();
+            } else {
+              alert('status: ' + uploadResponse.status);
+              toolImage.removeFile();
+            }
+          } catch (uploadError) {
+            if (uploadError.status === 403) {
+              alert('Please login to up');
+            }
+            toolImage.removeFile();
+          }
+        } else {
+          alert(data.mess);
+          toolImage.removeFile();
+        }
+      } catch (error) {
+        if (error.status === 403) {
+          alert('Please login to up');
+        }
+        toolImage.removeFile();
+      }
+  }
+}
