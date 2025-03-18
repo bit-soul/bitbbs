@@ -7,6 +7,7 @@ var eventproxy     = require('eventproxy');
 var uuid           = require('node-uuid');
 var validator      = require('validator');
 var brcsoul        = require('brcsoul-sdk');
+var System         = require('../proxy').System;
 
 var notJump = [
   '/active_account', //active page
@@ -58,7 +59,7 @@ exports.wallet_login = function (req, res, next) {
               return next(err);
             }
             if (user) {
-              user.name = respon?.data?.attr?.name ? respon.data.attr.name : 'nobody';
+              user.name = respon?.data?.attr?.name ? respon.data.attr.name : 'nobody_'+user.sequence.toString(36).padStart(2, '0');
               user.biog = respon?.data?.attr?.biog ? respon.data.attr.biog : '';
               user.icon = respon?.data?.attr?.icon ? brcsoul.httpExtralUrl(respon.data.attr.icon) : '';
               user.save(function (err) {
@@ -69,21 +70,24 @@ exports.wallet_login = function (req, res, next) {
                 res.send(JSON.stringify({ code: 1, mess: "redirect" }));
               });
             } else {
-              var user = new User({
-                addr: addr,
-                name: respon?.data?.attr?.name ? respon.data.attr.name : 'nobody',
-                biog: respon?.data?.attr?.biog ? respon.data.attr.biog : '',
-                icon: respon?.data?.attr?.icon ? brcsoul.httpExtralUrl(respon.data.attr.icon) : '',
-                active: true,
-                accessToken: uuid.v4(),
-              });
-              user.save(function (err) {
-                if (err) {
-                  return next(err);
-                }
-                authMiddleWare.gen_session(user, res);
-                res.send(JSON.stringify({ code: 1, mess: "redirect" }));
-              });
+              System.incrementUserCnt((count) => {
+                var user = new User({
+                  addr: addr,
+                  name: respon?.data?.attr?.name ? respon.data.attr.name : 'nobody_'+count.toString(36).padStart(2, '0'),
+                  biog: respon?.data?.attr?.biog ? respon.data.attr.biog : '',
+                  icon: respon?.data?.attr?.icon ? brcsoul.httpExtralUrl(respon.data.attr.icon) : '',
+                  active: true,
+                  sequence: count,
+                  accessToken: uuid.v4(),
+                });
+                user.save(function (err) {
+                  if (err) {
+                    return next(err);
+                  }
+                  authMiddleWare.gen_session(user, res);
+                  res.send(JSON.stringify({ code: 1, mess: "redirect" }));
+                });
+              }) 
             }
           });
         }

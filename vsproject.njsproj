@@ -58,6 +58,7 @@
     <Content Include="src\models\index.js" />
     <Content Include="src\models\message.js" />
     <Content Include="src\models\reply.js" />
+    <Content Include="src\models\system.js" />
     <Content Include="src\models\topic.js" />
     <Content Include="src\models\topic_collect.js" />
     <Content Include="src\models\user.js" />
@@ -65,6 +66,7 @@
     <Content Include="src\proxy\index.js" />
     <Content Include="src\proxy\message.js" />
     <Content Include="src\proxy\reply.js" />
+    <Content Include="src\proxy\system.js" />
     <Content Include="src\proxy\topic.js" />
     <Content Include="src\proxy\topic_collect.js" />
     <Content Include="src\proxy\user.js" />

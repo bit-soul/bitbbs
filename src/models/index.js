@@ -16,12 +16,14 @@ mongoose.connect(global.config.mongodb_cfg.db, {
 });
 
 // models
+require('./system');
 require('./user');
 require('./topic');
 require('./reply');
 require('./topic_collect');
 require('./message');
 
+exports.System       = mongoose.model('System');
 exports.User         = mongoose.model('User');
 exports.Topic        = mongoose.model('Topic');
 exports.Reply        = mongoose.model('Reply');

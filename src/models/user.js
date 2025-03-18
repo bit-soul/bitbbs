@@ -27,6 +27,7 @@ var UserSchema = new Schema({
   following_count: { type: Number, default: 0 },
 
   active: { type: Boolean, default: false },
+  sequence: { type: Number, default: Date.now },
   create_at: { type: Date, default: Date.now },
   update_at: { type: Date, default: Date.now },
   is_star: { type: Boolean, default: false },

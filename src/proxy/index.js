@@ -1,3 +1,4 @@
+exports.System       = require('./system');
 exports.User         = require('./user');
 exports.Message      = require('./message');
 exports.Topic        = require('./topic');
