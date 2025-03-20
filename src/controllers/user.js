@@ -66,12 +66,12 @@ exports.index = function (req, res, next) {
   });
 };
 
-exports.listStars = function (req, res, next) {
-  User.getUsersByQuery({is_star: true}, {}, function (err, stars) {
+exports.listAdvances = function (req, res, next) {
+  User.getUsersByQuery({is_advance: true}, {}, function (err, advances) {
     if (err) {
       return next(err);
     }
-    res.render('user/stars', {stars: stars});
+    res.render('user/advances', {advances: advances});
   });
 };
 
@@ -154,7 +154,7 @@ exports.setting = function (req, res, next) {
   }
 };
 
-exports.toggleStar = function (req, res, next) {
+exports.toggleAdvance = function (req, res, next) {
   var user_id = req.body.user_id;
   User.getUserById(user_id, function (err, user) {
     if (err) {
@@ -163,7 +163,7 @@ exports.toggleStar = function (req, res, next) {
     if (!user) {
       return next(new Error('user is not exists'));
     }
-    user.is_star = !user.is_star;
+    user.is_advance = !user.is_advance;
     user.save(function (err) {
       if (err) {
         return next(err);

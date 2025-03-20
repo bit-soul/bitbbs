@@ -40,7 +40,7 @@ exports.getReplyById = function (id, callback) {
       }
       reply.author = author;
       // TODO: 添加更新方法，有些旧帖子可以转换为markdown格式的内容
-      if (reply.content_is_html) {
+      if (reply.is_html) {
         return callback(null, reply);
       }
       at.textShowProcess(reply.content, function (err, str) {
@@ -83,7 +83,7 @@ exports.getRepliesByTopicId = function (id, cb) {
             return cb(err);
           }
           replies[i].author = author || { _id: '' };
-          if (replies[i].content_is_html) {
+          if (replies[i].is_html) {
             return proxy.emit('reply_find');
           }
           at.textShowProcess(replies[i].content, function (err, str) {

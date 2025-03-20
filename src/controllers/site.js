@@ -97,7 +97,7 @@ exports.index = function (req, res, next) {
         pages: pages,
         tabs: global.config.tabs,
         tab: tab,
-        pageTitle: tabName && (tabName + '版块'),
+        pageTitle: tabName && (tabName + 'category'),
       });
     });
 };

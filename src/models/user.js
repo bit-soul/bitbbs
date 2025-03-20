@@ -30,7 +30,7 @@ var UserSchema = new Schema({
   sequence: { type: Number, default: Date.now },
   create_at: { type: Date, default: Date.now },
   update_at: { type: Date, default: Date.now },
-  is_star: { type: Boolean, default: false },
+  is_advance: { type: Boolean, default: false },
   is_block: {type: Boolean, default: false},
 
   retrieve_time: {type: Number},
@@ -61,7 +61,7 @@ UserSchema.virtual('avatar_url').get(function () {
 
 UserSchema.virtual('isAdvanced').get(function () {
   // 积分高于 1000 则认为是高级用户
-  return this.score > 1000 || this.is_star;
+  return this.score > 1000 || this.is_advance;
 });
 
 UserSchema.index({email: 1}, {unique: true, sparse: true});

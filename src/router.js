@@ -47,13 +47,13 @@ router.post('/reset_pass', sign.updatePass);  // 更新密码
 router.get('/user/:uid', user.index); // 用户个人主页
 router.get('/setting', auth.userRequired, user.showSetting); // 用户个人设置页
 router.post('/setting', auth.userRequired, user.setting); // 提交个人信息设置
-router.get('/stars', user.listStars); // 显示所有达人列表页
+router.get('/advances', user.listAdvances); // 显示所有达人列表页
 router.get('/users/top100', user.top100);  // 显示积分前一百用户页
 router.get('/user/:uid/collections', user.listCollectedTopics);  // 用户收藏的所有话题页
 router.get('/user/:uid/topics', user.listTopics);  // 用户发布的所有话题页
 router.get('/user/:uid/replies', user.listReplies);  // 用户参与的所有回复页
-router.post('/user/set_star', auth.adminRequired, user.toggleStar); // 把某用户设为达人
-router.post('/user/cancel_star', auth.adminRequired, user.toggleStar);  // 取消某用户的达人身份
+router.post('/user/set_advance', auth.adminRequired, user.toggleAdvance); // 把某用户设为达人
+router.post('/user/cancel_advance', auth.adminRequired, user.toggleAdvance);  // 取消某用户的达人身份
 router.post('/user/:uid/block', auth.adminRequired, user.block);  // 禁言某用户
 router.post('/user/:uid/delete_all', auth.adminRequired, user.deleteAll);  // 删除某用户所有发言
 router.post('/user/refresh_token', auth.userRequired, user.refreshToken);  // 刷新用户token
