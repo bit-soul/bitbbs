@@ -63,7 +63,7 @@ var bytes = require('bytes')
 
 
 var staticDir = path.join(__dirname, '../static');
-var uploadDir = path.join(__dirname, '../static/upload');
+var uploadDir = path.join(__dirname, '../upload');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -107,6 +107,7 @@ if (global.config.debug) {
   app.use(require('loader-connect').less(path.join(__dirname, '../'))); // debug environment compile .less on the fly
 }
 app.use('/static', express.static(staticDir));
+app.use('/upload', express.static(uploadDir));
 app.use('/agent', proxyMiddleware.proxy);
 
 // common middlewares

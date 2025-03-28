@@ -15,6 +15,7 @@ dist
 dist-ssr
 env
 obj
+upload
 coverage
 desktop.ini
 dump.rdb
@@ -27,7 +28,6 @@ dump.rdb
 *.min.*.css
 assets.json
 package-lock.json
-static/upload/*
 
 # Editor directories and files
 .vs

@@ -74,8 +74,8 @@ var config = {
 
   // file upload config, if s3_client setted, then use s3 instead
   upload: {
-    path: path.join(__dirname, '../static/upload/'),
-    url: '/static/upload/'
+    path: path.join(__dirname, '../../upload/'),
+    url: '/upload/'
   },
 
   // s3 and s3 compatible storate client
