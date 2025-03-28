@@ -1,13 +1,12 @@
 var mongoose = require('mongoose');
 var logger = require('../common/logger')
 
+mongoose.set('strictQuery', true);
 mongoose.connect(global.config.mongodb_cfg.db, {
-  poolSize: 20,
-  useCreateIndex: true,
+  maxPoolSize: 10,  
   useNewUrlParser: true,
-  reconnectTries: 5,
-  reconnectInterval: 3000,
-  serverSelectionTimeoutMS: 5000,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 30000,
 }, function (err) {
   if (err) {
     logger.error('connect to %s error: ', global.config.mongodb_cfg.db, err.message);
