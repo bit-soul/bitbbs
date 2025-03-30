@@ -11,7 +11,7 @@ var config = {
 
   mongodb_cfg: {
     host: '127.0.0.1',
-    db: 'mongodb://127.0.0.1/bitbbs_local',
+    db: 'mongodb://127.0.0.1:27017/bitbbs_local',
   },
 
   redis_cfg: {
@@ -35,6 +35,14 @@ var config = {
     clientID: 'your GITHUB_CLIENT_ID',
     clientSecret: 'your GITHUB_CLIENT_SECRET',
     callbackURL: 'http://bbs.bitsoul.xyz/auth/github/callback'
+  },
+
+  rss: {
+    title: 'Open BBS based on Bitcoin and Bitsoul',
+    link: 'http://bbs.bitsoul.xyz',
+    language: 'zh-cn',
+    description: 'Open BBS based on Bitcoin and Bitsoul',
+    max_rss_items: 50
   },
 
   s3_client: {

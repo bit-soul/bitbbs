@@ -38,7 +38,7 @@ var config = {
 
   mongodb_cfg: {
     host: '127.0.0.1',
-    db: 'mongodb://127.0.0.1/bitbbs_prod',
+    db: 'mongodb://127.0.0.1:27017/bitbbs_default',
   },
 
   redis_cfg: {
@@ -48,45 +48,45 @@ var config = {
     password: '',
   },
 
-  mail_opts: {
-    host: 'smtp.126.com',
-    port: 25,
-    auth: {
-      user: 'club@126.com',
-      pass: 'club'
-    },
-    ignoreTLS: true,
-  },
+  mail_opts: null, //{
+  //  host: 'smtp.126.com',
+  //  port: 25,
+  //  auth: {
+  //    user: 'club@126.com',
+  //    pass: 'club'
+  //  },
+  //  ignoreTLS: true,
+  //},
 
-  GITHUB_OAUTH: {
-    clientID: 'your GITHUB_CLIENT_ID',
-    clientSecret: 'your GITHUB_CLIENT_SECRET',
-    callbackURL: 'http://bbs.bitsoul.xyz/auth/github/callback'
-  },
+  GITHUB_OAUTH: null, //{
+  //  clientID: 'your GITHUB_CLIENT_ID',
+  //  clientSecret: 'your GITHUB_CLIENT_SECRET',
+  //  callbackURL: 'http://bbs.bitsoul.xyz/auth/github/callback'
+  //},
 
-  rss: {
-    title: 'Open BBS based on Bitcoin and Bitsoul',
-    link: 'http://bbs.bitsoul.xyz',
-    language: 'zh-cn',
-    description: 'Open BBS based on Bitcoin and Bitsoul',
-    max_rss_items: 50
-  },
+  rss: null, //{
+  //  title: 'Open BBS based on Bitcoin and Bitsoul',
+  //  link: 'http://bbs.bitsoul.xyz',
+  //  language: 'zh-cn',
+  //  description: 'Open BBS based on Bitcoin and Bitsoul',
+  //  max_rss_items: 50
+  //},
+
+  // s3 and s3 compatible storate client
+  s3_client: null, //{
+  //  region: null, //your region name,
+  //  bucket: null, //your bucket name,
+  //  prefix: '',
+  //  endpoint: null, //url string or empty string,
+  //  readpoint: null,
+  //  accessKeyId: null, //your access key,
+  //  secretAccessKey: null, //your secret key,
+  //},
 
   // file upload config, if s3_client setted, then use s3 instead
   upload: {
     path: path.join(__dirname, '../../upload/'),
     url: '/upload/'
-  },
-
-  // s3 and s3 compatible storate client
-  s3_client: {
-    region: null, //your region name,
-    bucket: null, //your bucket name,
-    prefix: '',
-    endpoint: null, //url string or empty string,
-    readpoint: null,
-    accessKeyId: null, //your access key,
-    secretAccessKey: null, //your secret key,
   },
 
   file_limit: '1MB', // file upload size limit
