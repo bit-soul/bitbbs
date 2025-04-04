@@ -1,2 +1,7 @@
+<% if (!config.debug) { %>
 <script src="<%= config.site_static_host %>/static/libs/editor/editor.js"></script>
-<script src="<%= config.site_static_host %>/static/js/editor_ext.js"></script>
+<script src="<%= config.site_static_host %>/static/libs/editor/ext.js"></script>
+<% } else { %>
+<script src="/static/libs/editor/editor.js"></script>
+<script src="/static/libs/editor/ext.js"></script>
+<% } %>

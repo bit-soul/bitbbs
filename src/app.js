@@ -60,8 +60,10 @@ var logger = require('./common/logger');
 var helmet = require('helmet');
 var bytes = require('bytes')
 
-
 var staticDir = path.join(__dirname, '../static');
+if(!config.debug){
+  staticDir = path.join(__dirname, '../dist/static');
+}
 var uploadDir = path.join(__dirname, '../upload');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });

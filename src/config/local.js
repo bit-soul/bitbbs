@@ -1,7 +1,7 @@
 var config_default = require('./default');
 
 var config = {
-  debug: true,
+  debug: false,
   port: 3000,
   proxyurl: 'socks://127.0.0.1:7890',
 

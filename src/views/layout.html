@@ -11,39 +11,51 @@
   <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss"/>
   <!-- CSS -->
   <% if (!config.debug) { %>
-    <link rel="stylesheet" href="<%= config.site_static_host %>/static/css/index.min.css">
-  <% } else { %>
     <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/bootstrap/css/bootstrap.css">
-    <link rel="stylesheet" href="<%= config.site_static_host %>/static/css/common.css">
-    <link rel="stylesheet" href="<%= config.site_static_host %>/static/css/responsive.css">
-    <link rel="stylesheet" href="<%= config.site_static_host %>/static/css/jquery.atwho.css">
+    <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/jquery/jquery.atwho.css">
     <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/editor/editor.css">
     <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/code-prettify/prettify.css">
     <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/font-awesome/css/font-awesome.css">
-
-    <link rel="stylesheet/less" href="<%= config.site_static_host %>/static/css/style.less">
-    <script src="<%= config.site_static_host %>/static/libs/less.min.js"></script>
+    <link rel="stylesheet" href="<%= config.site_static_host %>/static/css/css.css">
+  <% } else { %>
+    <link rel="stylesheet" href="/static/libs/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/libs/jquery/jquery.atwho.css">
+    <link rel="stylesheet" href="/static/libs/editor/editor.css">
+    <link rel="stylesheet" href="/static/libs/code-prettify/prettify.css">
+    <link rel="stylesheet" href="/static/libs/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet/less" href="/static/css/common.less">
+    <link rel="stylesheet/less" href="/static/css/responsive.less">
+    <link rel="stylesheet/less" href="/static/css/style.less">
+    <script src="/static/libs/less.min.js"></script>
   <% } %>
   
   <!-- JS -->
   <% if (!config.debug) { %>
-    <script src="<%= config.site_static_host %>/static/index.min.js"></script>
-  <% } else { %>
-    <script src="<%= config.site_static_host %>/static/libs/jquery-2.1.0.js"></script>
-    <script src="<%= config.site_static_host %>/static/libs/jquery-ujs.js"></script>
-    <script src="<%= config.site_static_host %>/static/libs/jquery.caret.js"></script>
-    <script src="<%= config.site_static_host %>/static/libs/jquery.atwho.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/jquery/jquery-2.1.0.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/jquery/jquery-ujs.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/jquery/jquery.caret.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/jquery/jquery.atwho.js"></script>
     <script src="<%= config.site_static_host %>/static/libs/lodash.compat.js"></script>
     <script src="<%= config.site_static_host %>/static/libs/markdownit.js"></script>
     <script src="<%= config.site_static_host %>/static/libs/code-prettify/prettify.js"></script>
     <script src="<%= config.site_static_host %>/static/libs/bootstrap/js/bootstrap.js"></script>
-    <script src="<%= config.site_static_host %>/static/js/wallet/okx.js"></script>
-    <script src="<%= config.site_static_host %>/static/js/wallet/unisat.js"></script>
-    <script src="<%= config.site_static_host %>/static/js/wallet/xverse.js"></script>
-    <script src="<%= config.site_static_host %>/static/js/wallet/wallet.js"></script>
-    <script src="<%= config.site_static_host %>/static/js/main.js"></script>
-    <script src="<%= config.site_static_host %>/static/js/wallet.js"></script>
-    <script src="<%= config.site_static_host %>/static/js/responsive.js"></script>
+    <script src="<%= config.site_static_host %>/static/js/js.js"></script>
+  <% } else { %>
+    <script src="/static/libs/jquery/jquery-2.1.0.js"></script>
+    <script src="/static/libs/jquery/jquery-ujs.js"></script>
+    <script src="/static/libs/jquery/jquery.caret.js"></script>
+    <script src="/static/libs/jquery/jquery.atwho.js"></script>
+    <script src="/static/libs/lodash.compat.js"></script>
+    <script src="/static/libs/markdownit.js"></script>
+    <script src="/static/libs/code-prettify/prettify.js"></script>
+    <script src="/static/libs/bootstrap/js/bootstrap.js"></script>
+    <script src="/static/js/wallet/okx.js"></script>
+    <script src="/static/js/wallet/unisat.js"></script>
+    <script src="/static/js/wallet/xverse.js"></script>
+    <script src="/static/js/wallet/wallet.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/wallet.js"></script>
+    <script src="/static/js/responsive.js"></script>
   <% } %>
 
   <% if (typeof(topic) !== 'undefined') { %>
