@@ -74,8 +74,7 @@ you can use the generic selector below, but it's slower:
 	content: "\e00c";
 }
 .eicon-info:before {
-	content: "@";
-	font-weight: bold;
+	content: "\e00d";
 }
 .eicon-undo:before {
 	content: "\e00e";
