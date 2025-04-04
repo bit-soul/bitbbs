@@ -37,7 +37,6 @@ if (!global.config.debug && global.config.oneapm_key) {
 require('colors');
 const fs = require('fs');
 var path = require('path');
-var Loader = require('loader');
 var express = require('express');
 var session = require('express-session');
 var passport = require('passport');
@@ -72,16 +71,6 @@ if (!fs.existsSync(global.config.log_dir)) {
     fs.mkdirSync(global.config.log_dir, { recursive: true });
 }
 
-var assets = {};
-if (global.config.mini_assets) {
-  try {
-    assets = require('../static/assets.json');
-  } catch (e) {
-    logger.error('You must execute `make build` before start app when mini_assets is true.');
-    throw e;
-  }
-}
-
 var urlinfo = require('url').parse(global.config.host);
 global.config.hostname = urlinfo.hostname || global.config.host;
 
@@ -103,9 +92,6 @@ if (global.config.debug) {
 }
 
 // static resource
-if (global.config.debug) {
-  app.use(require('loader-connect').less(path.join(__dirname, '../'))); // debug environment compile .less on the fly
-}
 app.use('/static', express.static(staticDir));
 app.use('/upload', express.static(uploadDir));
 app.use('/agent', proxyMiddleware.proxy);
@@ -164,8 +150,6 @@ if (!global.config.debug) {
 // set static, dynamic helpers
 _.extend(app.locals, {
   config: global.config,
-  Loader: Loader,
-  assets: assets
 });
 
 app.use(errorPageMiddleware.errorPage);

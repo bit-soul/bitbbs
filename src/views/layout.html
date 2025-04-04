@@ -9,41 +9,42 @@
 
   <link rel="icon" href="/static/favicon.ico">
   <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss"/>
+  <!-- CSS -->
+  <% if (!config.debug) { %>
+    <link rel="stylesheet" href="<%= config.site_static_host %>/static/css/index.min.css">
+  <% } else { %>
+    <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="<%= config.site_static_host %>/static/css/common.css">
+    <link rel="stylesheet" href="<%= config.site_static_host %>/static/css/responsive.css">
+    <link rel="stylesheet" href="<%= config.site_static_host %>/static/css/jquery.atwho.css">
+    <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/editor/editor.css">
+    <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/code-prettify/prettify.css">
+    <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/font-awesome/css/font-awesome.css">
 
-  <!-- style -->
-  <%- Loader('/static/css/index.min.css')
-  .css('/static/libs/bootstrap/css/bootstrap.css')
-  .css('/static/css/common.css')
-  .css('/static/css/style.less')
-  .css('/static/css/responsive.css')
-  .css('/static/css/jquery.atwho.css')
-  .css('/static/libs/editor/editor.css')
-  .css('/static/libs/webuploader/webuploader.css')
-  .css('/static/libs/code-prettify/prettify.css')
-  .css('/static/libs/font-awesome/css/font-awesome.css')
-  .done(assets, config.site_static_host, config.mini_assets)
-  %>
-
-  <!-- scripts -->
-  <%- Loader('/static/index.min.js')
-  .js('/static/libs/jquery-2.1.0.js')
-  .js('/static/libs/lodash.compat.js')
-  .js('/static/libs/jquery-ujs.js')
-  .js('/static/libs/bootstrap/js/bootstrap.js')
-  .js('/static/libs/jquery.caret.js')
-  .js('/static/libs/jquery.atwho.js')
-  .js('/static/libs/markdownit.js')
-  .js('/static/libs/code-prettify/prettify.js')
-  //.js('/static/libs/qrcode.js')
-  .js('/static/libs/wallet/okx.js')
-  .js('/static/libs/wallet/unisat.js')
-  .js('/static/libs/wallet/xverse.js')
-  .js('/static/libs/wallet/wallet.js')
-  .js('/static/js/main.js')
-  .js('/static/js/wallet.js')
-  .js('/static/js/responsive.js')
-  .done(assets, config.site_static_host, config.mini_assets)
-  %>
+    <link rel="stylesheet/less" href="<%= config.site_static_host %>/static/css/style.less">
+    <script src="<%= config.site_static_host %>/static/libs/less.min.js"></script>
+  <% } %>
+  
+  <!-- JS -->
+  <% if (!config.debug) { %>
+    <script src="<%= config.site_static_host %>/static/index.min.js"></script>
+  <% } else { %>
+    <script src="<%= config.site_static_host %>/static/libs/jquery-2.1.0.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/lodash.compat.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/jquery-ujs.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/bootstrap/js/bootstrap.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/jquery.caret.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/jquery.atwho.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/markdownit.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/code-prettify/prettify.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/wallet/okx.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/wallet/unisat.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/wallet/xverse.js"></script>
+    <script src="<%= config.site_static_host %>/static/libs/wallet/wallet.js"></script>
+    <script src="<%= config.site_static_host %>/static/js/main.js"></script>
+    <script src="<%= config.site_static_host %>/static/js/wallet.js"></script>
+    <script src="<%= config.site_static_host %>/static/js/responsive.js"></script>
+  <% } %>
 
   <% if (typeof(topic) !== 'undefined') { %>
   <title><%= topic.title %> - <%= config.bbsname %></title>

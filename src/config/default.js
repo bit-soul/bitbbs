@@ -4,7 +4,6 @@ var config = {
   debug: false,
   port: 3000,
   proxyurl: null,
-  get mini_assets() { return !this.debug; }, // 是否启用静态文件的合并压缩，详见视图中的Loader
 
   bbsname: 'BitBBS',
   bbslogo: '/static/img/logo.jpg',
