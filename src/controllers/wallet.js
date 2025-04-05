@@ -61,7 +61,7 @@ exports.wallet_login = function (req, res, next) {
             if (user) {
               user.name = respon?.data?.attr?.name ? respon.data.attr.name : 'nobody_'+user.sequence.toString(36).padStart(2, '0');
               user.biog = respon?.data?.attr?.biog ? respon.data.attr.biog : '';
-              user.icon = respon?.data?.attr?.icon ? brcsoul.httpExtralUrl(respon.data.attr.icon) : '';
+              user.icon = respon?.data?.attr?.icon ? brcsoul.httpExtraUrl(respon.data.attr.icon) : '';
               user.save(function (err) {
                 if (err) {
                   return next(err);
@@ -75,7 +75,7 @@ exports.wallet_login = function (req, res, next) {
                   addr: addr,
                   name: respon?.data?.attr?.name ? respon.data.attr.name : 'nobody_'+count.toString(36).padStart(2, '0'),
                   biog: respon?.data?.attr?.biog ? respon.data.attr.biog : '',
-                  icon: respon?.data?.attr?.icon ? brcsoul.httpExtralUrl(respon.data.attr.icon) : '',
+                  icon: respon?.data?.attr?.icon ? brcsoul.httpExtraUrl(respon.data.attr.icon) : '',
                   active: true,
                   sequence: count,
                   accessToken: uuid.v4(),

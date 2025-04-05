@@ -41,7 +41,7 @@ var UserSchema = new Schema({
 
 UserSchema.plugin(BaseModel);
 UserSchema.virtual('avatar_url').get(function () {
-  var url = this.icon || '/static/img/nobody.png';
+  var url = this.icon || global.config.site_static_host + '/static/img/nobody.png';
 
   // www.gravatar.com 被墙
   url = url.replace('www.gravatar.com', 'gravatar.com');

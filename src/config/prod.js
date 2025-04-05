@@ -1,9 +1,9 @@
 var config_default = require('./default');
 
 var config = {
-  debug: true,
+  debug: false,
   port: 3000,
-  proxyurl: 'socks://127.0.0.1:7890',
+  proxyurl: null,
 
   tabs: [
     ['btc', 'BTC'],
@@ -12,18 +12,21 @@ var config = {
     ['bsc', 'BSC'],
     ['meme', 'Meme'],
     ['defi', 'Defi'],
-    ['game', 'Game'],
     ['social', 'Social'],
     ['others', 'Others'],
   ],
 
+  site_static_host: 'bitbbsres.bitsoul.xyz',
+  host: 'bitbbs.bitsoul.xyz',
+
+  session_secret: process.env.session_secret,
+
   admins: {
-    '67bbd4927b051e20a87453e5': true,
   },
 
   mongodb_cfg: {
     host: '127.0.0.1',
-    db: 'mongodb://127.0.0.1:27017/bitbbs_local',
+    db: 'mongodb://127.0.0.1:27017/bitbbs_prod',
   },
 
   redis_cfg: {

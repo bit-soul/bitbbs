@@ -1,7 +1,7 @@
 @gray1: #e1e1e1;
 @gray2: #f6f6f6;
-@node_green: #80bd01;
-@node_black: #444444;
+@node_black1: #666666;
+@node_black2: #444444;
 
 /* base */
 body {
@@ -139,11 +139,15 @@ body {
 }
 
 .header .col_fade {
-  color: @node_black;
+  color: @node_black2;
 }
 
 .bold {
   font-weight: bold;
+}
+
+a {
+  color: #666;
 }
 
 a.dark {
@@ -185,7 +189,7 @@ a.light:hover {
 }
 
 .breadcrumb a {
-  color: @node_green;
+  color: @node_black2;
 }
 
 .panel .header {
@@ -224,7 +228,7 @@ a.light:hover {
   background-color: white;
   border-radius: 0 0 3px 3px;
   a {
-    color: #778087;
+    color: @node_black1;
   }
 }
 
@@ -352,7 +356,7 @@ a.last_time {
   border-radius: 8px;
 
   padding: 1px 5px;
-  background-color: @node_green;
+  background-color: @node_black1;
   color: white;
   margin-right: 0.5em;
 }
@@ -397,7 +401,7 @@ a.tag_big {
 }
 
 .tag_select {
-  color: #0099ff;
+  color: @node_black1;
 }
 
 .tag_in_topic {
@@ -653,7 +657,7 @@ a.topic_title {
 }
 
 .put_top, .put_good {
-  background: @node_green;
+  background: @node_black1;
   padding: 2px 4px;
   border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -802,7 +806,7 @@ textarea#title {
   z-index: 9;
   width: 100%;
   position: relative;
-  background: @node_black;
+  background: @node_black2;
   font-size: 13px;
 }
 
@@ -915,7 +919,7 @@ textarea#title {
 }
 
 .pagination li.active a {
-  color: @node_green;
+  color: @node_black1;
 }
 
 .topic_content {
@@ -1112,9 +1116,11 @@ textarea.editor {
   .span-common();
 
   color: white;
-  background-color: @node_green;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: @node_black1;
   &:hover {
-    background-color: #6ba44e;
+    background-color: @node_black2;
   }
 }
 
@@ -1122,18 +1128,18 @@ textarea.editor {
   .span-common();
 
   color: white;
-  background-color: #08c;
+  background-color: @node_black1;
   &:hover {
-    background-color: #05c;
+    background-color: @node_black2;
   }
 }
 
 .span-info {
   .span-common();
   color: white;
-  background-color: #5bc0de;
+  background-color: @node_black1;
   &:hover {
-    background-color: #2f96b4;
+    background-color: @node_black2;
   }
 }
 
@@ -1143,24 +1149,24 @@ textarea.editor {
   padding: 5px 10px;
   font-size: 12px;
   color: white;
-  background-color: #5bc0de;
+  background-color: @node_black1;
 }
 #connect-container:hover > #connect-wallet {
-  background-color: #2f96b4;
+  background-color: @node_black1;
 }
 #connect-dropbox {
   display: none;
   position: absolute;
   top: 36px;
   width: 132px;
-  background-color: #5bc0de;
+  background-color: @node_black1;
   span {
     .span-common();
     display: block;
     color: white;
-    background-color: #5bc0de;
+    background-color: @node_black1;
     &:hover {
-      background-color: #2f96b4;
+      background-color: @node_black2;
     }
   }
 }
@@ -1178,9 +1184,9 @@ textarea.editor {
 
 .topic-tab {
   margin: 0 10px;
-  color: @node_green;
+  color: @node_black2;
   &.current-tab {
-    background-color: @node_green;
+    background-color: @node_black1;
     color: white;
     padding: 3px 4px;
     border-radius: 3px;
@@ -1283,7 +1289,7 @@ textarea.editor {
     text-align: center;
     .with {
       font-weight: bold;
-      color: #0088cc;
+      color: @node_black1;
     }
   }
   .anchor {
@@ -1346,4 +1352,9 @@ textarea.editor {
 .eicon-info:before {
 	content: "@";
 	font-weight: bold;
+}
+
+.modal-footer button {
+  background-color: #666666;
+  color: #fff;
 }

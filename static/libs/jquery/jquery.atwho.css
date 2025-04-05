@@ -14,14 +14,14 @@
 }
 
 .atwho-view .cur {
-    background: #3366FF;
+    background: #666666;
     color: white;
 }
 .atwho-view .cur small {
     color: white;
 }
 .atwho-view strong {
-    color: #3366FF;
+    color: #666666;
 }
 .atwho-view .cur strong {
     color: white;

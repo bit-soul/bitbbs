@@ -141,10 +141,21 @@ function getState(cm, pos) {
                     '</form>',
                 '</div>',
                 '<div class="modal-footer">',
-                    '<button class="btn btn-primary" role="save">Comfirm</button>',
+                    '<button role="save">Comfirm</button>',
                 '</div>',
             '</div>'
         ].join('')).appendTo($body);
+
+        this.$confirmBtn = this.$win.find('.modal-footer button').css({
+            width: 80,
+            height: 35,
+            border: 0,
+            margin: '0 auto',
+            backgroundColor: '#666666',
+            borderRadius: '4px',
+            lineHeight: '35px',
+            color: 'white',
+        });
 
         this.$win.on('click', '[role=save]', function(){
             self.$win.find('form').submit();
@@ -209,7 +220,7 @@ function getState(cm, pos) {
             width: 86,
             height: 40,
             margin: '0 auto',
-            backgroundColor: '#00B7EE',
+            backgroundColor: '#666666',
             borderRadius: '4px',
             lineHeight: '40px',
             fontWeight: 'bold',
