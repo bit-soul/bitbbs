@@ -2,9 +2,9 @@ var System = require('../models').System;
 
 exports.incrementUserCnt = async function(callback) {
   const result = await System.findOneAndUpdate(
-    { }, // ²éÕÒÌõ¼ş, Æ¥ÅäµÚÒ»Ìõ¼ÇÂ¼
-    { $inc: { user_cnt: 1 } }, // ¼ÆÊıÆ÷¼Ó1
-    { new: true, upsert: true } // ·µ»Ø¸üĞÂºóµÄÖµ£¬Èç¹û²»´æÔÚÔò´´½¨
+    { }, // æŸ¥æ‰¾æ¡ä»¶, åŒ¹é…ç¬¬ä¸€æ¡è®°å½•
+    { $inc: { user_cnt: 1 } }, // è®¡æ•°å™¨åŠ 1
+    { new: true, upsert: true } // è¿”å›æ›´æ–°åçš„å€¼ï¼Œå¦‚æœä¸å­˜åœ¨åˆ™åˆ›å»º
   );
   callback(result.user_cnt);
   return result.user_cnt;

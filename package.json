@@ -71,6 +71,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production APP_ENV=prod node main.js",
     "local": "cross-env NODE_ENV=local APP_ENV=local node main.js",
+    "debug": "cross-env NODE_ENV=local APP_ENV=local node --inspect main.js",
     "test": "dotenvx -q run --env-file=env/unittest.env -- cross-env NODE_ENV=test APP_ENV=test mocha --reporter spec -r should -r test/env --timeout 10",
     "cov": "dotenvx -q run --env-file=env/unittest.env -- cross-env NODE_ENV=test APP_ENV=test istanbul cover --preserve-comments _mocha -- -r should -r test/env --reporter spec --timeout 30",
     "build": "loader src/views static"
