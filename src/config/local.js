@@ -10,6 +10,7 @@ var config = {
     ['eth', 'ETH'],
     ['sol', 'SOL'],
     ['bsc', 'BSC'],
+    ['ai', 'AI'],
     ['meme', 'Meme'],
     ['defi', 'Defi'],
     ['game', 'Game'],
