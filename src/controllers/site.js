@@ -124,7 +124,7 @@ exports.sitemap = function (req, res, next) {
           return next(err);
         }
         topics.forEach(function (topic) {
-          urlset.ele('url').ele('loc', 'http://bbs.bitsoul.xyz/topic/' + topic._id);
+          urlset.ele('url').ele('loc', 'http://bitbbs.bitsoul.xyz/topic/' + topic._id);
         });
 
         var sitemapData = urlset.end();

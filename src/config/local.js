@@ -31,7 +31,7 @@ var config = {
     host: '127.0.0.1',
     port: 6379,
     db: 0,
-    password: '',
+    password: null,
   },
 
   mail_opts: {
@@ -47,12 +47,12 @@ var config = {
   GITHUB_OAUTH: {
     clientID: 'your GITHUB_CLIENT_ID',
     clientSecret: 'your GITHUB_CLIENT_SECRET',
-    callbackURL: 'http://bbs.bitsoul.xyz/auth/github/callback'
+    callbackURL: 'http://bitbbs.bitsoul.xyz/auth/github/callback'
   },
 
   rss: {
     title: 'Open BBS based on Bitcoin and Bitsoul',
-    link: 'http://bbs.bitsoul.xyz',
+    link: 'http://bitbbs.bitsoul.xyz',
     language: 'zh-cn',
     description: 'Open BBS based on Bitcoin and Bitsoul',
     max_rss_items: 50

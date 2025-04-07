@@ -28,7 +28,7 @@
     "express": "4.16.0",
     "express-session": "1.12.1",
     "helmet": "1.3.0",
-    "ioredis": "2.0.0",
+    "ioredis": "^4.29.1",
     "lodash": "4.17.21",
     "log4js": "^0.6.29",
     "markdown-it": "6.0.0",
