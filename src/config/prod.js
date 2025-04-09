@@ -18,7 +18,7 @@ var config = {
     ['others', 'Others'],
   ],
 
-  site_static_host: 'hppts://bitbbsres.bitsoul.xyz',
+  site_static_host: 'https://bitbbsres.bitsoul.xyz',
   host: 'https://bitbbs.bitsoul.xyz',
 
   session_secret: process.env.session_secret,
