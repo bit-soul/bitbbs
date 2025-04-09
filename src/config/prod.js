@@ -65,7 +65,7 @@ var config = {
   s3_client: {
     region: 'us-east-1',
     bucket: process.env.bitbbs_store_bucket_name,
-    prefix: '_S3_DEV/',
+    prefix: '_S3_PROD/',
     endpoint: null,
     readpoint: 'https://bitbbsstore.bitsoul.xyz',
     accessKeyId: process.env.s3_access_key,
