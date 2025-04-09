@@ -7,8 +7,13 @@
   <meta name='description' content='<%= config.description %>'>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-  <link rel="icon" href="/static/favicon.ico">
   <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss"/>
+  <% if (!config.debug) { %>
+  <link rel="icon" href="<%= config.site_static_host %>/static/favicon.ico">
+  <% } else { %>
+  <link rel="icon" href="/static/favicon.ico">
+  <% } %>
+
   <!-- CSS -->
   <% if (!config.debug) { %>
     <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/bootstrap/css/bootstrap.css">
