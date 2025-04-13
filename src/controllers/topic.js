@@ -455,11 +455,14 @@ exports.presignedurl = function (req, res, next) {
     formatTime = tools.getFormattedTime();
     file_name = global.config.s3_client.prefix + userId + '/' + formatDate + '/' + formatTime + '_' + fileName
     store.presignedUrl(file_name , fileType, fileSize).then((url) => {
+      var uploadurl = new URL(url);
+      uploadurl.hostname = new URL(global.config.s3_client.proxypoint).hostname;
+      uploadurl.searchParams.set('bucketname', global.config.s3_client.bucket);
       res.json({
         code: 0,
         data: {
           readurl: global.config.s3_client.readpoint + '/' + file_name,
-          uploadurl: url,
+          uploadurl: uploadurl.toString(),
         },
       });
     });

@@ -1,4 +1,4 @@
-<% if (!config.debug) { %>
+<% if (config.diststatic) { %>
 <script src="<%= config.site_static_host %>/static/libs/editor/editor.js"></script>
 <script src="<%= config.site_static_host %>/static/libs/editor/ext.js"></script>
 <% } else { %>

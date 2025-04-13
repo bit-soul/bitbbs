@@ -2,6 +2,7 @@ var config_default = require('./default');
 
 var config = {
   debug: true,
+  diststatic: false,
   port: 3000,
   proxyurl: 'socks://127.0.0.1:7890',
 
@@ -58,14 +59,24 @@ var config = {
     max_rss_items: 50
   },
 
+  //s3_client: {
+  //  region: 'us-east-1',
+  //  bucket: process.env.bitbbs_store_bucket_name,
+  //  prefix: '_S3_DEV/',
+  //  endpoint: null,
+  //  readpoint: 'https://bitbbsstore.bitsoul.xyz',
+  //  accessKeyId: process.env.s3_access_key,
+  //  secretAccessKey: process.env.s3_Secret_access_key,
+  //},
   s3_client: {
-    region: 'us-east-1',
+    region: 'auto',
     bucket: process.env.bitbbs_store_bucket_name,
-    prefix: '_S3_DEV/',
-    endpoint: null,
-    readpoint: 'https://bitbbsstore.bitsoul.xyz',
-    accessKeyId: process.env.s3_access_key,
-    secretAccessKey: process.env.s3_Secret_access_key,
+    prefix: 'upload/',
+    endpoint: process.env.r2_endpoint,
+    readpoint: 'https://bitbbsdevres.bitsoul.xyz',
+    proxypoint: 'https://presignedurlproxy.bitsoul.xyz',
+    accessKeyId: process.env.r2_access_key_id,
+    secretAccessKey: process.env.r2_secret_access_key,
   },
 };
 

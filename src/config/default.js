@@ -2,6 +2,7 @@ var path = require('path');
 
 var config = {
   debug: false,
+  diststatic: true,
   port: 3000,
   proxyurl: null,
 

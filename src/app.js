@@ -30,6 +30,13 @@ switch (process.env.APP_ENV) {
     break;
 }
 
+if(process.env.admins) {
+  const items = process.env.admins.split(';');
+  items.forEach(item => {
+    global.config.admins[item.trim()] = true;
+  });
+}
+
 if (!global.config.debug && global.config.oneapm_key) {
   require('oneapm');
 }
@@ -61,7 +68,7 @@ var helmet = require('helmet');
 var bytes = require('bytes');
 
 var staticDir = path.join(__dirname, '../static');
-if(!config.debug){
+if(config.diststatic){
   staticDir = path.join(__dirname, '../dist/static');
 }
 var uploadDir = path.join(__dirname, '../upload');

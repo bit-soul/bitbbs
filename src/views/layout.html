@@ -8,14 +8,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
   <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss"/>
-  <% if (!config.debug) { %>
+  <% if (config.diststatic) { %>
   <link rel="icon" href="<%= config.site_static_host %>/static/favicon.ico">
   <% } else { %>
   <link rel="icon" href="/static/favicon.ico">
   <% } %>
 
   <!-- CSS -->
-  <% if (!config.debug) { %>
+  <% if (config.diststatic) { %>
     <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/bootstrap/css/bootstrap.css">
     <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/jquery/jquery.atwho.css">
     <link rel="stylesheet" href="<%= config.site_static_host %>/static/libs/editor/editor.css">
@@ -35,7 +35,7 @@
   <% } %>
   
   <!-- JS -->
-  <% if (!config.debug) { %>
+  <% if (config.diststatic) { %>
     <script src="<%= config.site_static_host %>/static/libs/jquery/jquery-2.1.0.js"></script>
     <script src="<%= config.site_static_host %>/static/libs/jquery/jquery-ujs.js"></script>
     <script src="<%= config.site_static_host %>/static/libs/jquery/jquery.caret.js"></script>
