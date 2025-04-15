@@ -19,7 +19,15 @@ gulp.task('build', function(cb) {
 });
 
 gulp.task('compress-js', function(){
-    return gulp.src('./static/js/**/*.js')
+    return gulp.src([
+        './static/js/wallet/okx.js',
+        './static/js/wallet/unisat.js',
+        './static/js/wallet/xverse.js',
+        './static/js/wallet/wallet.js',
+        './static/js/main.js',
+        './static/js/wallet.js',
+        './static/js/responsive.js',
+        ])
         .pipe(uglify().on('error', function(err){
             gutil.log(err);
             this.emit('end');
@@ -29,7 +37,11 @@ gulp.task('compress-js', function(){
 });
 
 gulp.task('compress-css', function(){
-    return gulp.src('./static/css/**/*.less')
+    return gulp.src([
+        './static/css/common.less',
+        './static/css/style.less',
+        './static/css/responsive.less',
+        ])
         .pipe(less())
         .pipe(minify_css())
         .pipe(concat('css.css'))
