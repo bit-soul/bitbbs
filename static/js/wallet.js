@@ -41,3 +41,48 @@ async function wallet_login(wallet) {
     }
   });
 }
+
+async function get_authkey() {
+  $.ajax({
+    url: "/get_authkey",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({ 
+        maxage: 1000 * 60 * 60 * 24 * 30,
+    }),
+    success: function(response) {
+        var res = JSON.parse(response);
+        if(res.code == 0) {
+          alert("Please use it in 10-minutes, authkey: " + res.data);
+        } else {
+          alert(res.mess);
+        }
+    },
+    error: function(xhr, status, error) {
+        alert(error);
+    }
+  });
+}
+
+async function authkey_login() {
+  var authkey = prompt("Please enter your authkey:"); 
+  $.ajax({
+    url: "/authkey_login",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({ 
+        authkey: authkey,
+    }),
+    success: function(response) {
+        var res = JSON.parse(response);
+        if(res.code == 1) {
+          window.location.href = '/';
+        } else {
+          alert(res.mess);
+        }
+    },
+    error: function(xhr, status, error) {
+        alert(error);
+    }
+  });
+}

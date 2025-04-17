@@ -40,3 +40,19 @@ exports.bhash = function (str, callback) {
 exports.bcompare = function (str, hash, callback) {
   bcrypt.compare(str, hash, callback);
 };
+
+exports.generateauthkey = function (userid, maxage) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let authkey = '';
+  for (let i = 0; i < 10; i++) {
+    const randomIndex = Math.floor(Math.random() * chars.length);
+    authkey += chars[randomIndex];
+  }
+
+  global.authkeys[authkey] = [userid, maxage];
+  setTimeout(()=> {
+    delete global.authkeys[authkey];
+  }, 600 * 1000);
+
+  return authkey;
+}

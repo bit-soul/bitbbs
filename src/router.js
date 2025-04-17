@@ -33,6 +33,8 @@ if (global.config.allow_sign_up) {
   });
 }
 router.post('/wallet_login', wallet.wallet_login);
+router.post('/authkey_login', wallet.authkey_login);
+router.post('/get_authkey', wallet.getauthkey);
 router.post('/signout', sign.signout);  // 登出
 router.get('/signin', sign.showLogin);  // 进入登录页面
 router.post('/signin', sign.login);  // 登录校验

@@ -44,11 +44,11 @@ exports.blockUser = function () {
 };
 
 
-function gen_session(user, res) {
-  var auth_token = user._id + '$$$$'; // 以后可能会存储更多信息，用 $$$$ 来分隔
+function gen_session(res, userid, maxage) {
+  var auth_token = userid + '$$$$'; // 以后可能会存储更多信息，用 $$$$ 来分隔
   var opts = {
     path: '/',
-    maxAge: 1000 * 60 * 60 * 24 * 30,
+    maxAge: maxage ? maxage : 1000 * 60 * 60 * 24 * 30,
     signed: true,
     httpOnly: true
   };

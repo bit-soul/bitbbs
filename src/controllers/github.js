@@ -30,7 +30,7 @@ exports.callback = function (req, res, next) {
         if (err) {
           return next(err);
         }
-        authMiddleWare.gen_session(user, res);
+        authMiddleWare.gen_session(res, user._id);
         return res.redirect('/');
       });
     } else {
@@ -76,7 +76,7 @@ exports.create = function (req, res, next) {
     if (err) {
       return next(err);
     }
-    authMiddleWare.gen_session(user, res);
+    authMiddleWare.gen_session(res, user._id);
     res.redirect('/');
   });
 };

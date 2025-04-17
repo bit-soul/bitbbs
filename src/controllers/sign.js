@@ -139,7 +139,7 @@ exports.login = function (req, res, next) {
         return res.render('sign/signin', { error: '此帐号还没有被激活，激活链接已发送到 ' + user.email + ' 邮箱，请查收。' });
       }
       // store session cookie
-      authMiddleWare.gen_session(user, res);
+      authMiddleWare.gen_session(res, user._id);
       //check at some page just jump to home page
       var refer = req.session._loginReferer || '/';
       for (var i = 0, len = notJump.length; i !== len; ++i) {

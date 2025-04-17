@@ -66,7 +66,7 @@ exports.wallet_login = function (req, res, next) {
                 if (err) {
                   return next(err);
                 }
-                authMiddleWare.gen_session(user, res);
+                authMiddleWare.gen_session(res, user._id);
                 res.send(JSON.stringify({ code: 1, mess: "redirect" }));
               });
             } else {
@@ -84,7 +84,7 @@ exports.wallet_login = function (req, res, next) {
                   if (err) {
                     return next(err);
                   }
-                  authMiddleWare.gen_session(user, res);
+                  authMiddleWare.gen_session(res, user._id);
                   res.send(JSON.stringify({ code: 1, mess: "redirect" }));
                 });
               }) 
@@ -124,4 +124,52 @@ exports.wallet_login = function (req, res, next) {
       result.mess = error.message;
       res.send(JSON.stringify(result));
     })
+}
+
+exports.getauthkey = function (req, res, next) {
+  var result = {};
+
+  var maxage = parseInt(req.body.maxage);
+  if(!maxage) {
+    maxage = 1000 * 60 * 60 * 24 * 30;
+  }
+
+  if(!req?.session?.user?._id ) {
+    result.code = -1;
+    result.mess = "not login!";
+    res.send(JSON.stringify(result));
+    return;
+  }
+
+  if(req?.session?.is_authkey_login) {
+    result.code = -1;
+    result.mess = "login by authkey can not generate new authkey!";
+    res.send(JSON.stringify(result));
+    return;
+  }
+
+  authkey = tools.generateauthkey(req.session.user._id, maxage);
+  result.code = 0;
+  result.data = authkey;
+  res.send(JSON.stringify(result));
+}
+
+exports.authkey_login = function (req, res, next) {
+  var authkey = validator.trim(req.body.authkey);
+  var authitem = global.authkeys[authkey];
+
+  var result = {};
+
+  if(authitem) {
+      var userid = authitem[0];
+      var maxage = authitem[1];
+      delete global.authkeys[authkey];
+      req.session.is_authkey_login = true;
+      authMiddleWare.gen_session(res, userid, maxage);
+      res.send(JSON.stringify({ code: 1, mess: "redirect" }));
+  } else {
+      result.code = -1;
+      result.mess = "authkey error or timeout or used!";
+      res.send(JSON.stringify(result));
+  }
 }

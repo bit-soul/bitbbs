@@ -2,6 +2,11 @@
 const os = require('os')
 os.hostname=()=>"localhost"
 
+//tempdata store in ram
+global.authkeys = {
+  //authkey: [userid, maxage]
+};
+
 //choose config file
 switch (process.env.APP_ENV) {
   case 'dev':
