@@ -13,7 +13,7 @@ var TopicSchema = new Schema({
   lock: { type: Boolean, default: false }, // 被锁定主题
   reply_count: { type: Number, default: 0 },
   visit_count: { type: Number, default: 0 },
-  collect_count: { type: Number, default: 0 },
+  mark_count: { type: Number, default: 0 },
   create_at: { type: Date, default: Date.now },
   update_at: { type: Date, default: Date.now },
   last_reply: { type: ObjectId },

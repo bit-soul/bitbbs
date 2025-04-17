@@ -51,7 +51,7 @@ router.get('/setting', auth.userRequired, user.showSetting); // 用户个人设�
 router.post('/setting', auth.userRequired, user.setting); // 提交个人信息设置
 router.get('/advances', user.listAdvances); // 显示所有达人列表页
 router.get('/users/top100', user.top100);  // 显示积分前一百用户页
-router.get('/user/:uid/collections', user.listCollectedTopics);  // 用户收藏的所有话题页
+router.get('/user/:uid/markedtopics', user.listMarkedTopics);  // 用户收藏的所有话题页
 router.get('/user/:uid/topics', user.listTopics);  // 用户发布的所有话题页
 router.get('/user/:uid/replies', user.listReplies);  // 用户参与的所有回复页
 router.post('/user/set_advance', auth.adminRequired, user.toggleAdvance); // 把某用户设为达人
@@ -80,8 +80,8 @@ router.post('/topic/:tid/delete', auth.userRequired, topic.delete);
 router.post('/topic/create', auth.userRequired, limit.peruserperday('create_topic', global.config.create_post_per_day, {showJson: false}), topic.put);
 
 router.post('/topic/:tid/edit', auth.userRequired, topic.update);
-router.post('/topic/collect', auth.userRequired, topic.collect); // 关注某话题
-router.post('/topic/de_collect', auth.userRequired, topic.de_collect); // 取消关注某话题
+router.post('/topic/mark', auth.userRequired, topic.mark); // 关注某话题
+router.post('/topic/unmark', auth.userRequired, topic.unmark); // 取消关注某话题
 
 // reply controller
 router.post('/:tid/reply', auth.userRequired, limit.peruserperday('create_reply', global.config.create_reply_per_day, {showJson: false}), reply.add); // 提交一级回复

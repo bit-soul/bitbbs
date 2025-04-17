@@ -1,15 +1,15 @@
-var User         = require('../proxy').User;
-var Topic        = require('../proxy').Topic;
-var Reply        = require('../proxy').Reply;
-var TopicCollect = require('../proxy').TopicCollect;
-var utility      = require('utility');
-var util         = require('util');
-var TopicModel   = require('../models').Topic;
-var ReplyModel   = require('../models').Reply;
-var tools        = require('../common/tools');
-var EventProxy   = require('eventproxy');
-var validator    = require('validator');
-var _            = require('lodash');
+var User       = require('../proxy').User;
+var Topic      = require('../proxy').Topic;
+var Reply      = require('../proxy').Reply;
+var MarkTopic  = require('../proxy').MarkTopic;
+var utility    = require('utility');
+var util       = require('util');
+var TopicModel = require('../models').Topic;
+var ReplyModel = require('../models').Reply;
+var tools      = require('../common/tools');
+var EventProxy = require('eventproxy');
+var validator  = require('validator');
+var _          = require('lodash');
 var uuid = require('node-uuid')
 
 exports.index = function (req, res, next) {
@@ -173,7 +173,7 @@ exports.toggleAdvance = function (req, res, next) {
   });
 };
 
-exports.listCollectedTopics = function (req, res, next) {
+exports.listMarkedTopics = function (req, res, next) {
   var uid = req.params.uid;
   var page = Number(req.query.page) || 1;
   var limit = global.config.list_topic_count;
@@ -182,9 +182,9 @@ exports.listCollectedTopics = function (req, res, next) {
     if (err || !user) {
       return next(err);
     }
-    var pages = Math.ceil(user.collect_topic_count/limit);
+    var pages = Math.ceil(user.mark_topic_count/limit);
     var render = function (topics) {
-      res.render('user/collect_topics', {
+      res.render('user/marktopics', {
         topics: topics,
         current_page: page,
         pages: pages,
@@ -200,7 +200,7 @@ exports.listCollectedTopics = function (req, res, next) {
       limit: limit,
     };
 
-    TopicCollect.getTopicCollectsByUserId(user._id, opt, proxy.done(function (docs) {
+    MarkTopic.getMarkTopicsByUserId(user._id, opt, proxy.done(function (docs) {
       var ids = docs.map(function (doc) {
         return String(doc.topic_id)
       })

@@ -198,7 +198,7 @@ exports.updateSearchPass = function (req, res, next) {
     return res.render('sign/search_pass', {error: '邮箱不合法', email: email});
   }
 
-  // 动态生成retrive_key和timestamp到users collection,之后重置密码进行验证
+  // 动态生成retrive_key和timestamp到users集合,之后重置密码进行验证
   var retrieveKey  = uuid.v4();
   var retrieveTime = new Date().getTime();
 

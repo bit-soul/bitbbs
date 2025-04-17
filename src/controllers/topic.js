@@ -1,14 +1,14 @@
 var validator = require('validator');
 
-var at           = require('../common/at');
-var User         = require('../proxy').User;
-var Topic        = require('../proxy').Topic;
-var TopicCollect = require('../proxy').TopicCollect;
-var EventProxy   = require('eventproxy');
-var tools        = require('../common/tools');
-var store        = require('../common/store');
-var _            = require('lodash');
-var cache        = require('../common/cache');
+var at         = require('../common/at');
+var User       = require('../proxy').User;
+var Topic      = require('../proxy').Topic;
+var MarkTopic  = require('../proxy').MarkTopic;
+var EventProxy = require('eventproxy');
+var tools      = require('../common/tools');
+var store      = require('../common/store');
+var _          = require('lodash');
+var cache      = require('../common/cache');
 var logger = require('../common/logger')
 
 /**
@@ -32,15 +32,15 @@ exports.index = function (req, res, next) {
   if (topic_id.length !== 24) {
     return res.render404('Topic not exist or deleted');
   }
-  var events = ['topic', 'other_topics', 'no_reply_topics', 'is_collect'];
+  var events = ['topic', 'other_topics', 'no_reply_topics', 'is_mark'];
   var ep = EventProxy.create(events,
-    function (topic, other_topics, no_reply_topics, is_collect) {
+    function (topic, other_topics, no_reply_topics, is_mark) {
     res.render('topic/index', {
       topic: topic,
       author_other_topics: other_topics,
       no_reply_topics: no_reply_topics,
       is_uped: isUped,
-      is_collect: is_collect,
+      is_mark: is_mark,
     });
   });
 
@@ -96,9 +96,9 @@ exports.index = function (req, res, next) {
   }));
 
   if (!currentUser) {
-    ep.emit('is_collect', null);
+    ep.emit('is_mark', null);
   } else {
-    TopicCollect.getTopicCollect(currentUser._id, topic_id, ep.done('is_collect'))
+    MarkTopic.getMarkTopic(currentUser._id, topic_id, ep.done('is_mark'))
   }
 };
 
@@ -257,7 +257,7 @@ exports.update = function (req, res, next) {
 exports.delete = function (req, res, next) {
   //删除话题, 话题作者topic_count减1
   //删除回复，回复作者reply_count减1
-  //删除topic_collect，用户collect_topic_count减1
+  //删除marktopic，用户mark_topic_count减1
 
   var topic_id = req.params.tid;
 
@@ -363,7 +363,7 @@ exports.lock = function (req, res, next) {
 };
 
 // 收藏主题
-exports.collect = function (req, res, next) {
+exports.mark = function (req, res, next) {
   var topic_id = req.body.topic_id;
 
   Topic.getTopic(topic_id, function (err, topic) {
@@ -374,7 +374,7 @@ exports.collect = function (req, res, next) {
       res.json({status: 'failed'});
     }
 
-    TopicCollect.getTopicCollect(req.session.user._id, topic._id, function (err, doc) {
+    MarkTopic.getMarkTopic(req.session.user._id, topic._id, function (err, doc) {
       if (err) {
         return next(err);
       }
@@ -383,7 +383,7 @@ exports.collect = function (req, res, next) {
         return;
       }
 
-      TopicCollect.newAndSave(req.session.user._id, topic._id, function (err) {
+      MarkTopic.newAndSave(req.session.user._id, topic._id, function (err) {
         if (err) {
           return next(err);
         }
@@ -393,18 +393,18 @@ exports.collect = function (req, res, next) {
         if (err) {
           return next(err);
         }
-        user.collect_topic_count += 1;
+        user.mark_topic_count += 1;
         user.save();
       });
 
-      req.session.user.collect_topic_count += 1;
-      topic.collect_count += 1;
+      req.session.user.mark_topic_count += 1;
+      topic.mark_count += 1;
       topic.save();
     });
   });
 };
 
-exports.de_collect = function (req, res, next) {
+exports.unmark = function (req, res, next) {
   var topic_id = req.body.topic_id;
   Topic.getTopic(topic_id, function (err, topic) {
     if (err) {
@@ -413,7 +413,7 @@ exports.de_collect = function (req, res, next) {
     if (!topic) {
       res.json({status: 'failed'});
     }
-    TopicCollect.remove(req.session.user._id, topic._id, function (err, removeResult) {
+    MarkTopic.remove(req.session.user._id, topic._id, function (err, removeResult) {
       if (err) {
         return next(err);
       }
@@ -425,12 +425,12 @@ exports.de_collect = function (req, res, next) {
         if (err) {
           return next(err);
         }
-        user.collect_topic_count -= 1;
+        user.mark_topic_count -= 1;
         req.session.user = user;
         user.save();
       });
 
-      topic.collect_count -= 1;
+      topic.mark_count -= 1;
       topic.save();
 
       res.json({status: 'success'});

@@ -3,13 +3,13 @@ var BaseModel = require("./base_model");
 var Schema    = mongoose.Schema;
 var ObjectId  = Schema.ObjectId;
 
-var TopicCollectSchema = new Schema({
+var MarkTopicSchema = new Schema({
   user_id: { type: ObjectId },
   topic_id: { type: ObjectId },
   create_at: { type: Date, default: Date.now }
 }, { versionKey: false });
 
-TopicCollectSchema.plugin(BaseModel);
-TopicCollectSchema.index({user_id: 1, topic_id: 1}, {unique: true});
+MarkTopicSchema.plugin(BaseModel);
+MarkTopicSchema.index({user_id: 1, topic_id: 1}, {unique: true});
 
-mongoose.model('TopicCollect', TopicCollectSchema);
+mongoose.model('MarkTopic', MarkTopicSchema);

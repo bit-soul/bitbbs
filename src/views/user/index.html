@@ -24,10 +24,10 @@
               <%}%>
             </span>
           </li>
-          <% if (user.collect_topic_count) {%>
+          <% if (user.mark_topic_count) {%>
           <li>
-            <a class='dark' href="/user/<%= user._id %>/collections" target='_blank'>
-              <span class='big collect-topic-count'><%= user.collect_topic_count %></span> Collected Topic
+            <a class='dark' href="/user/<%= user._id %>/markedtopics" target='_blank'>
+              <span class='big topic-mark-count'><%= user.mark_topic_count %></span> Marked Topic
             </a>
           </li>
           <%}%>

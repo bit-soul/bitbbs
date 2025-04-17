@@ -75,8 +75,8 @@
         <%}%>
 
         <% if (current_user) { %>
-          <input class="span-common <%= is_collect ? '' : 'span-success' %> pull-right collect_btn" type="submit" 
-                 value="<%= is_collect ? 'unMark' : 'Mark' %>" action="<%= is_collect ? 'de_collect' : 'collect' %>" 
+          <input class="span-common <%= is_mark ? '' : 'span-success' %> pull-right mark_btn" type="submit" 
+                 value="<%= is_mark ? 'unMark' : 'Mark' %>" action="<%= is_mark ? 'unmark' : 'mark' %>" 
           />
         <%}%>
 
@@ -288,22 +288,22 @@
     // END 评论回复
 
     // 加入收藏
-    $('.collect_btn').click(function () {
+    $('.mark_btn').click(function () {
       var $me = $(this);
       var action = $me.attr('action');
       var data = {
         topic_id: '<%= topic._id %>',
         _csrf: '<%= csrf %>'
       };
-      var $countSpan = $('.collect-topic-count');
+      var $countSpan = $('.topic-mark-count');
       $.post('/topic/' + action, data, function (data) {
         if (data.status === 'success') {
-          if (action == 'collect') {
-            $me.val('cancel collect');
-            $me.attr('action', 'de_collect');
+          if (action == 'mark') {
+            $me.val('unmark');
+            $me.attr('action', 'unmark');
           } else {
-            $me.val('collect');
-            $me.attr('action', 'collect');
+            $me.val('mark');
+            $me.attr('action', 'mark');
           }
           $me.toggleClass('span-success');
         }
