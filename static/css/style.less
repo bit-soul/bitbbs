@@ -656,6 +656,9 @@ a.topic_title {
 .topic_title_wrapper {
   text-overflow: ellipsis;
   white-space: nowrap;
+  a.topic_title {
+    width: 100%;
+  }
 }
 
 .put_top, .put_good {
@@ -831,7 +834,7 @@ textarea#title {
 
 .navbar .brand {
   padding: 4px 0px 0px 20px;
-  width: 120px;
+  width: 45px;
   padding: 3px 20px;
   height: 34px;
   line-height: 34px;
@@ -875,6 +878,7 @@ textarea#title {
 .navbar .nav > li > a {
   text-shadow: none;
   color: #cccccc;
+  padding: 10px 10px;
   &:hover {
     color: #fff;
   }
@@ -985,6 +989,14 @@ div[class$=content] > blockquote > p {
 #sidebar .inner ol {
   margin: 4px 0px;
   list-style: none;
+}
+
+#responsive-sidebar-trigger {
+    float: right;
+    color: white;
+    font-size: 22px;
+    line-height: 40px;
+    display: none;
 }
 
 .top_score {
