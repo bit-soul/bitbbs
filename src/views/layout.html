@@ -7,6 +7,21 @@
   <meta name='description' content='<%= config.description %>'>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
+  <meta name="twitter:card" content="summary" />
+  <% if (typeof(topic) !== 'undefined') { %>
+  <meta property="og:title" content="<%=config.bbsname%> - <%=tabName(topic.tab)%>" />
+  <meta property="og:description" content="<%=topic.title%>" />
+  <meta property="og:url" content="<%=config.host%>/topic/<%=topic._id%>" />
+  <meta property="og:type" content="website" />
+  <% } else { %>
+  <meta property="og:title" content="<%= config.bbsname%>" />
+  <meta property="og:description" content="<%= config.description %>" />
+  <meta property="og:url" content="<%=config.host%>" />
+  <meta property="og:type" content="website" />
+  <% } %>
+  <meta property="og:image" content="<%=config.site_static_host%><%=config.bbslogo%>" />
+  <meta name="twitter:image" content="<%=config.site_static_host%><%=config.bbslogo%>" />
+
   <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss"/>
   <% if (config.diststatic) { %>
   <link rel="icon" href="<%= config.site_static_host %>/static/favicon.ico">
@@ -70,6 +85,7 @@
   <% } else { %>
   <title><%= config.description %></title>
   <% } %>
+
   <meta content="_csrf" name="csrf-param">
   <meta content="<%= csrf %>" name="csrf-token">
 </head>

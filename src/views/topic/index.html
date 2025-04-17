@@ -22,7 +22,7 @@
         <%- partial('../topic/small', { collection: author_other_topics, as: 'topic' }) %>
       </ul>
       <% } else { %>
-      <p>无</p>
+      <p>None</p>
       <% } %>
     </div>
   </div>
@@ -37,7 +37,7 @@
         <%- partial('../topic/small', { collection: no_reply_topics, as: 'topic' }) %>
       </ul>
       <% } else { %>
-      <p>无</p>
+      <p>None</p>
       <% } %>
     </div>
   </div>
@@ -46,12 +46,15 @@
 <div id='content'>
   <div class='panel'>
     <div class='header topic_header'>
-      <span class="topic_full_title">
-
-        <%- partial('./_top_good', {topic: topic}) %>
-
-        <%= topic.title %>
-      </span>
+      <div>
+        <span class="topic_full_title">
+          <%- partial('./_top_good', {topic: topic}) %>
+          <%= topic.title %>
+        </span>
+        <i class="fa fa-lg fa-twitter share_topic" title="share to twitter" 
+           onclick="share2twitter('<%=topic.title%>', '<%=config.host%>/topic/<%=topic._id%>', '<%=tabName(topic.tab)%>')">
+        </i>
+      </div>
       <div class="changes">
         <span>
           Created at <%= topic.create_at_ago() %>
@@ -72,7 +75,9 @@
         <%}%>
 
         <% if (current_user) { %>
-          <input class="span-common <%= is_collect ? '' : 'span-success' %> pull-right collect_btn" type="submit" value="<%= is_collect ? '取消收藏' : '收藏' %>" action="<%= is_collect ? 'de_collect' : 'collect' %>">
+          <input class="span-common <%= is_collect ? '' : 'span-success' %> pull-right collect_btn" type="submit" 
+                 value="<%= is_collect ? 'unMark' : 'Mark' %>" action="<%= is_collect ? 'de_collect' : 'collect' %>" 
+          />
         <%}%>
 
       </div>

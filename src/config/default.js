@@ -7,7 +7,7 @@ var config = {
   proxyurl: null,
 
   bbsname: 'BitBBS',
-  bbslogo: '/static/img/logo.jpg',
+  bbslogo: '/static/logo.jpg',
   keywords: 'nodejs, node, express, connect, socket.io',
   description: 'BitBBS, The Open BBS based on Bitcoin and Bitsoul',
 
@@ -24,7 +24,7 @@ var config = {
   ],
 
   site_static_host: '', // 静态文件存储域名
-  host: 'localhost', // 社区的域名
+  host: 'http://localhost:3000', // 社区的域名
   google_tracker_id: '', // 默认的Google tracker ID，自有站点请修改，申请地址：http://www.google.com/analytics/
   cnzz_tracker_id: '', // 默认的cnzz tracker ID，自有站点请修改
   oneapm_key: '', // oneapm 是个用来监控网站性能的服务

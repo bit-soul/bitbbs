@@ -55,3 +55,17 @@ $(document).ready(function () {
 function generateAtString(name, uid) {
   return '[@' + name.trim() + '](/user/' + uid.trim() + ')';
 }
+
+function share2twitter(title, link, tab) {
+var tweet = 
+`👻👻👻
+
+Let's join the discussion now: 
+
+💬${title} 
+
+🔗${link} 
+
+@bitsoul_xyz #bitbbs #bitsoul #${tab}`
+window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, '_blank');
+}
