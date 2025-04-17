@@ -155,7 +155,7 @@ exports.getauthkey = function (req, res, next) {
 }
 
 exports.authkey_login = function (req, res, next) {
-  var authkey = validator.trim(req.body.authkey);
+  var authkey = validator.trim(req.body.authkey).toUpperCase();
   var authitem = global.authkeys[authkey];
 
   var result = {};
