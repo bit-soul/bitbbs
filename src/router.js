@@ -110,10 +110,10 @@ router.post('/auth/github/create', limit.peripperday('create_user_per_ip', globa
 router.get('/search', search.index);
 
 //todo 理解这里是干什么的
-if (!global.config.debug) { // 这个兼容破坏了不少测试
-	router.get('/:uid', function (req, res) {
-	  res.redirect('/user/' + req.params.uid)
-	})
-}
+//if (!global.config.debug) { // 这个兼容破坏了不少测试
+//	router.get('/:uid', function (req, res) {
+//	  res.redirect('/user/' + req.params.uid)
+//	})
+//}
 
 module.exports = router;
