@@ -8,6 +8,7 @@ var config = {
 
   bbsname: 'BitBBS',
   bbslogo: '/static/logo.jpg',
+  bbsogimg: '/static/ogimg.jpg',
   keywords: 'nodejs, node, express, connect, socket.io',
   description: 'BitBBS, The Open BBS based on Bitcoin and Bitsoul',
 
