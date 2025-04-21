@@ -60,7 +60,7 @@ function share2twitter(title, link, tab) {
 var tweet = 
 `👻👻👻
 
-💬${title} 
+💬 ${title} 
 
 @bitsoul_xyz #bitbbs #bitsoul #${tab}
 ${link}`

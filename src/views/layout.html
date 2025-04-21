@@ -5,22 +5,22 @@
   <meta name="referrer" content="always">
   <meta name="keywords" content="<%= config.keywords %>"/>
   <meta name='description' content='<%= config.description %>'>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, user-scalable=no">
 
   <meta name="twitter:card" content="summary" />
   <% if (typeof(topic) !== 'undefined') { %>
   <meta property="og:title" content="<%=config.bbsname%> - <%=tabName(topic.tab)%>" />
   <meta property="og:description" content="<%=topic.title%>" />
   <meta property="og:url" content="<%=config.host%>/topic/<%=topic._id%>" />
+  <meta property="og:image" content="<%=config.site_static_host%><%=config.bbsogimg%>" />
   <meta property="og:type" content="website" />
   <% } else { %>
   <meta property="og:title" content="<%= config.bbsname%>" />
   <meta property="og:description" content="<%= config.description %>" />
   <meta property="og:url" content="<%=config.host%>" />
+  <meta property="og:image" content="<%=config.site_static_host%><%=config.bbsogimg%>" />
   <meta property="og:type" content="website" />
   <% } %>
-  <meta property="og:image" content="<%=config.site_static_host%><%=config.bbsogimg%>" />
-  <meta name="twitter:image" content="<%=config.site_static_host%><%=config.bbsogimg%>" />
 
   <link title="RSS" type="application/rss+xml" rel="alternate" href="/rss"/>
   <% if (config.diststatic) { %>
@@ -127,7 +127,7 @@
         <% if (current_user) { %>
         <li><a href='/setting'>Setting</a></li>
         <li>
-          <a href='/signout' data-method="post" rel="nofollow">Logout</a>
+          <a href='javascript:void(0)' data-method="post" rel="nofollow" onclick="if(confirm('Are you sure you want to log out?')) {window.location.href='/signout'}">Logout</a>
         </li>
         <% } else { %>
         <!--<li><a href='/signup'>注册</a></li>-->
