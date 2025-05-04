@@ -33,12 +33,12 @@ exports.validateId = function (str) {
   return (/^[a-zA-Z0-9\-_]+$/i).test(str);
 };
 
-exports.bhash = function (str, callback) {
-  bcrypt.hash(str, 10, callback);
+exports.bhash = async function (str) {
+  return await bcrypt.hash(str, 10);
 };
 
-exports.bcompare = function (str, hash, callback) {
-  bcrypt.compare(str, hash, callback);
+exports.bcompare = async function (str, hash) {
+  return await bcrypt.compare(str, hash);
 };
 
 exports.generateauthkey = function (userid, maxage) {
@@ -55,4 +55,23 @@ exports.generateauthkey = function (userid, maxage) {
   }, 600 * 1000);
 
   return authkey;
+}
+
+exports.sleep = async (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+exports.retryTimes = async (fun, times, interval) => {
+  let last_error;
+
+  for (let retry_cnt = 0; retry_cnt < times; ++retry_cnt) {
+    try {
+      return await fun();
+    } catch (error) {
+      await sleep(interval);
+      last_error = error;
+    }
+  }
+
+  throw last_error;
 }

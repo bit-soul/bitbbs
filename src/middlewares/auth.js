@@ -1,105 +1,106 @@
-var mongoose   = require('mongoose');
-var UserModel  = mongoose.model('User');
-var Message    = require('../proxy').Message;
-var eventproxy = require('eventproxy');
-var UserProxy  = require('../proxy').User;
+const mongoose = require('mongoose');
+const UserModel = mongoose.model('User');
+const { Message: MessageProxy, User: UserProxy } = require('../proxy');
 
-/**
- * 需要管理员权限
- */
-exports.adminRequired = function (req, res, next) {
-  if (!req.session.user) {
-    return res.render('notify/notify', { error: 'Please Login' });
+
+exports.adminRequired = async (ctx, next) => {
+  if (!ctx.session.user) {
+    await ctx.render('notify/notify', { error: 'Please Login' });
+    return;
   }
 
-  if (!req.session.user.is_admin) {
-    return res.render('notify/notify', { error: 'Need Admin' });
+  if (!ctx.session.user.is_admin) {
+    await ctx.render('notify/notify', { error: 'Need Admin' });
+    return;
   }
 
-  next();
+  await next();
 };
 
-/**
- * 需要登录
- */
-exports.userRequired = function (req, res, next) {
-  if (!req.session || !req.session.user || !req.session.user._id) {
-    return res.status(403).send('forbidden!');
+
+exports.userRequired = async (ctx, next) => {
+  if (!ctx.session || !ctx.session.user || !ctx.session.user._id) {
+    ctx.status = 403;
+    ctx.body = 'forbidden!';
+    return;
   }
 
-  next();
+  await next();
 };
 
-exports.blockUser = function () {
-  return function (req, res, next) {
-    if (req.path === '/signout') {
-      return next();
+
+exports.blockUser = () => {
+  return async (ctx, next) => {
+    if (ctx.path === '/signout') {
+      await next();
+      return;
     }
 
-    if (req.session.user && req.session.user.is_block && req.method !== 'GET') {
-      return res.status(403).send('You are blocked by Admin');
+    if (ctx.session.user && ctx.session.user.is_block && ctx.method !== 'GET') {
+      ctx.status = 403;
+      ctx.body = 'You are blocked by Admin';
+      return;
     }
-    next();
+
+    await next();
   };
 };
 
 
-function gen_session(res, userid, maxage) {
-  var auth_token = userid + '$$$$'; // 以后可能会存储更多信息，用 $$$$ 来分隔
-  var opts = {
+exports.gen_session = async (ctx, userid, maxage) => {
+  const auth_token = userid + '$$$$';
+  const opts = {
     path: '/',
-    maxAge: maxage ? maxage : 1000 * 60 * 60 * 24 * 30,
+    maxAge: maxage ? maxage : 1000 * 60 * 60 * 24 * 30, // 30 days
     signed: true,
-    httpOnly: true
+    httpOnly: true,
   };
-  res.cookie(global.config.auth_cookie_name, auth_token, opts); //cookie 有效期30天
+  ctx.cookies.set(global.config.auth_cookie_name, auth_token, opts);
 }
 
-exports.gen_session = gen_session;
 
-// 验证用户是否登录
-exports.authUser = function (req, res, next) {
-  var ep = new eventproxy();
-  ep.fail(next);
+exports.authUser = async (ctx, next) => {
+  ctx.state.current_user = null;
 
-  // Ensure current_user always has defined.
-  res.locals.current_user = null;
-
-  if (global.config.debug && req.cookies['mock_user']) {
-    var mockUser = JSON.parse(req.cookies['mock_user']);
-    req.session.user = new UserModel(mockUser);
-    if (mockUser.is_admin) {
-      req.session.user.is_admin = true;
+  try {
+    if (global.config.debug && ctx.cookies.get('mock_user')) {
+      const mockUser = JSON.parse(ctx.cookies.get('mock_user'));
+      ctx.session.user = new UserModel(mockUser);
+      if (mockUser.is_admin) {
+        ctx.session.user.is_admin = true;
+      }
+      await next();
+      return;
     }
-    return next();
-  }
 
-  ep.all('get_user', function (user) {
+    let user;
+    if (ctx.session.user) {
+      user = ctx.session.user;
+    } else {
+      const auth_token = ctx.cookies.get(global.config.auth_cookie_name, { signed: true });
+      if (auth_token) {
+        const auth = auth_token.split('$$$$');
+        const user_id = auth[0];
+        user = await UserProxy.getUserById(user_id);
+      }
+    }
+
     if (!user) {
-      return next();
+      await next();
+      return;
     }
-    user = res.locals.current_user = req.session.user = new UserModel(user);
+
+    user = ctx.state.current_user = ctx.session.user = new UserModel(user);
 
     if (global.config.admins.hasOwnProperty(user._id)) {
       user.is_admin = true;
     }
 
-    Message.getMessagesCount(user._id, ep.done(function (count) {
-      user.messages_count = count;
-      next();
-    }));
-  });
+    const count = await MessageProxy.getMessagesCount(user._id);
+    user.messages_count = count;
 
-  if (req.session.user) {
-    ep.emit('get_user', req.session.user);
-  } else {
-    var auth_token = req.signedCookies[global.config.auth_cookie_name];
-    if (!auth_token) {
-      return next();
-    }
-
-    var auth = auth_token.split('$$$$');
-    var user_id = auth[0];
-    UserProxy.getUserById(user_id, ep.done('get_user'));
+    await next();
+  } catch (err) {
+    ctx.throw(500, err);
   }
 };

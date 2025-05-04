@@ -1,3 +1,6 @@
+//fix run node18 in win7
+require('os').hostname=()=>"localhost"
+
 const dotenvx = require('@dotenvx/dotenvx');
 switch(process.env.APP_ENV) {
 case 'dev':

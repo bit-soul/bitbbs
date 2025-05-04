@@ -7,95 +7,97 @@ var util       = require('util');
 var TopicModel = require('../models').Topic;
 var ReplyModel = require('../models').Reply;
 var tools      = require('../common/tools');
-var EventProxy = require('eventproxy');
 var validator  = require('validator');
 var _          = require('lodash');
 var uuid = require('node-uuid')
 
-exports.index = function (req, res, next) {
-  var uid = req.params.uid;
-  User.getUserById(uid, function (err, user) {
-    if (err) {
-      return next(err);
+exports.index = async function (ctx, next) {
+  const uid = ctx.params.uid;
+
+  let user;
+  try {
+    user = await User.getUserById(uid);
+  } catch (err) {
+    return await next(err);
+  }
+
+  if (!user) {
+    ctx.status = 404;
+    ctx.body = 'User not exist'; // todo 保持原逻辑，如需自定义渲染可封装 render404 方法
+    return;
+  }
+
+  try {
+    const query = { author_id: user._id };
+    const topicOpt = { limit: 5, sort: '-create_at' };
+    const recent_topics = await Topic.getTopicsByQuery(query, topicOpt);
+
+    const replyOpt = { limit: 20, sort: '-create_at' };
+    const replies = await Reply.getRepliesByAuthorId(user._id, replyOpt);
+
+    let topic_ids = replies.map(reply => reply.topic_id.toString());
+    topic_ids = _.uniq(topic_ids).slice(0, 5);
+
+    const recentQuery = { _id: { '$in': topic_ids } };
+    const recentOpt = {};
+    let recent_replies = await Topic.getTopicsByQuery(recentQuery, recentOpt);
+
+    recent_replies = _.sortBy(recent_replies, topic => {
+      return topic_ids.indexOf(topic._id.toString());
+    });
+
+    let token = '';
+    if (!user.active && ctx.session.user && ctx.session.user.is_admin) {
+      token = utility.md5(user.email + user.pass + global.config.session_secret);
     }
+
+    ctx.render('user/index', {
+      user: user,
+      recent_topics: recent_topics,
+      recent_replies: recent_replies,
+      token: token,
+      pageTitle: util.format('@%s Home Page', user.name),
+    });
+
+  } catch (err) {
+    return await next(err);
+  }
+};
+
+exports.listAdvances = async function (ctx, next) {
+  try {
+    const advances = await User.getUsersByQuery({ is_advance: true }, {});
+    ctx.render('user/advances', { advances: advances });
+  } catch (err) {
+    await next(err);
+  }
+};
+
+exports.showSetting = async function (ctx, next) {
+  try {
+    const user = await User.getUserById(ctx.session.user._id);
     if (!user) {
-      res.render404('User not exist');
-      return;
+      return await next();
     }
 
-    var render = function (recent_topics, recent_replies) {
-      // 如果用户没有激活，那么管理员可以帮忙激活
-      var token = '';
-      if (!user.active && req.session.user && req.session.user.is_admin) {
-        token = utility.md5(user.email + user.pass + global.config.session_secret);
-      }
-      res.render('user/index', {
-        user: user,
-        recent_topics: recent_topics,
-        recent_replies: recent_replies,
-        token: token,
-        pageTitle: util.format('@%s Home Page', user.name),
-      });
-    };
-
-    var proxy = new EventProxy();
-    proxy.assign('recent_topics', 'recent_replies', render);
-    proxy.fail(next);
-
-    var query = {author_id: user._id};
-    var opt = {limit: 5, sort: '-create_at'};
-    Topic.getTopicsByQuery(query, opt, proxy.done('recent_topics'));
-
-    Reply.getRepliesByAuthorId(user._id, {limit: 20, sort: '-create_at'},
-      proxy.done(function (replies) {
-
-        var topic_ids = replies.map(function (reply) {
-          return reply.topic_id.toString()
-        })
-        topic_ids = _.uniq(topic_ids).slice(0, 5); //  只显示最近5条
-
-        var query = {_id: {'$in': topic_ids}};
-        var opt = {};
-        Topic.getTopicsByQuery(query, opt, proxy.done('recent_replies', function (recent_replies) {
-          recent_replies = _.sortBy(recent_replies, function (topic) {
-            return topic_ids.indexOf(topic._id.toString())
-          })
-          return recent_replies;
-        }));
-      }));
-  });
-};
-
-exports.listAdvances = function (req, res, next) {
-  User.getUsersByQuery({is_advance: true}, {}, function (err, advances) {
-    if (err) {
-      return next(err);
-    }
-    res.render('user/advances', {advances: advances});
-  });
-};
-
-exports.showSetting = function (req, res, next) {
-  User.getUserById(req.session.user._id, function (err, user) {
-    if (err || !user) {
-      return next(err);
-    }
-    if (req.query.save === 'success') {
+    if (ctx.query.save === 'success') {
       user.success = 'success';
     }
     user.error = null;
-    return res.render('user/setting', user);
-  });
+
+    return ctx.render('user/setting', user);
+  } catch (err) {
+    return await next(err);
+  }
 };
 
-exports.setting = function (req, res, next) {
-  var ep = new EventProxy();
-  ep.fail(next);
+exports.setting = async function (ctx, next) {
+  const reqBody = ctx.request.body;
+  const sessionUser = ctx.session.user;
 
-  // 显示出错或成功信息
   function showMessage(msg, data, isSuccess) {
-    data = data || req.body;
-    var data2 = {
+    data = data || reqBody;
+    const data2 = {
       name: data.name,
       biog: data.biog,
       accessToken: data.accessToken,
@@ -105,275 +107,257 @@ exports.setting = function (req, res, next) {
     } else {
       data2.error = msg;
     }
-    res.render('user/setting', data2);
+    return ctx.render('user/setting', data2);
   }
 
-  // post
-  var action = req.body.action;
-  if (action === 'change_setting') {
-    var name = validator.trim(req.body.name);
-    var biog = validator.trim(req.body.biog);
+  const action = reqBody.action;
 
-    User.getUserById(req.session.user._id, ep.done(function (user) {
+  try {
+    if (action === 'change_setting') {
+      const name = validator.trim(reqBody.name);
+      const biog = validator.trim(reqBody.biog);
+
+      const user = await User.getUserById(sessionUser._id);
       user.name = name;
       user.biog = biog;
-      user.save(function (err) {
-        if (err) {
-          return next(err);
-        }
-        req.session.user = user.toObject({virtual: true});
-        return res.redirect('/setting?save=success');
-      });
-    }));
-  }
-  if (action === 'change_password') {
-    var old_pass = validator.trim(req.body.old_pass);
-    var new_pass = validator.trim(req.body.new_pass);
-    if (!old_pass || !new_pass) {
-      return res.send('旧密码或新密码不得为空');
+      await user.save();
+      ctx.session.user = user.toObject({ virtual: true });
+      return ctx.redirect('/setting?save=success');
     }
 
-    User.getUserById(req.session.user._id, ep.done(function (user) {
-      tools.bcompare(old_pass, user.pass, ep.done(function (bool) {
-        if (!bool) {
-          return showMessage('当前密码不正确。', user);
-        }
+    if (action === 'change_password') {
+      const old_pass = validator.trim(reqBody.old_pass);
+      const new_pass = validator.trim(reqBody.new_pass);
 
-        tools.bhash(new_pass, ep.done(function (passhash) {
-          user.pass = passhash;
-          user.save(function (err) {
-            if (err) {
-              return next(err);
-            }
-            return showMessage('密码已被修改。', user, true);
-
-          });
-        }));
-      }));
-    }));
-  }
-};
-
-exports.toggleAdvance = function (req, res, next) {
-  var user_id = req.body.user_id;
-  User.getUserById(user_id, function (err, user) {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      return next(new Error('user is not exists'));
-    }
-    user.is_advance = !user.is_advance;
-    user.save(function (err) {
-      if (err) {
-        return next(err);
+      if (!old_pass || !new_pass) {
+        return ctx.body = 'password can not be empty';
       }
-      res.json({ status: 'success' });
-    });
-  });
+
+      const user = await User.getUserById(sessionUser._id);
+      const isMatch = await tools.bcompare(old_pass, user.pass);
+
+      if (!isMatch) {
+        return showMessage('password error。', user);
+      }
+
+      const passhash = await tools.bhash(new_pass);
+      user.pass = passhash;
+      await user.save();
+
+      return showMessage('password changed', user, true);
+    }
+  } catch (err) {
+    return next(err);
+  }
 };
 
-exports.listMarkedTopics = function (req, res, next) {
-  var uid = req.params.uid;
-  var page = Number(req.query.page) || 1;
-  var limit = global.config.list_topic_count;
+exports.toggleAdvance = async function (ctx, next) {
+  try {
+    const user_id = ctx.request.body.user_id;
+    const user = await User.getUserById(user_id);
 
-  User.getUserById(uid, function (err, user) {
-    if (err || !user) {
-      return next(err);
+    if (!user) {
+      throw new Error('user is not exists');
     }
-    var pages = Math.ceil(user.mark_topic_count/limit);
-    var render = function (topics) {
-      res.render('user/marktopics', {
-        topics: topics,
-        current_page: page,
-        pages: pages,
-        user: user
-      });
-    };
 
-    var proxy = EventProxy.create('topics', render);
-    proxy.fail(next);
+    user.is_advance = !user.is_advance;
+    await user.save();
 
-    var opt = {
+    ctx.body = { status: 'success' };
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports.listMarkedTopics = async function (ctx, next) {
+  try {
+    const uid = ctx.params.uid;
+    const page = Number(ctx.query.page) || 1;
+    const limit = global.config.list_topic_count;
+
+    const user = await User.getUserById(uid);
+    if (!user) {
+      throw new Error('user not found');
+    }
+
+    const pages = Math.ceil(user.mark_topic_count / limit);
+    const opt = {
       skip: (page - 1) * limit,
       limit: limit,
     };
 
-    MarkTopic.getMarkTopicsByUserId(user._id, opt, proxy.done(function (docs) {
-      var ids = docs.map(function (doc) {
-        return String(doc.topic_id)
-      })
-      var query = { _id: { '$in': ids } };
+    const docs = await MarkTopic.getMarkTopicsByUserId(user._id, opt);
+    const ids = docs.map(doc => String(doc.topic_id));
 
-      Topic.getTopicsByQuery(query, {}, proxy.done('topics', function (topics) {
-        topics = _.sortBy(topics, function (topic) {
-          return ids.indexOf(String(topic._id))
-        })
-        return topics
-      }));
-    }));
-  });
+    const query = { _id: { $in: ids } };
+    let topics = await Topic.getTopicsByQuery(query, {});
+    topics = _.sortBy(topics, topic => ids.indexOf(String(topic._id)));
+
+    return ctx.render('user/marktopics', {
+      topics,
+      current_page: page,
+      pages,
+      user
+    });
+
+  } catch (err) {
+    return next(err);
+  }
 };
 
-exports.top100 = function (req, res, next) {
-  var opt = {limit: 100, sort: '-score'};
-  User.getUsersByQuery({is_block: false}, opt, function (err, tops) {
-    if (err) {
-      return next(err);
-    }
-    res.render('user/top100', {
+exports.top100 = async function (ctx, next) {
+  try {
+    const opt = { limit: 100, sort: '-score' };
+    const tops = await User.getUsersByQuery({ is_block: false }, opt);
+
+    return ctx.render('user/top100', {
       users: tops,
       pageTitle: 'top100',
     });
-  });
+  } catch (err) {
+    return next(err);
+  }
 };
 
-exports.listTopics = function (req, res, next) {
-  var uid = req.params.uid;
-  var page = Number(req.query.page) || 1;
-  var limit = global.config.list_topic_count;
+exports.listTopics = async function (ctx, next) {
+  try {
+    const uid = ctx.params.uid;
+    const page = Number(ctx.query.page) || 1;
+    const limit = global.config.list_topic_count;
 
-  User.getUserById(uid, function (err, user) {
+    const user = await User.getUserById(uid);
     if (!user) {
-      res.render404('User not exist');
-      return;
+      return ctx.render404('User not exist');
     }
 
-    var render = function (topics, pages) {
-      res.render('user/topics', {
-        user: user,
-        topics: topics,
-        current_page: page,
-        pages: pages
-      });
+    const query = { author_id: user._id };
+    const opt = {
+      skip: (page - 1) * limit,
+      limit: limit,
+      sort: '-create_at'
     };
 
-    var proxy = new EventProxy();
-    proxy.assign('topics', 'pages', render);
-    proxy.fail(next);
+    const [topics, total] = await Promise.all([
+      Topic.getTopicsByQuery(query, opt),
+      Topic.getCountByQuery(query)
+    ]);
 
-    var query = {'author_id': user._id};
-    var opt = {skip: (page - 1) * limit, limit: limit, sort: '-create_at'};
-    Topic.getTopicsByQuery(query, opt, proxy.done('topics'));
+    const pages = Math.ceil(total / limit);
 
-    Topic.getCountByQuery(query, proxy.done(function (all_topics_count) {
-      var pages = Math.ceil(all_topics_count / limit);
-      proxy.emit('pages', pages);
-    }));
-  });
+    return ctx.render('user/topics', {
+      user,
+      topics,
+      current_page: page,
+      pages
+    });
+
+  } catch (err) {
+    return next(err);
+  }
 };
 
-exports.listReplies = function (req, res, next) {
-  var uid = req.params.uid;
-  var page = Number(req.query.page) || 1;
-  var limit = 50;
+exports.listReplies = async function (ctx, next) {
+  try {
+    const uid = ctx.params.uid;
+    const page = Number(ctx.query.page) || 1;
+    const limit = 50;
 
-  User.getUserById(uid, function (err, user) {
+    const user = await User.getUserById(uid);
     if (!user) {
-      res.render404('User not exist');
-      return;
+      return ctx.render404('User not exist');
     }
 
-    var render = function (topics, pages) {
-      res.render('user/replies', {
-        user: user,
-        topics: topics,
-        current_page: page,
-        pages: pages
-      });
+    const opt = {
+      skip: (page - 1) * limit,
+      limit: limit,
+      sort: '-create_at'
     };
 
-    var proxy = new EventProxy();
-    proxy.assign('topics', 'pages', render);
-    proxy.fail(next);
+    const [replies, total] = await Promise.all([
+      Reply.getRepliesByAuthorId(user._id, opt),
+      Reply.getCountByAuthorId(user._id)
+    ]);
 
-    var opt = {skip: (page - 1) * limit, limit: limit, sort: '-create_at'};
-    Reply.getRepliesByAuthorId(user._id, opt, proxy.done(function (replies) {
-      // 获取所有有评论的主题
-      var topic_ids = replies.map(function (reply) {
-        return reply.topic_id.toString();
-      });
-      topic_ids = _.uniq(topic_ids);
+    let topic_ids = replies.map(reply => reply.topic_id.toString());
+    topic_ids = _.uniq(topic_ids);
 
-      var query = {'_id': {'$in': topic_ids}};
-      Topic.getTopicsByQuery(query, {}, proxy.done('topics', function (topics) {
-        topics = _.sortBy(topics, function (topic) {
-          return topic_ids.indexOf(topic._id.toString())
-        })
-        return topics;
-      }));
-    }));
+    const query = { _id: { $in: topic_ids } };
+    let topics = await Topic.getTopicsByQuery(query, {});
+    topics = _.sortBy(topics, topic => topic_ids.indexOf(topic._id.toString()));
 
-    Reply.getCountByAuthorId(user._id, proxy.done('pages', function (count) {
-      var pages = Math.ceil(count / limit);
-      return pages;
-    }));
-  });
+    const pages = Math.ceil(total / limit);
+
+    return ctx.render('user/replies', {
+      user,
+      topics,
+      current_page: page,
+      pages
+    });
+
+  } catch (err) {
+    return next(err);
+  }
 };
 
-exports.block = function (req, res, next) {
-  var uid = req.params.uid;
-  var action = req.body.action;
+exports.block = async function (ctx, next) {
+  try {
+    const uid = ctx.params.uid;
+    const action = ctx.request.body.action;
 
-  var ep = EventProxy.create();
-  ep.fail(next);
-
-  User.getUserById(uid, ep.done(function (user) {
+    const user = await User.getUserById(uid);
     if (!user) {
-      return next(new Error('User not exist'));
+      throw new Error('User not exist');
     }
+
     if (action === 'set_block') {
-      ep.all('block_user',
-        function (user) {
-          res.json({status: 'success'});
-        });
       user.is_block = true;
-      user.save(ep.done('block_user'));
-
+      await user.save();
+      ctx.body = { status: 'success' };
     } else if (action === 'cancel_block') {
       user.is_block = false;
-      user.save(ep.done(function () {
-
-        res.json({status: 'success'});
-      }));
+      await user.save();
+      ctx.body = { status: 'success' };
     }
-  }));
+  } catch (err) {
+    return next(err);
+  }
 };
 
-exports.deleteAll = function (req, res, next) {
-  var uid = req.params.uid;
+exports.deleteAll = async function (ctx, next) {
+  try {
+    const uid = ctx.params.uid;
 
-  var ep = EventProxy.create();
-  ep.fail(next);
-
-  User.getUserById(uid, ep.done(function (user) {
+    const user = await User.getUserById(uid);
     if (!user) {
-      return next(new Error('user is not exists'));
+      throw new Error('user is not exists');
     }
-    ep.all('del_topics', 'del_replys', 'del_ups',
-      function () {
-        res.json({status: 'success'});
-      });
-    // 删除主题
-    TopicModel.updateMany({author_id: user._id}, {$set: {deleted: true}}, ep.done('del_topics'));
-    // 删除评论
-    ReplyModel.updateMany({author_id: user._id}, {$set: {deleted: true}}, ep.done('del_replys'));
-    // 点赞数也全部干掉
-    ReplyModel.updateMany({}, {$pull: {'ups': user._id}}, ep.done('del_ups'));
-  }));
+
+    // 并发执行所有删除操作
+    await Promise.all([
+      TopicModel.updateMany({ author_id: user._id }, { $set: { deleted: true } }),
+      ReplyModel.updateMany({ author_id: user._id }, { $set: { deleted: true } }),
+      ReplyModel.updateMany({}, { $pull: { ups: user._id } }),
+    ]);
+
+    ctx.body = { status: 'success' };
+  } catch (err) {
+    return next(err);
+  }
 };
 
-exports.refreshToken = function (req, res, next) {
-  var user_id = req.session.user._id;
+exports.refreshToken = async function (ctx, next) {
+  try {
+    const user_id = ctx.session.user._id;
 
-  var ep = EventProxy.create();
-  ep.fail(next);
-
-   User.getUserById(user_id, ep.done(function (user) {
+    const user = await User.getUserById(user_id);
     user.accessToken = uuid.v4();
-    user.save(ep.done(function () {
-      res.json({status: 'success', accessToken: user.accessToken});
-    }));
-  }));
+    await user.save();
+
+    ctx.body = {
+      status: 'success',
+      accessToken: user.accessToken,
+    };
+  } catch (err) {
+    return next(err);
+  }
 };

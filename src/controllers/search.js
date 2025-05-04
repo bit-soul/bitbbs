@@ -1,5 +1,4 @@
-exports.index = function (req, res, next) {
-  var q = req.query.q;
-  q = encodeURIComponent(q);
-  res.redirect('https://www.google.com.hk/search?q=site:bitbbs.bitsoul.xyz+' + q);
+exports.index = async function (ctx, next) {
+  const q = encodeURIComponent(ctx.query.q || '');
+  ctx.redirect('https://www.google.com.hk/search?q=site:bitbbs.bitsoul.xyz+' + q);
 };

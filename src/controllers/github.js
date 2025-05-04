@@ -1,70 +1,77 @@
 var Models         = require('../models');
 var User           = Models.User;
 var authMiddleWare = require('../middlewares/auth');
-var tools          = require('../common/tools');
-var eventproxy     = require('eventproxy');
 var uuid           = require('node-uuid');
-var validator      = require('validator');
 
-exports.callback = function (req, res, next) {
-  var profile = req.user;
-  var email = profile.emails && profile.emails[0] && profile.emails[0].value;
+/**
+ * GitHub OAuth 回调
+ */
+exports.callback = async function (ctx, next) {
+  const profile = ctx.state.user; // passport 插入的 user 对象
+  const email = profile.emails && profile.emails[0]?.value;
+
   if (!email) {
-    return res.status(500)
-      .render('sign/no_github_email');
+    ctx.status = 500;
+    return await ctx.render('sign/no_github_email');
   }
-  User.findOne({githubId: profile.id}, function (err, user) {
-    if (err) {
-      return next(err);
-    }
-    // 当用户已经注册，通过 github 登陆将会更新他的资料
+
+  try {
+    let user = await User.findOne({ githubId: profile.id });
+
     if (user) {
+      // 已注册，更新信息
       user.githubUsername = profile.username;
       user.githubId = profile.id;
       user.githubAccessToken = profile.accessToken;
       user.icon = profile._json.avatar_url;
       user.email = email || user.email;
 
+      await user.save();
 
-      user.save(function (err) {
-        if (err) {
-          return next(err);
-        }
-        authMiddleWare.gen_session(res, user._id);
-        return res.redirect('/');
-      });
+      authMiddleWare.gen_session(ctx.res, user._id);
+      ctx.redirect('/');
     } else {
-      // 如果用户还未存在，则建立新用户
-      req.session.profile = profile;
-      return res.redirect('/auth/github/new');
+      // 未注册，跳转补充信息页
+      ctx.session.profile = profile;
+      ctx.redirect('/auth/github/new');
     }
+
+  } catch (err) {
+    return next(err);
+  }
+};
+
+/**
+ * 显示新建 OAuth 用户信息填写页
+ */
+exports.new = async function (ctx) {
+  await ctx.render('sign/new_oauth', {
+    actionPath: '/auth/github/create'
   });
 };
 
-exports.new = function (req, res, next) {
-  res.render('sign/new_oauth', {actionPath: '/auth/github/create'});
-};
-
-exports.create = function (req, res, next) {
-  var profile = req.session.profile;
-
-  var ep = new eventproxy();
-  ep.fail(next);
+/**
+ * 创建 GitHub OAuth 用户
+ */
+exports.create = async function (ctx, next) {
+  const profile = ctx.session.profile;
 
   if (!profile) {
-    return res.redirect('/signin');
+    return ctx.redirect('/signin');
   }
-  delete req.session.profile;
 
-  var email = profile.emails && profile.emails[0] && profile.emails[0].value;
+  delete ctx.session.profile;
+
+  const email = profile.emails && profile.emails[0]?.value;
   if (!email) {
-    return res.status(500)
-      .render('sign/no_github_email');
+    ctx.status = 500;
+    return await ctx.render('sign/no_github_email');
   }
-  var user = new User({
+
+  const user = new User({
     name: profile.username,
-    pass: profile.accessToken,
-    email: email,
+    pass: profile.accessToken, // 此处你可替换为随机密码
+    email,
     icon: profile._json.avatar_url,
     githubId: profile.id,
     githubUsername: profile.username,
@@ -72,11 +79,12 @@ exports.create = function (req, res, next) {
     active: true,
     accessToken: uuid.v4(),
   });
-  user.save(function (err) {
-    if (err) {
-      return next(err);
-    }
-    authMiddleWare.gen_session(res, user._id);
-    res.redirect('/');
-  });
+
+  try {
+    await user.save();
+    authMiddleWare.gen_session(ctx.res, user._id);
+    ctx.redirect('/');
+  } catch (err) {
+    return next(err);
+  }
 };

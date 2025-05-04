@@ -1,6 +1,7 @@
 var utility = require('utility');
 var path    = require('path');
 var fs      = require('fs');
+const { pipeline } = require('stream/promises');
 
 var s3sdk = require("@aws-sdk/client-s3");
 var s3presigner = require("@aws-sdk/s3-request-presigner");
@@ -39,26 +40,23 @@ var local = {
     return '/upload';
   },
 
-  upload: function (file, options, callback) {
-      var filename = options.filename;
-    
-      var newFilename = utility.md5(filename + String((new Date()).getTime())) +
-        path.extname(filename);
-    
-      var upload_path = global.config.upload.path;
-      var base_url    = global.config.upload.url;
-      var filePath    = path.join(upload_path, newFilename);
-      var fileUrl     = base_url + newFilename;
-    
-      file.on('end', function () {
-        callback(null, {
-          url: fileUrl
-        });
-      });
-    
-      file.pipe(fs.createWriteStream(filePath));
-    },
-}
+  upload: async function (file, options) {
+    const filename = options.filename;
+
+    const newFilename =
+      utility.md5(filename + String(Date.now())) + path.extname(filename);
+
+    const upload_path = global.config.upload.path;
+    const base_url = global.config.upload.url;
+    const filePath = path.join(upload_path, newFilename);
+    const fileUrl = base_url + newFilename;
+
+    // 使用 stream/promises 中的 pipeline 来 await 写入完成
+    await pipeline(file, fs.createWriteStream(filePath));
+
+    return { url: fileUrl };
+  },
+};
 
 if (s3_client) {
   module.exports = s3cloud;

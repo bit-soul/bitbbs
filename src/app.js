@@ -1,11 +1,30 @@
-//fix run node18 in win7
-const os = require('os')
-os.hostname=()=>"localhost"
+const os = require('os');
+const fs = require('fs');
+const path = require('path');
+const lodash = require('lodash');
 
-//tempdata store in ram
-global.authkeys = {
-  //authkey: [userid, maxage]
-};
+const Koa = require('koa');
+const koaonerror = require('koa-onerror')
+const koastatic = require('@koa/static')
+const koabody = require('koa-body')
+const koasession = require('@koa/session');
+const koaredis = require('koa-redis');
+const koaejs = require('@koa/ejs')
+const koacors = require('@koa/cors');
+const koacsrf = require('@koa/csrf');
+const koapassport = require('koa-passport');
+const koahelmet = require('koa-helmet');
+
+var midauth = require('./middlewares/auth');
+var miderrpage = require('./middlewares/errpage');
+var midproxy = require('./middlewares/proxy');
+var midreqlog = require('./middlewares/reqlog');
+var midrender = require('./middlewares/render');
+var midgithub = require('./middlewares/github');
+
+var logger = require('./common/logger');
+
+var GitHubStrategy = require('passport-github').Strategy;
 
 //choose config file
 switch (process.env.APP_ENV) {
@@ -34,7 +53,6 @@ switch (process.env.APP_ENV) {
     global.config = require('./config/local');
     break;
 }
-
 if(process.env.admins) {
   const items = process.env.admins.split(';');
   items.forEach(item => {
@@ -42,108 +60,22 @@ if(process.env.admins) {
   });
 }
 
+
+// load global variable
+require("./global.js");
+
+require('./models');
+
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+
+
+var csurf = require('csurf');
+
 if (!global.config.debug && global.config.oneapm_key) {
   require('oneapm');
 }
-
-require('colors');
-const fs = require('fs');
-var path = require('path');
-var express = require('express');
-var session = require('express-session');
-var passport = require('passport');
-require('./middlewares/mongoose_log');
-require('./models');
-var GitHubStrategy = require('passport-github').Strategy;
-var githubStrategyMiddleware = require('./middlewares/github_strategy');
-var webRouter = require('./router');
-var auth = require('./middlewares/auth');
-var errorPageMiddleware = require('./middlewares/error_page');
-var proxyMiddleware = require('./middlewares/proxy');
-var RedisStore = require('connect-redis')(session);
-var _ = require('lodash');
-var csurf = require('csurf');
-var bodyParser = require('body-parser');
-var busboy = require('connect-busboy');
-var cors = require('cors');
-var requestLog = require('./middlewares/request_log');
-var renderMiddleware = require('./middlewares/render');
-var logger = require('./common/logger');
-var helmet = require('helmet');
-var bytes = require('bytes');
-
-var staticDir = path.join(__dirname, '../static');
-if(config.diststatic){
-  staticDir = path.join(__dirname, '../dist/static');
-}
-var uploadDir = path.join(__dirname, '../upload');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-if (!fs.existsSync(global.config.log_dir)) {
-    fs.mkdirSync(global.config.log_dir, { recursive: true });
-}
-
-var urlinfo = require('url').parse(global.config.host);
-global.config.hostname = urlinfo.hostname || global.config.host;
-
-var app = express();
-
-// configuration in all env
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'html');
-app.engine('html', require('ejs-mate'));
-app.locals._layoutFile = 'layout.html';
-app.enable('trust proxy');
-
-// Request time logger 
-app.use(requestLog);
-
-if (global.config.debug) {
-  // Render time
-  app.use(renderMiddleware.render);
-}
-
-// static resource
-app.use('/static', express.static(staticDir));
-app.use('/upload', express.static(uploadDir));
-app.use('/agent', proxyMiddleware.proxy);
-
-// common middlewares
-app.use(require('response-time')());
-app.use(helmet.frameguard('sameorigin'));
-app.use(bodyParser.json({limit: '1mb'}));
-app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
-app.use(require('method-override')());
-app.use(require('cookie-parser')(global.config.session_secret));
-app.use(session({
-  secret: global.config.session_secret,
-  store: new RedisStore({
-    port: global.config.redis_cfg.port,
-    host: global.config.redis_cfg.host,
-    db: global.config.redis_cfg.db,
-    pass: global.config.redis_cfg.password,
-  }),
-  resave: false,
-  saveUninitialized: false,
-}));
-
-// oauth middleware
-app.use(passport.initialize());
-
-// github oauth
-passport.serializeUser(function (user, done) {
-  done(null, user);
-});
-passport.deserializeUser(function (user, done) {
-  done(null, user);
-});
-passport.use(new GitHubStrategy(global.config.GITHUB_OAUTH, githubStrategyMiddleware));
-
-// custom middleware
-app.use(auth.authUser);
-app.use(auth.blockUser());
 
 if (!global.config.debug) {
   app.use(function (req, res, next) {
@@ -153,48 +85,183 @@ if (!global.config.debug) {
     }
     next();
   });
-  app.set('view cache', true);
 }
-
-// for debug
-// app.get('/err', function (req, res, next) {
-//   next(new Error('haha'))
-// });
 
 // set static, dynamic helpers
 _.extend(app.locals, {
   config: global.config,
 });
 
-app.use(errorPageMiddleware.errorPage);
 _.extend(app.locals, require('./common/render_helper'));
 app.use(function (req, res, next) {
   res.locals.csrf = req.csrfToken ? req.csrfToken() : '';
   next();
 });
 
-app.use(busboy({
-  limits: {
-    fileSize: bytes(global.config.file_limit)
+
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+
+//创建Koa应用
+const app = new Koa();
+
+// onerror
+onerror(app);
+
+//ejs
+koaejs(app, {
+  root: path.join(__dirname, 'views'),
+  viewExt: 'ejs',
+  layout: false,
+  cache: true,
+  debug: false
+});
+
+// session
+app.keys = [global.config.koa_session_app_key];
+const session_config = {
+    key: 'koa:tt', /**  cookie的key。 (默认是 koa:sess) */
+    maxAge: global.config.koa_session_max_age,   /**  session 过期时间，以毫秒ms为单位计算 。*/
+    autoCommit: true, /** 自动提交到响应头。(默认是 true) */
+    overwrite: true, /** 是否允许重写 。(默认是 true) */
+    httpOnly: true, /** 是否设置HttpOnly，如果在Cookie中设置了"HttpOnly"属性，那么通过程序(JS脚本、Applet等)将无法读取到Cookie信息，这样能有效的防止XSS攻击。  (默认 true) */
+    signed: true, /** 是否签名。(默认是 true) */
+    rolling: false, /** 是否每次响应时刷新Session的有效期。(默认是 false) */
+    renew: true, /** 是否在Session快过期时刷新Session的有效期。(默认是 false) */
+    store: koaredis(global.config.koaredis_config)
+};
+app.use(session(session_config, app));
+
+//body
+app.use(koaBody({
+  multipart: true,
+  formidable: {
+    maxFileSize: 5 * 1024 * 1024, // 5MB
+    keepExtensions: true
   }
 }));
 
-// routes
-app.use('/', webRouter);
+// helmet
+app.use(koahelmet.frameguard({ action: 'sameorigin' }));
 
-// error handler
-if (global.config.debug) {
-  app.use(require('errorhandler')());
-} else {
-  app.use(function (err, req, res, next) {
-    logger.error(err);
-    return res.status(500).send('500 status');
-  });
+//cors
+app.use(cors({
+    maxAge: 86400000,
+    exposeHeaders: "Content-Type, Set-tt-Cookie, Content-Length",
+    //allowHeaders: 
+    //credentials: true,
+}));
+
+//logger
+if (!fs.existsSync(global.config.log_dir)) {
+    fs.mkdirSync(global.config.log_dir, { recursive: true });
+}
+if(global.config.enable_log) {
+  app.use(midreqLog);
+  app.use(midrender.render);
 }
 
-app.listen(global.config.port, function () {
-  logger.info('listening on port', global.config.port);
-  logger.info('God bless love....');
-  logger.info('You can debug your app with http://' + global.config.hostname + ':' + global.config.port);
-  logger.info('');
+// auth user
+app.use(midauth.authUser);
+app.use(midauth.blockUser());
+
+// oauth middleware
+app.use(koapassport.initialize());
+koapassport.serializeUser(function (user, done) {
+  done(null, user);
 });
+koapassport.deserializeUser(function (user, done) {
+  done(null, user);
+});
+koapassport.use(new GitHubStrategy(global.config.GITHUB_OAUTH, midgithub.strategy));
+
+//staticfile
+var staticDir = path.join(__dirname, '../static');
+if(config.diststatic){
+  staticDir = path.join(__dirname, '../dist/static');
+}
+app.use(koastatic(staticDir));
+
+var uploadDir = path.join(__dirname, '../upload');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+app.use(koastatic(uploadDir));
+
+// error page
+app.use(miderrpage.errorPage);
+
+//graceful-shutdown
+app.use(require("./middleware/graceful_shutdown.js"));
+
+// proxy agent
+app.use('/agent', midproxy.proxy);
+
+//load routers recursively
+(function(){
+
+   loadRouters("./router");
+
+   function loadRouters(router_path)
+   {
+      //if router_path is a directory, then call loadRouters for each of it's items
+      if(fs.lstatSync(router_path).isDirectory())
+      {  
+         var items=fs.readdirSync(router_path); 
+         items.forEach(function(item, index, array){
+            loadRouters(router_path + '/' + item);
+         });
+      }
+      //if router_path is js file, then load it as router
+      else if(router_path.slice(-3) == '.js')
+      {  
+         var router_handler = require(router_path); 
+         if(router_handler.routes != undefined)
+         {
+            app.use(router_handler.routes(), router_handler.allowedMethods());
+         }
+         else
+         {
+            console.log('[alert]: cann\'t load router ' + router_path);
+         }
+      }
+      //it's neither a directory or js file
+      else
+      {  
+         console.log('[alert]: router skip file ' + router_path);
+      }
+   }
+})();
+
+/*延后60秒退出*/
+global.shutdown = false;
+global.shutdown_cnt = 0;
+function graceful_shutdown()
+{
+  ++global.shutdown_cnt;
+  if(global.shutdown_cnt>=3)
+  {
+    console.log("exit: " + Date.now())
+    process.exit();
+  }
+
+  if(global.shutdown==false)
+  {
+    global.shutdown = true;
+    console.log("preshut: " + Date.now());
+    setTimeout(function(){
+      console.log("exit: " + Date.now())
+      process.exit();
+    }, 60000)
+  }
+  else
+  {
+    console.log("shuting...");
+  }
+}
+process.on('SIGINT', graceful_shutdown);
+process.on('SIGTERM', graceful_shutdown);
+
+/*启动服务*/
+app.listen(global.config.koa_app_port, "127.0.0.1");

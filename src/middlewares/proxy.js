@@ -1,30 +1,38 @@
-var urllib  = require('url');
-var request = require('request');
-var logger = require('../common/logger')
-var _ = require('lodash')
+const { URL } = require('url');
+const fetch = require('node-fetch');
+const logger = require('../common/logger');
 
-
-var ALLOW_HOSTNAME = [
+const ALLOW_HOSTNAME = [
   'avatars.githubusercontent.com', 'www.gravatar.com',
   'gravatar.com', 'www.google-analytics.com',
 ];
-exports.proxy = function (req, res, next) {
-  var url = decodeURIComponent(req.query.url);
-  var hostname = urllib.parse(url).hostname;
 
-  if (ALLOW_HOSTNAME.indexOf(hostname) === -1) {
-    return res.send(hostname + ' is not allowed');
+exports.proxy = async function (ctx, next) {
+  const url = decodeURIComponent(ctx.query.url || '');
+  const hostname = new URL(url).hostname;
+
+  if (!ALLOW_HOSTNAME.includes(hostname)) {
+    ctx.status = 400;
+    ctx.body = hostname + ' is not allowed';
+    return;
   }
 
-  request.get({
-      url: url,
-      headers: _.omit(req.headers, ['cookie', 'refer']),
-    })
-    .on('response', function (response) {
-      res.set(response.headers);
-    })
-    .on('error', function (err) {
-      logger.error(err);
-    })
-    .pipe(res);
+  try {
+    const response = await fetch(url, {
+      headers: {
+        ...ctx.headers,
+        cookie: '', // remove cookie
+        referer: '', // remove referer
+      },
+    });
+
+    ctx.set(response.headers);
+
+    ctx.status = response.status;
+    ctx.body = response.body;
+  } catch (err) {
+    logger.error(err);
+    ctx.status = 502;
+    ctx.body = 'Proxy Error';
+  }
 };

@@ -1,33 +1,39 @@
 var Message    = require('../proxy').Message;
-var eventproxy = require('eventproxy');
 
-exports.index = function (req, res, next) {
-  var user_id = req.session.user._id;
-  var ep = new eventproxy();
-  ep.fail(next);
+exports.index = async function (ctx, next) {
+  try {
+    const user_id = ctx.session.user._id;
 
-  ep.all('has_read_messages', 'hasnot_read_messages', function (has_read_messages, hasnot_read_messages) {
-    res.render('message/index', {has_read_messages: has_read_messages, hasnot_read_messages: hasnot_read_messages});
-  });
+    // 并发获取已读和未读消息原始数据
+    const [has_read, unread] = await Promise.all([
+      Message.getReadMessagesByUserId(user_id),
+      Message.getUnreadMessageByUserId(user_id)
+    ]);
 
-  ep.all('has_read', 'unread', function (has_read, unread) {
-    [has_read, unread].forEach(function (msgs, idx) {
-      var epfill = new eventproxy();
-      epfill.fail(next);
-      epfill.after('message_ready', msgs.length, function (docs) {
-        docs = docs.filter(function (doc) {
-          return !doc.is_invalid;
-        });
-        ep.emit(idx === 0 ? 'has_read_messages' : 'hasnot_read_messages', docs);
-      });
-      msgs.forEach(function (doc) {
-        Message.getMessageRelations(doc, epfill.group('message_ready'));
-      });
+    // 辅助函数：填充消息详情
+    const fillMessages = async (messages) => {
+      const filled = await Promise.all(
+        messages.map(msg => Message.getMessageRelations(msg))
+      );
+      return filled.filter(doc => !doc.is_invalid);
+    };
+
+    // 填充详情并过滤无效项
+    const [has_read_messages, hasnot_read_messages] = await Promise.all([
+      fillMessages(has_read),
+      fillMessages(unread)
+    ]);
+
+    // 标记未读为已读（不等待）
+    Message.updateMessagesToRead(user_id, unread).catch(console.error);
+
+    // 渲染视图（保持原res.render模式）
+    return ctx.render('message/index', {
+      has_read_messages,
+      hasnot_read_messages
     });
-    
-    Message.updateMessagesToRead(user_id, unread);
-  });
 
-  Message.getReadMessagesByUserId(user_id, ep.done('has_read'));
-  Message.getUnreadMessageByUserId(user_id, ep.done('unread'));
+  } catch (err) {
+    return next(err);
+  }
 };

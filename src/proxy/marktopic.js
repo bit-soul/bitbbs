@@ -1,24 +1,23 @@
 var MarkTopic = require('../models').MarkTopic;
 var _ = require('lodash')
 
-exports.getMarkTopic = function (userId, topicId, callback) {
-  MarkTopic.findOne({user_id: userId, topic_id: topicId}, callback);
+exports.getMarkTopic = async function (userId, topicId) {
+  return await MarkTopic.findOne({ user_id: userId, topic_id: topicId });
 };
 
-exports.getMarkTopicsByUserId = function (userId, opt, callback) {
-  var defaultOpt = {sort: '-create_at'};
-  opt = _.assign(defaultOpt, opt)
-  MarkTopic.find({user_id: userId}, '', opt, callback);
+exports.getMarkTopicsByUserId = async function (userId, opt = {}) {
+  const defaultOpt = { sort: '-create_at' };
+  const finalOpt = _.assign(defaultOpt, opt);
+  return await MarkTopic.find({ user_id: userId }, '', finalOpt);
 };
 
-exports.newAndSave = function (userId, topicId, callback) {
-  var marktopic      = new MarkTopic();
-  marktopic.user_id  = userId;
+exports.newAndSave = async function (userId, topicId) {
+  const marktopic = new MarkTopic();
+  marktopic.user_id = userId;
   marktopic.topic_id = topicId;
-  marktopic.save(callback);
+  return await marktopic.save();
 };
 
-exports.remove = function (userId, topicId, callback) {
-  MarkTopic.deleteOne({user_id: userId, topic_id: topicId}, callback);
+exports.remove = async function (userId, topicId) {
+  return await MarkTopic.deleteOne({ user_id: userId, topic_id: topicId });
 };
-

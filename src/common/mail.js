@@ -1,37 +1,34 @@
 var mailer        = require('nodemailer');
 var smtpTransport = require('nodemailer-smtp-transport');
 var util          = require('util');
+var tools          = require('tools');
 var logger = require('./logger');
 var transporter     = mailer.createTransport(smtpTransport(global.config.mail_opts));
 var SITE_ROOT_URL = 'http://' + global.config.host;
-var async = require('async')
 
 /**
  * Send an email
  * @param {Object} data 邮件对象
  */
-var sendMail = function (data) {
+var sendMail = async function (data) {
   if (global.config.debug) {
     return;
   }
 
-  // 重试5次
-  async.retry({times: 5}, function (done) {
-    transporter.sendMail(data, function (err) {
-      if (err) {
-        // 写为日志
-        logger.error('send mail error', err, data);
-        return done(err);
-      }
-      return done()
-    });
-  }, function (err) {
-    if (err) {
-      return logger.error('send mail finally error', err, data);
-    }
-    logger.info('send mail success', data)
-  })
+  try {
+    await tools.retryTimes(
+      async () => {
+        await transporter.sendMail(data);
+      },
+      5,        // 重试 5 次
+      1000      // 每次间隔 1 秒（可以根据需要调整）
+    );
+    logger.info('send mail success', data);
+  } catch (err) {
+    logger.error('send mail finally error', err, data);
+  }
 };
+
 exports.sendMail = sendMail;
 
 /**

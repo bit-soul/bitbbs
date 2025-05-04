@@ -4,21 +4,13 @@ var at         = require('../common/at');
 var User       = require('../proxy').User;
 var Topic      = require('../proxy').Topic;
 var MarkTopic  = require('../proxy').MarkTopic;
-var EventProxy = require('eventproxy');
 var tools      = require('../common/tools');
 var store      = require('../common/store');
 var _          = require('lodash');
 var cache      = require('../common/cache');
 var logger = require('../common/logger')
 
-/**
- * Topic page
- *
- * @param  {HttpRequest} req
- * @param  {HttpResponse} res
- * @param  {Function} next
- */
-exports.index = function (req, res, next) {
+exports.index = async function (ctx, next) {
   function isUped(user, reply) {
     if (!reply.ups) {
       return false;
@@ -26,101 +18,85 @@ exports.index = function (req, res, next) {
     return reply.ups.indexOf(user._id) !== -1;
   }
 
-  var topic_id = req.params.tid;
-  var currentUser = req.session.user;
+  const topic_id = ctx.params.tid;
+  const currentUser = ctx.session.user;
 
   if (topic_id.length !== 24) {
-    return res.render404('Topic not exist or deleted');
+    return ctx.render404('Topic not exist or deleted');
   }
-  var events = ['topic', 'other_topics', 'no_reply_topics', 'is_mark'];
-  var ep = EventProxy.create(events,
-    function (topic, other_topics, no_reply_topics, is_mark) {
-    res.render('topic/index', {
-      topic: topic,
-      author_other_topics: other_topics,
-      no_reply_topics: no_reply_topics,
-      is_uped: isUped,
-      is_mark: is_mark,
-    });
-  });
 
-  ep.fail(next);
+  try {
+    const [message, topic, author, replies] = await Topic.getFullTopic(topic_id);
 
-  Topic.getFullTopic(topic_id, ep.done(function (message, topic, author, replies) {
     if (message) {
-      logger.error('getFullTopic error topic_id: ' + topic_id)
-      return res.renderError(message);
+      logger.error('getFullTopic error topic_id: ' + topic_id);
+      return ctx.renderError(message);
     }
 
     topic.visit_count += 1;
-    topic.save();
+    topic.save().catch(console.error); // 异步更新访问量，不阻塞页面
 
-    topic.author  = author;
+    topic.author = author;
     topic.replies = replies;
 
-    // 点赞数排名第三的回答，它的点赞数就是阈值
-    topic.reply_up_threshold = (function () {
-      var allUpCount = replies.map(function (reply) {
-        return reply.ups && reply.ups.length || 0;
-      });
-      allUpCount = _.sortBy(allUpCount, Number).reverse();
-
-      var threshold = allUpCount[2] || 0;
-      if (threshold < 3) {
-        threshold = 3;
-      }
+    topic.reply_up_threshold = (() => {
+      const allUpCount = replies.map(reply => (reply.ups ? reply.ups.length : 0));
+      const sorted = _.sortBy(allUpCount).reverse();
+      let threshold = sorted[2] || 0;
+      if (threshold < 3) threshold = 3;
       return threshold;
     })();
 
-    ep.emit('topic', topic);
-
     // get other_topics
-    var options = { limit: 5, sort: '-last_reply_at'};
-    var query = { author_id: topic.author_id, _id: { '$nin': [ topic._id ] } };
-    Topic.getTopicsByQuery(query, options, ep.done('other_topics'));
+    const other_topics = await Topic.getTopicsByQuery(
+      { author_id: topic.author_id, _id: { $nin: [topic._id] } },
+      { limit: 5, sort: '-last_reply_at' }
+    );
 
     // get no_reply_topics
-    cache.get('no_reply_topics', ep.done(function (no_reply_topics) {
-      if (no_reply_topics) {
-        ep.emit('no_reply_topics', no_reply_topics);
-      } else {
-        Topic.getTopicsByQuery(
-          { reply_count: 0, tab: {$nin: ['job', 'dev']}},
-          { limit: 5, sort: '-create_at'},
-          ep.done('no_reply_topics', function (no_reply_topics) {
-            cache.set('no_reply_topics', no_reply_topics, 60 * 1);
-            return no_reply_topics;
-          }));
-      }
-    }));
-  }));
+    const no_reply_topics = await (async () => {
+      let cached = await cache.get('no_reply_topics');
+      if (cached) return cached;
+      const fresh = await Topic.getTopicsByQuery(
+        { reply_count: 0, tab: { $nin: ['job', 'dev'] } },
+        { limit: 5, sort: '-create_at' }
+      );
+      await cache.set('no_reply_topics', fresh, 60);
+      return fresh;
+    })();
 
-  if (!currentUser) {
-    ep.emit('is_mark', null);
-  } else {
-    MarkTopic.getMarkTopic(currentUser._id, topic_id, ep.done('is_mark'))
+    const is_mark = currentUser
+      ? await MarkTopic.getMarkTopic(currentUser._id, topic_id)
+      : null;
+
+    await ctx.render('topic/index', {
+      topic,
+      author_other_topics: other_topics,
+      no_reply_topics,
+      is_uped: isUped,
+      is_mark,
+    });
+
+  } catch (err) {
+    return next(err);
   }
 };
 
-exports.create = function (req, res, next) {
-  res.render('topic/edit', {
+exports.create = async function (ctx) {
+  await ctx.render('topic/edit', {
     tabs: global.config.tabs
   });
 };
 
+exports.put = async function (ctx, next) {
+  const title = validator.trim(ctx.request.body.title || '');
+  const tab = validator.trim(ctx.request.body.tab || '');
+  const content = validator.trim(ctx.request.body.t_content || '');
 
-exports.put = function (req, res, next) {
-  var title   = validator.trim(req.body.title);
-  var tab     = validator.trim(req.body.tab);
-  var content = validator.trim(req.body.t_content);
+  const allTabs = global.config.tabs.map(t => t[0]);
 
-  // 得到所有的 tab, e.g. ['ask', 'share', ..]
-  var allTabs = global.config.tabs.map(function (tPair) {
-    return tPair[0];
-  });
-
-  // 验证
-  var editError;
+  // 表单校验
+  let editError;
   if (title === '') {
     editError = 'Title can not be empty';
   } else if (title.length < 5 || title.length > 100) {
@@ -130,373 +106,350 @@ exports.put = function (req, res, next) {
   } else if (content === '') {
     editError = 'Content can not be empty';
   }
-  // END 验证
 
   if (editError) {
-    res.status(422);
-    return res.render('topic/edit', {
+    ctx.status = 422;
+    return await ctx.render('topic/edit', {
       edit_error: editError,
-      title: title,
-      content: content,
+      title,
+      content,
       tabs: global.config.tabs
     });
   }
 
-  Topic.newAndSave(title, content, tab, req.session.user._id, function (err, topic) {
-    if (err) {
-      return next(err);
-    }
-
-    var proxy = new EventProxy();
-
-    proxy.all('score_saved', function () {
-      res.redirect('/topic/' + topic._id);
-    });
-    proxy.fail(next);
-    User.getUserById(req.session.user._id, proxy.done(function (user) {
-      user.score += 5;
-      user.topic_count += 1;
-      user.save();
-      req.session.user = user;
-      proxy.emit('score_saved');
-    }));
-
-    //发送at消息
-    at.sendMessageToMentionUsers(content, topic._id, req.session.user._id);
-  });
-};
-
-exports.showEdit = function (req, res, next) {
-  var topic_id = req.params.tid;
-
-  Topic.getTopicById(topic_id, function (err, topic, tags) {
-    if (!topic) {
-      res.render404('Topic not exist or deleted');
-      return;
-    }
-
-    if (String(topic.author_id) === String(req.session.user._id) || req.session.user.is_admin) {
-      res.render('topic/edit', {
-        action: 'edit',
-        topic_id: topic._id,
-        title: topic.title,
-        content: topic.content,
-        tab: topic.tab,
-        tabs: global.config.tabs
-      });
-    } else {
-      res.renderError('Can not edit this topic', 403);
-    }
-  });
-};
-
-exports.update = function (req, res, next) {
-  var topic_id = req.params.tid;
-  var title    = req.body.title;
-  var tab      = req.body.tab;
-  var content  = req.body.t_content;
-
-  // 得到所有的 tab, e.g. ['ask', 'share', ..]
-  var allTabs = global.config.tabs.map(function (tPair) {
-    return tPair[0];
-  });
-
-  Topic.getTopicById(topic_id, function (err, topic, tags) {
-    if (!topic) {
-      res.render404('Topic not exist or deleted');
-      return;
-    }
-
-    if (topic.author_id.equals(req.session.user._id) || req.session.user.is_admin) {
-      title   = validator.trim(title);
-      tab     = validator.trim(tab);
-      content = validator.trim(content);
-
-      var editError;
-      if (title === '') {
-        editError = 'Title can not be empty';
-      } else if (title.length < 5 || title.length > 100) {
-        editError = 'Title is too short';
-      } else if (!tab || allTabs.indexOf(tab) === -1) {
-        editError = 'Must select category';
-      }
-      // END 验证
-
-      if (editError) {
-        return res.render('topic/edit', {
-          action: 'edit',
-          edit_error: editError,
-          topic_id: topic._id,
-          content: content,
-          tabs: global.config.tabs
-        });
-      }
-
-      //保存话题
-      topic.title     = title;
-      topic.content   = content;
-      topic.tab       = tab;
-      topic.update_at = new Date();
-
-      topic.save(function (err) {
-        if (err) {
-          return next(err);
-        }
-        //发送at消息
-        at.sendMessageToMentionUsers(content, topic._id, req.session.user._id);
-
-        res.redirect('/topic/' + topic._id);
-
-      });
-    } else {
-      res.renderError('Can not edit this topic', 403);
-    }
-  });
-};
-
-exports.delete = function (req, res, next) {
-  //删除话题, 话题作者topic_count减1
-  //删除回复，回复作者reply_count减1
-  //删除marktopic，用户mark_topic_count减1
-
-  var topic_id = req.params.tid;
-
-  Topic.getFullTopic(topic_id, function (err, err_msg, topic, author, replies) {
-    if (err) {
-      return res.send({ success: false, message: err.message });
-    }
-    if (!req.session.user.is_admin && !(topic.author_id.equals(req.session.user._id))) {
-      res.status(403);
-      return res.send({success: false, message: 'No Permision'});
-    }
-    if (!topic) {
-      res.status(422);
-      return res.send({ success: false, message: 'Topic not exist or deleted' });
-    }
-    author.score -= 5;
-    author.topic_count -= 1;
-    author.save();
-
-    topic.deleted = true;
-    topic.save(function (err) {
-      if (err) {
-        return res.send({ success: false, message: err.message });
-      }
-      res.send({ success: true, message: 'Topic is deleted' });
-    });
-  });
-};
-
-// 设为置顶
-exports.top = function (req, res, next) {
-  var topic_id = req.params.tid;
-  var referer  = req.get('referer');
-
-  if (topic_id.length !== 24) {
-    res.render404('Topic not exist or deleted');
-    return;
-  }
-  Topic.getTopic(topic_id, function (err, topic) {
-    if (err) {
-      return next(err);
-    }
-    if (!topic) {
-      res.render404('Topic not exist or deleted');
-      return;
-    }
-    topic.top = !topic.top;
-    topic.save(function (err) {
-      if (err) {
-        return next(err);
-      }
-      var msg = topic.top ? 'Topped。' : 'Cancel Topped';
-      res.render('notify/notify', {success: msg, referer: referer});
-    });
-  });
-};
-
-// 设为精华
-exports.good = function (req, res, next) {
-  var topicId = req.params.tid;
-  var referer = req.get('referer');
-
-  Topic.getTopic(topicId, function (err, topic) {
-    if (err) {
-      return next(err);
-    }
-    if (!topic) {
-      res.render404('Topic not exist or deleted');
-      return;
-    }
-    topic.good = !topic.good;
-    topic.save(function (err) {
-      if (err) {
-        return next(err);
-      }
-      var msg = topic.good ? 'Gooded。' : 'Cancel Gooded';
-      res.render('notify/notify', {success: msg, referer: referer});
-    });
-  });
-};
-
-// 锁定主题，不可再回复
-exports.lock = function (req, res, next) {
-  var topicId = req.params.tid;
-  var referer = req.get('referer');
-  Topic.getTopic(topicId, function (err, topic) {
-    if (err) {
-      return next(err);
-    }
-    if (!topic) {
-      res.render404('Topic not exist or deleted');
-      return;
-    }
-    topic.lock = !topic.lock;
-    topic.save(function (err) {
-      if (err) {
-        return next(err);
-      }
-      var msg = topic.lock ? 'Locked。' : 'Cancel Locked';
-      res.render('notify/notify', {success: msg, referer: referer});
-    });
-  });
-};
-
-// 收藏主题
-exports.mark = function (req, res, next) {
-  var topic_id = req.body.topic_id;
-
-  Topic.getTopic(topic_id, function (err, topic) {
-    if (err) {
-      return next(err);
-    }
-    if (!topic) {
-      res.json({status: 'failed'});
-    }
-
-    MarkTopic.getMarkTopic(req.session.user._id, topic._id, function (err, doc) {
-      if (err) {
-        return next(err);
-      }
-      if (doc) {
-        res.json({status: 'failed'});
-        return;
-      }
-
-      MarkTopic.newAndSave(req.session.user._id, topic._id, function (err) {
-        if (err) {
-          return next(err);
-        }
-        res.json({status: 'success'});
-      });
-      User.getUserById(req.session.user._id, function (err, user) {
-        if (err) {
-          return next(err);
-        }
-        user.mark_topic_count += 1;
-        user.save();
-      });
-
-      req.session.user.mark_topic_count += 1;
-      topic.mark_count += 1;
-      topic.save();
-    });
-  });
-};
-
-exports.unmark = function (req, res, next) {
-  var topic_id = req.body.topic_id;
-  Topic.getTopic(topic_id, function (err, topic) {
-    if (err) {
-      return next(err);
-    }
-    if (!topic) {
-      res.json({status: 'failed'});
-    }
-    MarkTopic.remove(req.session.user._id, topic._id, function (err, removeResult) {
-      if (err) {
-        return next(err);
-      }
-      if (removeResult.n == 0) {
-        return res.json({status: 'failed'})
-      }
-
-      User.getUserById(req.session.user._id, function (err, user) {
-        if (err) {
-          return next(err);
-        }
-        user.mark_topic_count -= 1;
-        req.session.user = user;
-        user.save();
-      });
-
-      topic.mark_count -= 1;
-      topic.save();
-
-      res.json({status: 'success'});
-    });
-  });
-};
-
-exports.presignedurl = function (req, res, next) {
-  var fileName = req.query.filename;
-  var fileType = req.query.filetype;
-  var fileSize = parseInt(req.query.filesize);
-  if(fileSize > 1*1024*1024) {
-    res.json({
-      code: -1,
-      mess: 'file size too large, max size is 1MB',
-    });
-    return;
-  }
   try {
-    userId = req.session.user._id;
-    formatDate = tools.getFormattedDate();
-    formatTime = tools.getFormattedTime();
-    file_name = global.config.s3_client.prefix + userId + '/' + formatDate + '/' + formatTime + '_' + fileName
-    store.presignedUrl(file_name , fileType, fileSize).then((url) => {
-      var uploadurl = new URL(url);
-      uploadurl.hostname = new URL(global.config.s3_client.proxypoint).hostname;
-      uploadurl.searchParams.set('bucketname', global.config.s3_client.bucket);
-      res.json({
-        code: 0,
-        data: {
-          readurl: global.config.s3_client.readpoint + '/' + file_name,
-          uploadurl: uploadurl.toString(),
-        },
-      });
-    });
+    const topic = await Topic.newAndSave(title, content, tab, ctx.session.user._id);
+
+    // 更新用户分数
+    const user = await User.getUserById(ctx.session.user._id);
+    user.score += 5;
+    user.topic_count += 1;
+    await user.save();
+    ctx.session.user = user;
+
+    // 发送 @ 消息
+    at.sendMessageToMentionUsers(content, topic._id, ctx.session.user._id);
+
+    return ctx.redirect(`/topic/${topic._id}`);
+
   } catch (err) {
     return next(err);
   }
-}
-
-exports.upload = function (req, res, next) {
-  var isFileLimit = false;
-  req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-      file.on('limit', function () {
-        isFileLimit = true;
-
-        res.json({
-          success: false,
-          msg: 'File size too large. Max is ' + global.config.file_limit
-        })
-      });
-
-      store.upload(file, {filename: filename}, function (err, result) {
-        if (err) {
-          return next(err);
-        }
-        if (isFileLimit) {
-          return;
-        }
-        res.json({
-          success: true,
-          url: result.url,
-        });
-      });
-
-    });
-
-  req.pipe(req.busboy);
 };
+
+exports.showEdit = async function (ctx) {
+  const topic_id = ctx.params.tid;
+
+  const [topic] = await Topic.getTopicById(topic_id);
+
+  if (!topic) {
+    return ctx.render404('Topic not exist or deleted');
+  }
+
+  const isOwner = String(topic.author_id) === String(ctx.session.user._id);
+  const isAdmin = ctx.session.user.is_admin;
+
+  if (isOwner || isAdmin) {
+    return ctx.render('topic/edit', {
+      action: 'edit',
+      topic_id: topic._id,
+      title: topic.title,
+      content: topic.content,
+      tab: topic.tab,
+      tabs: global.config.tabs
+    });
+  } else {
+    return ctx.renderError('Can not edit this topic', 403);
+  }
+};
+
+exports.update = async function (ctx, next) {
+  const topic_id = ctx.params.tid;
+  let { title, tab, t_content: content } = ctx.request.body;
+
+  const allTabs = global.config.tabs.map(tPair => tPair[0]);
+
+  const [topic] = await Topic.getTopicById(topic_id);
+
+  if (!topic) {
+    return ctx.render404('Topic not exist or deleted');
+  }
+
+  const isOwner = topic.author_id.equals(ctx.session.user._id);
+  const isAdmin = ctx.session.user.is_admin;
+
+  if (!(isOwner || isAdmin)) {
+    return ctx.renderError('Can not edit this topic', 403);
+  }
+
+  title = validator.trim(title);
+  tab = validator.trim(tab);
+  content = validator.trim(content);
+
+  let editError;
+  if (!title) {
+    editError = 'Title can not be empty';
+  } else if (title.length < 5 || title.length > 100) {
+    editError = 'Title is too short';
+  } else if (!tab || allTabs.indexOf(tab) === -1) {
+    editError = 'Must select category';
+  }
+
+  if (editError) {
+    return ctx.render('topic/edit', {
+      action: 'edit',
+      edit_error: editError,
+      topic_id: topic._id,
+      content,
+      tabs: global.config.tabs
+    });
+  }
+
+  try {
+    topic.title = title;
+    topic.content = content;
+    topic.tab = tab;
+    topic.update_at = new Date();
+    await topic.save();
+
+    at.sendMessageToMentionUsers(content, topic._id, ctx.session.user._id);
+
+    return ctx.redirect(`/topic/${topic._id}`);
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports.delete = async function (ctx) {
+  //删除话题, 话题作者topic_count减1
+  //删除回复，回复作者reply_count减1
+  //删除marktopic，用户mark_topic_count减1
+  const topic_id = ctx.params.tid;
+
+  try {
+    const [err_msg, topic, author, replies] = await Topic.getFullTopic(topic_id);
+
+    if (!topic) {
+      ctx.status = 422;
+      ctx.body = { success: false, message: 'Topic not exist or deleted' };
+      return;
+    }
+
+    const isAdmin = ctx.session.user.is_admin;
+    const isOwner = topic.author_id.equals(ctx.session.user._id);
+
+    if (!(isAdmin || isOwner)) {
+      ctx.status = 403;
+      ctx.body = { success: false, message: 'No Permission' };
+      return;
+    }
+
+    author.score -= 5;
+    author.topic_count -= 1;
+    await author.save();
+
+    topic.deleted = true;
+    await topic.save();
+
+    ctx.body = { success: true, message: 'Topic is deleted' };
+  } catch (err) {
+    ctx.body = { success: false, message: err.message };
+  }
+};
+
+exports.top = async function (ctx, next) {
+  const topic_id = ctx.params.tid;
+  const referer = ctx.get('referer');
+
+  if (topic_id.length !== 24) {
+    return ctx.render404('Topic not exist or deleted');
+  }
+
+  try {
+    const topic = await Topic.getTopic(topic_id);
+    if (!topic) return ctx.render404('Topic not exist or deleted');
+
+    topic.top = !topic.top;
+    await topic.save();
+
+    const msg = topic.top ? 'Topped。' : 'Cancel Topped';
+    await ctx.render('notify/notify', { success: msg, referer });
+
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports.good = async function (ctx, next) {
+  const topicId = ctx.params.tid;
+  const referer = ctx.get('referer');
+
+  try {
+    const topic = await Topic.getTopic(topicId);
+    if (!topic) return ctx.render404('Topic not exist or deleted');
+
+    topic.good = !topic.good;
+    await topic.save();
+
+    const msg = topic.good ? 'Gooded。' : 'Cancel Gooded';
+    await ctx.render('notify/notify', { success: msg, referer });
+
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports.lock = async function (ctx, next) {
+  const topicId = ctx.params.tid;
+  const referer = ctx.get('referer');
+
+  try {
+    const topic = await Topic.getTopic(topicId);
+    if (!topic) return ctx.render404('Topic not exist or deleted');
+
+    topic.lock = !topic.lock;
+    await topic.save();
+
+    const msg = topic.lock ? 'Locked。' : 'Cancel Locked';
+    await ctx.render('notify/notify', { success: msg, referer });
+
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports.mark = async function (ctx, next) {
+  const topic_id = ctx.request.body.topic_id;
+  const user_id = ctx.session.user._id;
+
+  try {
+    const topic = await Topic.getTopic(topic_id);
+    if (!topic) {
+      ctx.body = { status: 'failed' };
+      return;
+    }
+
+    const exists = await MarkTopic.getMarkTopic(user_id, topic._id);
+    if (exists) {
+      ctx.body = { status: 'failed' };
+      return;
+    }
+
+    await MarkTopic.newAndSave(user_id, topic._id);
+    const user = await User.getUserById(user_id);
+
+    user.mark_topic_count += 1;
+    await user.save();
+
+    ctx.session.user.mark_topic_count += 1;
+    topic.mark_count += 1;
+    await topic.save();
+
+    ctx.body = { status: 'success' };
+
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports.unmark = async function (ctx, next) {
+  const topic_id = ctx.request.body.topic_id;
+  const user_id = ctx.session.user._id;
+
+  try {
+    const topic = await Topic.getTopic(topic_id);
+    if (!topic) {
+      ctx.body = { status: 'failed' };
+      return;
+    }
+
+    const result = await MarkTopic.remove(user_id, topic._id);
+    if (result?.n === 0) {
+      ctx.body = { status: 'failed' };
+      return;
+    }
+
+    const user = await User.getUserById(user_id);
+    user.mark_topic_count -= 1;
+    await user.save();
+
+    ctx.session.user = user;
+
+    topic.mark_count -= 1;
+    await topic.save();
+
+    ctx.body = { status: 'success' };
+
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports.presignedurl = async function (ctx, next) {
+  const fileName = ctx.query.filename;
+  const fileType = ctx.query.filetype;
+  const fileSize = parseInt(ctx.query.filesize, 10);
+
+  if (fileSize > 1 * 1024 * 1024) {
+    ctx.body = {
+      code: -1,
+      mess: 'file size too large, max size is 1MB',
+    };
+    return;
+  }
+
+  try {
+    const userId = ctx.session.user._id;
+    const formatDate = tools.getFormattedDate();
+    const formatTime = tools.getFormattedTime();
+    const file_name = global.config.s3_client.prefix + userId + '/' + formatDate + '/' + formatTime + '_' + fileName
+    const url = await store.presignedUrl(file_name, fileType, fileSize);
+    const uploadurl = new URL(url);
+    uploadurl.hostname = new URL(global.config.s3_client.proxypoint).hostname;
+    uploadurl.searchParams.set('bucketname', global.config.s3_client.bucket);
+
+    ctx.body = {
+      code: 0,
+      data: {
+        readurl: global.config.s3_client.readpoint + '/' + file_name,
+        uploadurl: uploadurl.toString(),
+      },
+    };
+  } catch (err) {
+    return next(err);
+  }
+};
+
+//todo 参考bootkoa
+exports.upload = async function (ctx, next) {
+  try {
+    const file = ctx.request.files.file; // "file" 是上传字段名
+    if (!file) {
+      ctx.body = {
+        success: false,
+        msg: 'No file uploaded.'
+      };
+      return;
+    }
+
+    const maxSize = global.config.file_limit;
+    if (file.size > maxSize) {
+      ctx.body = {
+        success: false,
+        msg: 'File size too large. Max is ' + maxSize
+      };
+      return;
+    }
+
+    const stream = fs.createReadStream(file.path);
+    const result = await store.upload(stream, { filename: file.name });
+
+    ctx.body = {
+      success: true,
+      url: result.url,
+    };
+  } catch (err) {
+    return next(err);
+  }
+};
+

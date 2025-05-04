@@ -1,4 +1,3 @@
-var EventProxy = require('eventproxy');
 var models     = require('../models');
 var Topic      = models.Topic;
 var User       = require('./user');
@@ -6,220 +5,109 @@ var Reply      = require('./reply');
 var at         = require('../common/at');
 var _          = require('lodash');
 
+exports.getTopicById = async function (id) {
+  const topic = await Topic.findOne({ _id: id });
+  if (!topic) return { topic: null, author: null, lastReply: null };
 
-/**
- * 根据主题ID获取主题
- * Callback:
- * - err, 数据库错误
- * - topic, 主题
- * - author, 作者
- * - lastReply, 最后回复
- * @param {String} id 主题ID
- * @param {Function} callback 回调函数
- */
-exports.getTopicById = function (id, callback) {
-  var proxy = new EventProxy();
-  var events = ['topic', 'author', 'last_reply'];
-  proxy.assign(events, function (topic, author, last_reply) {
-    if (!author) {
-      return callback(null, null, null, null);
-    }
-    return callback(null, topic, author, last_reply);
-  }).fail(callback);
+  const [author, lastReply] = await Promise.all([
+    User.getUserById(topic.author_id),
+    topic.last_reply ? Reply.getReplyById(topic.last_reply) : null
+  ]);
 
-  Topic.findOne({_id: id}, proxy.done(function (topic) {
-    if (!topic) {
-      proxy.emit('topic', null);
-      proxy.emit('author', null);
-      proxy.emit('last_reply', null);
-      return;
-    }
-    proxy.emit('topic', topic);
-
-    User.getUserById(topic.author_id, proxy.done('author'));
-
-    if (topic.last_reply) {
-      Reply.getReplyById(topic.last_reply, proxy.done(function (last_reply) {
-        proxy.emit('last_reply', last_reply);
-      }));
-    } else {
-      proxy.emit('last_reply', null);
-    }
-  }));
+  return { topic, author, lastReply };
 };
 
-/**
- * 获取关键词能搜索到的主题数量
- * Callback:
- * - err, 数据库错误
- * - count, 主题数量
- * @param {String} query 搜索关键词
- * @param {Function} callback 回调函数
- */
-exports.getCountByQuery = function (query, callback) {
-  Topic.countDocuments(query, callback);
+exports.getCountByQuery = async function (query) {
+  return await Topic.countDocuments(query);
 };
 
-/**
- * 根据关键词，获取主题列表
- * Callback:
- * - err, 数据库错误
- * - count, 主题列表
- * @param {String} query 搜索关键词
- * @param {Object} opt 搜索选项
- * @param {Function} callback 回调函数
- */
-exports.getTopicsByQuery = function (query, opt, callback) {
+exports.getTopicsByQuery = async function (query, opt = {}) {
   query.deleted = false;
-  Topic.find(query, {}, opt, function (err, topics) {
-    if (err) {
-      return callback(err);
-    }
-    if (topics.length === 0) {
-      return callback(null, []);
-    }
+  const topics = await Topic.find(query, {}, opt);
+  if (!topics || topics.length === 0) return [];
 
-    var proxy = new EventProxy();
-    proxy.after('topic_ready', topics.length, function () {
-      topics = _.compact(topics); // 删除不合规的 topic
-      return callback(null, topics);
-    });
-    proxy.fail(callback);
+  const enrichedTopics = await Promise.all(
+    topics.map(async (topic) => {
+      const [author, reply] = await Promise.all([
+        User.getUserById(topic.author_id),
+        Reply.getReplyById(topic.last_reply),
+      ]);
 
-    topics.forEach(function (topic, i) {
-      var ep = new EventProxy();
-      ep.all('author', 'reply', function (author, reply) {
-        // 保证顺序
-        // 作者可能已被删除
-        if (author) {
-          topic.author = author;
-          topic.reply = reply;
-        } else {
-          topics[i] = null;
-        }
-        proxy.emit('topic_ready');
-      });
+      if (!author) return null;
 
-      User.getUserById(topic.author_id, ep.done('author'));
-      // 获取主题的最后回复
-      Reply.getReplyById(topic.last_reply, ep.done('reply'));
-    });
-  });
-};
-
-// for sitemap
-exports.getLimit5w = function (callback) {
-  Topic.find({deleted: false}, '_id', {limit: 50000, sort: '-create_at'}, callback);
-};
-
-/**
- * 获取所有信息的主题
- * Callback:
- * - err, 数据库异常
- * - message, 消息
- * - topic, 主题
- * - author, 主题作者
- * - replies, 主题的回复
- * @param {String} id 主题ID
- * @param {Function} callback 回调函数
- */
-exports.getFullTopic = function (id, callback) {
-  var proxy = new EventProxy();
-  var events = ['topic', 'author', 'replies'];
-  proxy
-    .assign(events, function (topic, author, replies) {
-      callback(null, '', topic, author, replies);
-    })
-    .fail(callback);
-
-  Topic.findOne({_id: id, deleted: false}, proxy.done(function (topic) {
-    if (!topic) {
-      proxy.unbind();
-      return callback(null, 'Topic not exist or deleted');
-    }
-    at.textShowProcess(topic.content, proxy.done('topic', function (str) {
-      topic.linkedContent = str;
+      topic.author = author;
+      topic.reply = reply;
       return topic;
-    }));
+    })
+  );
 
-    User.getUserById(topic.author_id, proxy.done(function (author) {
-      if (!author) {
-        proxy.unbind();
-        return callback(null, 'Topic author not exist');
-      }
-      proxy.emit('author', author);
-    }));
-
-    Reply.getRepliesByTopicId(topic._id, proxy.done('replies'));
-  }));
+  return _.compact(enrichedTopics);
 };
 
-/**
- * 更新主题的最后回复信息
- * @param {String} topicId 主题ID
- * @param {String} replyId 回复ID
- * @param {Function} callback 回调函数
- */
-exports.updateLastReply = function (topicId, replyId, callback) {
-  Topic.findOne({_id: topicId}, function (err, topic) {
-    if (err || !topic) {
-      return callback(err);
-    }
-    topic.last_reply    = replyId;
-    topic.last_reply_at = new Date();
-    topic.reply_count += 1;
-    topic.save(callback);
+exports.getLimit5w = async function () {
+  return await Topic.find({ deleted: false }, '_id', {
+    limit: 50000,
+    sort: '-create_at'
   });
 };
 
-/**
- * 根据主题ID，查找一条主题
- * @param {String} id 主题ID
- * @param {Function} callback 回调函数
- */
-exports.getTopic = function (id, callback) {
-  Topic.findOne({_id: id}, callback);
+exports.getFullTopic = async function (id) {
+  const topic = await Topic.findOne({ _id: id, deleted: false });
+  if (!topic) {
+    throw new Error('Topic not exist or deleted');
+  }
+
+  const [linkedContent, author, replies] = await Promise.all([
+    at.textShowProcess(topic.content),
+    User.getUserById(topic.author_id),
+    Reply.getRepliesByTopicId(topic._id),
+  ]);
+
+  if (!author) {
+    throw new Error('Topic author not exist');
+  }
+
+  topic.linkedContent = linkedContent;
+  return { message: '', topic, author, replies };
 };
 
-/**
- * 将当前主题的回复计数减1，并且更新最后回复的用户，删除回复时用到
- * @param {String} id 主题ID
- * @param {Function} callback 回调函数
- */
-exports.reduceCount = function (id, callback) {
-  Topic.findOne({_id: id}, function (err, topic) {
-    if (err) {
-      return callback(err);
-    }
+exports.updateLastReply = async function (topicId, replyId) {
+  const topic = await Topic.findOne({ _id: topicId });
+  if (!topic) throw new Error('Topic not exist');
 
-    if (!topic) {
-      return callback(new Error('Topic not exist or deleted'));
-    }
-    topic.reply_count -= 1;
+  topic.last_reply = replyId;
+  topic.last_reply_at = new Date();
+  topic.reply_count += 1;
 
-    Reply.getLastReplyByTopId(id, function (err, reply) {
-      if (err) {
-        return callback(err);
-      }
+  await topic.save();
+  return topic;
+};
 
-      if (reply.length !== 0) {
-        topic.last_reply = reply[0]._id;
-      } else {
-        topic.last_reply = null;
-      }
+exports.getTopic = async function (id) {
+  return await Topic.findOne({ _id: id });
+};
 
-      topic.save(callback);
-    });
+exports.reduceCount = async function (id) {
+  const topic = await Topic.findOne({ _id: id });
+  if (!topic) throw new Error('Topic not exist or deleted');
 
+  topic.reply_count -= 1;
+
+  const reply = await Reply.getLastReplyByTopId(id);
+  topic.last_reply = reply.length !== 0 ? reply[0]._id : null;
+
+  await topic.save();
+  return topic;
+};
+
+exports.newAndSave = async function (title, content, tab, authorId) {
+  const topic = new Topic({
+    title,
+    content,
+    tab,
+    author_id: authorId,
   });
-};
 
-exports.newAndSave = function (title, content, tab, authorId, callback) {
-  var topic       = new Topic();
-  topic.title     = title;
-  topic.content   = content;
-  topic.tab       = tab;
-  topic.author_id = authorId;
-
-  topic.save(callback);
+  await topic.save();
+  return topic;
 };

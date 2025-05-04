@@ -1,9 +1,9 @@
+const Router = require('koa-router');
 var Models         = require('../models');
 var User           = Models.User;
 var authMiddleWare = require('../middlewares/auth');
 var tools          = require('../common/tools');
 var fetch          = require('../common/fetch');
-var eventproxy     = require('eventproxy');
 var uuid           = require('node-uuid');
 var validator      = require('validator');
 var brcsoul        = require('brcsoul-sdk');
@@ -16,23 +16,26 @@ var notJump = [
   '/search_pass',    //serch pass page
 ];
 
-exports.wallet_login = function (req, res, next) {
-  var time = parseInt(req.body.time);
-  var sign = validator.trim(req.body.sign);
-  var addr = validator.trim(req.body.addr).toLowerCase();
 
-  var result = {};
-  var date_now = new Date();
-  if( !(time>0) || date_now.getTime()<(time-600000) || date_now.getTime()>(time+600000) )
-  {
-      result.code = -1;
-      result.mess = "please sync your local time!";
-      res.send(JSON.stringify(result));
-      return;
+const router = new Router();
+
+router.post('/wallet_login', async (ctx, next) => {
+  const time = parseInt(ctx.request.body.time);
+  const sign = validator.trim(ctx.request.body.sign);
+  const addr = validator.trim(ctx.request.body.addr).toLowerCase();
+
+  const result = {};
+  const date_now = new Date();
+
+  if (!(time > 0) || date_now.getTime() < (time - 600000) || date_now.getTime() > (time + 600000)) {
+    result.code = -1;
+    result.mess = "please sync your local time!";
+    ctx.body = result;
+    return;
   }
 
-  var login_date = new Date(time);
-  var login_mess = "Sign To Login BitBBS "
+  const login_date = new Date(time);
+  const login_mess = "Sign To Login BitBBS " +
       + login_date.getUTCFullYear().toString().padStart(4,'0') + "/"
       +(login_date.getUTCMonth()+1).toString().padStart(2, '0') + "/"
       + login_date.getUTCDate().toString().padStart(2,'0') + " "
@@ -41,135 +44,127 @@ exports.wallet_login = function (req, res, next) {
       + login_date.getUTCSeconds().toString().padStart(2,'0') + ""
       + " UTC"
       + "";
-    
-  if(brcsoul.verifySign(addr, login_mess, sign)==false)
-  {
+
+  if (!brcsoul.verifySign(addr, login_mess, sign)) {
+    result.code = -1;
+    result.mess = "sign error!";
+    ctx.body = result;
+    return;
+  }
+
+  try {
+    const respon = await brcsoul.getPersonByAddr(addr);
+
+    if (respon.code < 0) {
       result.code = -1;
-      result.mess = "sign error!";
-      res.send(JSON.stringify(result));
+      result.mess = respon.mess;
+      ctx.body = result;
       return;
-  }
+    }
 
-  brcsoul.getPersonByAddr(addr)
-    .then(respon => {
-      if (respon.code >= 0) {
-        function temp() {
-          User.findOne({addr: addr}, function (err, user) {
-            if (err) {
-              return next(err);
-            }
-            if (user) {
-              user.name = respon?.data?.attr?.name ? respon.data.attr.name : 'nobody_'+user.sequence.toString(36).padStart(2, '0');
-              user.biog = respon?.data?.attr?.biog ? respon.data.attr.biog : '';
-              user.icon = respon?.data?.attr?.icon ? brcsoul.httpExtraUrl(respon.data.attr.icon) : '';
-              user.save(function (err) {
-                if (err) {
-                  return next(err);
-                }
-                authMiddleWare.gen_session(res, user._id);
-                res.send(JSON.stringify({ code: 1, mess: "redirect" }));
-              });
-            } else {
-              System.incrementUserCnt((count) => {
-                var user = new User({
-                  addr: addr,
-                  name: respon?.data?.attr?.name ? respon.data.attr.name : 'nobody_'+count.toString(36).padStart(2, '0'),
-                  biog: respon?.data?.attr?.biog ? respon.data.attr.biog : '',
-                  icon: respon?.data?.attr?.icon ? brcsoul.httpExtraUrl(respon.data.attr.icon) : '',
-                  active: true,
-                  sequence: count,
-                  accessToken: uuid.v4(),
-                });
-                user.save(function (err) {
-                  if (err) {
-                    return next(err);
-                  }
-                  authMiddleWare.gen_session(res, user._id);
-                  res.send(JSON.stringify({ code: 1, mess: "redirect" }));
-                });
-              }) 
-            }
-          });
-        }
+    const attr = respon?.data?.attr || {};
 
-        //icon: inscription number to inscription id
-        if (respon?.data?.attr?.icon && /^[0-9]{1,16}$/.test(respon.data.attr.icon)) {
-          fetch.fetchData("https://ordinals.com/inscription/" + respon.data.attr.icon)
-            .then(result => {
-              if (result.code === 0) {
-                match = result.data.match(/\/content\/([a-f0-9]{64}.\d+)/)
-                if (match) {
-                  respon.data.attr.icon = "https://ordinals.com/content/" + match[1];
-                }
-              }
-              temp();
-            })
-            .catch(error => {
-              temp();
-            })
-        } else if (respon?.data?.attr?.icon && /^[a-f0-9]{64}.\d+$/.test(respon.data.attr.icon)) {
-          respon.data.attr.icon = "https://ordinals.com/content/" + respon.data.attr.icon;
-          temp();
-        } else {
-          temp();
+    //icon: inscription number to inscription id
+    if (attr.icon && /^[0-9]{1,16}$/.test(attr.icon)) {
+      try {
+        const result = await fetch.fetchData("https://ordinals.com/inscription/" + attr.icon);
+        if (result.code === 0) {
+          const match = result.data.match(/\/content\/([a-f0-9]{64}.\d+)/);
+          if (match) {
+            attr.icon = "https://ordinals.com/content/" + match[1];
+          }
         }
-      } else {
-        result.code = -1;
-        result.mess = respon.mess;
-        res.send(JSON.stringify(result));
+      } catch (error) {
+        //todo
       }
-    })
-    .catch(error => {
-      result.code = -2;
-      result.mess = error.message;
-      res.send(JSON.stringify(result));
-    })
-}
+    } else if (attr.icon && /^[a-f0-9]{64}.\d+$/.test(attr.icon)) {
+      attr.icon = "https://ordinals.com/content/" + attr.icon;
+    }
 
-exports.getauthkey = function (req, res, next) {
-  var result = {};
+    let user = await User.findOne({ addr: addr });
 
-  var maxage = parseInt(req.body.maxage);
-  if(!maxage) {
-    maxage = 1000 * 60 * 60 * 24 * 30;
+    if (user) {
+      user.name = attr.name ? attr.name : 'nobody_' + user.sequence.toString(36).padStart(2, '0');
+      user.biog = attr.biog || '';
+      user.icon = attr.icon ? brcsoul.httpExtraUrl(attr.icon) : '';
+      await user.save();
+    } else {
+      const count = await System.incrementUserCnt();
+      user = new User({
+        addr: addr,
+        name: attr.name ? attr.name : 'nobody_' + count.toString(36).padStart(2, '0'),
+        biog: attr.biog || '',
+        icon: attr.icon ? brcsoul.httpExtraUrl(attr.icon) : '',
+        active: true,
+        sequence: count,
+        accessToken: uuid.v4(),
+      });
+      await user.save();
+    }
+
+    authMiddleWare.gen_session(ctx, user._id); // 假设你已支持为 Koa 注入 ctx 的 session 方法
+    ctx.body = { code: 1, mess: "redirect" };
+
+  } catch (error) {
+    result.code = -2;
+    result.mess = error.message;
+    ctx.body = result;
+  }
+});
+
+
+router.post('/getauthkey', async (ctx) => {
+  const result = {};
+  let maxage = parseInt(ctx.request.body.maxage);
+
+  if (!maxage) {
+    maxage = 1000 * 60 * 60 * 24 * 30; // 默认30天
   }
 
-  if(!req?.session?.user?._id ) {
+  const session = ctx.session;
+
+  if (!session?.user?._id) {
     result.code = -1;
     result.mess = "not login!";
-    res.send(JSON.stringify(result));
+    ctx.body = result;
     return;
   }
 
-  if(req?.session?.is_authkey_login) {
+  if (session?.is_authkey_login) {
     result.code = -1;
     result.mess = "login by authkey can not generate new authkey!";
-    res.send(JSON.stringify(result));
+    ctx.body = result;
     return;
   }
 
-  authkey = tools.generateauthkey(req.session.user._id, maxage);
+  const authkey = tools.generateauthkey(session.user._id, maxage);
+
   result.code = 0;
   result.data = authkey;
-  res.send(JSON.stringify(result));
-}
+  ctx.body = result;
+});
 
-exports.authkey_login = function (req, res, next) {
-  var authkey = validator.trim(req.body.authkey).toUpperCase();
-  var authitem = global.authkeys[authkey];
 
-  var result = {};
+router.post('/authkey_login', async (ctx) => {
+  const authkey = validator.trim(ctx.request.body.authkey).toUpperCase();
+  const authitem = global.authkeys[authkey];
+  const result = {};
 
-  if(authitem) {
-      var userid = authitem[0];
-      var maxage = authitem[1];
-      delete global.authkeys[authkey];
-      req.session.is_authkey_login = true;
-      authMiddleWare.gen_session(res, userid, maxage);
-      res.send(JSON.stringify({ code: 1, mess: "redirect" }));
+  if (authitem) {
+    const userid = authitem[0];
+    const maxage = authitem[1];
+
+    delete global.authkeys[authkey];
+
+    ctx.session.is_authkey_login = true;
+    authMiddleWare.gen_session(ctx, userid, maxage);
+    ctx.body = { code: 1, mess: "redirect" };
   } else {
-      result.code = -1;
-      result.mess = "authkey error or timeout or used!";
-      res.send(JSON.stringify(result));
+    result.code = -1;
+    result.mess = "authkey error or timeout or used!";
+    ctx.body = result;
   }
-}
+});
+
+
+module.exports = router;

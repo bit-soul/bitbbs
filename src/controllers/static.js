@@ -1,15 +1,15 @@
-var multiline = require('multiline');
-// static page
-// About
-exports.about = function (req, res, next) {
-  res.render('static/about', {
+const multiline = require('multiline');
+
+// about page
+exports.about = async function (ctx, next) {
+  await ctx.render('static/about', {
     pageTitle: 'About'
   });
 };
 
-exports.robots = function (req, res, next) {
-  res.type('text/plain');
-  res.send(multiline(function () {;
+exports.robots = async function (ctx, next) {
+  ctx.type = 'text/plain';
+  ctx.body = multiline(function () {;
 /*
 # See http://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
 #
@@ -17,5 +17,5 @@ exports.robots = function (req, res, next) {
 # User-Agent: *
 # Disallow: /
 */
-  }));
+  });
 };

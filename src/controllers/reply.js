@@ -2,188 +2,164 @@ var validator  = require('validator');
 var _          = require('lodash');
 var at         = require('../common/at');
 var message    = require('../common/message');
-var EventProxy = require('eventproxy');
 var User       = require('../proxy').User;
 var Topic      = require('../proxy').Topic;
 var Reply      = require('../proxy').Reply;
 
-/**
- * 添加回复
- */
-exports.add = function (req, res, next) {
-  var content = req.body.r_content;
-  var tid = req.params.tid;
-  var rid = req.body.rid;
+exports.add = async function (ctx, next) {
+  try {
+    const content = ctx.request.body.r_content;
+    const tid = ctx.params.tid;
+    const rid = ctx.request.body.rid;
 
-  var str = validator.trim(String(content));
-  if (str === '') {
-    return res.renderError('Content can not be empty', 422);
-  }
-
-  var ep = EventProxy.create();
-  ep.fail(next);
-
-  Topic.getTopic(tid, ep.doneLater(function (topic) {
-    if (!topic) {
-      ep.unbind();
-      // just 404 page
-      return next();
+    const str = validator.trim(String(content));
+    if (str === '') {
+      return ctx.renderError('Content can not be empty', 422);
     }
 
+    const topic = await Topic.getTopic(tid);
+    if (!topic) return next(); // 404
     if (topic.lock) {
-      return res.status(403).send('Topic is locked');
+      ctx.status = 403;
+      return ctx.body = 'Topic is locked';
     }
-    ep.emit('topic', topic);
-  }));
 
-  ep.all('topic', function (topic) {
-    User.getUserById(topic.author_id, ep.done('topic_author'));
-  });
+    const topicAuthor = await User.getUserById(topic.author_id);
 
-  ep.all('topic', 'topic_author', function (topic, topicAuthor) {
-    Reply.newAndSave(content, tid, req.session.user._id, rid, ep.done(function (reply) {
-      Topic.updateLastReply(tid, reply._id, ep.done(function () {
-        ep.emit('reply_saved', reply);
-        //发送at消息，并防止重复 at 作者
-        var newContent = content.replace('[@' + topicAuthor.name + '](/user/' + topicAuthor._id + ')', '');
-        at.sendMessageToMentionUsers(newContent, tid, req.session.user._id, reply._id);
-      }));
-    }));
+    const reply = await Reply.newAndSave(content, tid, ctx.session.user._id, rid);
+    await Topic.updateLastReply(tid, reply._id);
 
-    User.getUserById(req.session.user._id, ep.done(function (user) {
-      user.score += 5;
-      user.reply_count += 1;
-      user.save();
-      req.session.user = user;
-      ep.emit('score_saved');
-    }));
-  });
+    // @提及功能
+    const newContent = content.replace(`[@${topicAuthor.name}](/user/${topicAuthor._id})`, '');
+    at.sendMessageToMentionUsers(newContent, tid, ctx.session.user._id, reply._id);
 
-  ep.all('reply_saved', 'topic', function (reply, topic) {
-    if (topic.author_id.toString() !== req.session.user._id.toString()) {
-      message.sendReplyMessage(topic.author_id, req.session.user._id, topic._id, reply._id);
+    const user = await User.getUserById(ctx.session.user._id);
+    user.score += 5;
+    user.reply_count += 1;
+    await user.save();
+    ctx.session.user = user;
+
+    if (topic.author_id.toString() !== ctx.session.user._id.toString()) {
+      await message.sendReplyMessage(topic.author_id, ctx.session.user._id, topic._id, reply._id);
     }
-    ep.emit('message_saved');
-  });
 
-  ep.all('reply_saved', 'message_saved', 'score_saved', function (reply) {
-    res.redirect('/topic/' + tid + '#' + reply._id);
-  });
+    return ctx.redirect(`/topic/${tid}#${reply._id}`);
+  } catch (err) {
+    return next(err);
+  }
 };
 
-/**
- * 删除回复信息
- */
-exports.delete = function (req, res, next) {
-  var rid = req.params.rid;
-  Reply.getReplyById(rid, function (err, reply) {
-    if (err) {
-      return next(err);
-    }
+exports.delete = async function (ctx, next) {
+  try {
+    const rid = ctx.params.rid;
+    const reply = await Reply.getReplyById(rid);
 
     if (!reply) {
-      res.status(422);
-      res.json({status: 'no reply ' + rid + ' exists'});
+      ctx.status = 422;
+      ctx.body = { status: `no reply ${rid} exists` };
       return;
     }
-    if (reply.author_id.toString() === req.session.user._id.toString() || req.session.user.is_admin) {
+
+    const currentUserId = ctx.session.user._id;
+    const isAuthor = reply.author_id.toString() === currentUserId.toString();
+    const isAdmin = ctx.session.user.is_admin;
+
+    if (isAuthor || isAdmin) {
       reply.deleted = true;
-      reply.save();
-      res.json({status: 'success'});
+      await reply.save();
 
       reply.author.score -= 5;
       reply.author.reply_count -= 1;
-      reply.author.save();
+      await reply.author.save();
+
+      ctx.body = { status: 'success' };
     } else {
-      res.json({status: 'failed'});
-      return;
+      ctx.body = { status: 'failed' };
     }
 
     Topic.reduceCount(reply.topic_id, _.noop);
-  });
+  } catch (err) {
+    return next(err);
+  }
 };
-/*
- 打开回复编辑器
- */
-exports.showEdit = function (req, res, next) {
-  var rid = req.params.rid;
 
-  Reply.getReplyById(rid, function (err, reply) {
-    if (!reply) {
-      return res.render404('reply not exist or deleted');
-    }
-    if (req.session.user._id.equals(reply.author_id) || req.session.user.is_admin) {
-      res.render('reply/edit', {
-        rid: reply._id,
-        content: reply.content
-      });
+exports.showEdit = async function (ctx, next) {
+  const rid = ctx.params.rid;
+  const reply = await Reply.getReplyById(rid);
+
+  if (!reply) {
+    return ctx.render404('reply not exist or deleted');
+  }
+
+  const isOwner = ctx.session.user._id.equals(reply.author_id);
+  const isAdmin = ctx.session.user.is_admin;
+
+  if (isOwner || isAdmin) {
+    return ctx.render('reply/edit', {
+      rid: reply._id,
+      content: reply.content
+    });
+  } else {
+    return ctx.renderError('can not edit this reply', 403);
+  }
+};
+
+exports.update = async function (ctx, next) {
+  const rid = ctx.params.rid;
+  const content = ctx.request.body.t_content;
+
+  const reply = await Reply.getReplyById(rid);
+  if (!reply) {
+    return ctx.render404('reply not exist or deleted');
+  }
+
+  const isOwner = String(reply.author_id) === ctx.session.user._id.toString();
+  const isAdmin = ctx.session.user.is_admin;
+
+  if (isOwner || isAdmin) {
+    if (content.trim().length > 0) {
+      reply.content = content;
+      reply.update_at = new Date();
+      await reply.save();
+      return ctx.redirect(`/topic/${reply.topic_id}#${reply._id}`);
     } else {
-      return res.renderError('can not edit this reply', 403);
+      return ctx.renderError('reply is too short', 400);
     }
-  });
-};
-/*
- 提交编辑回复
- */
-exports.update = function (req, res, next) {
-  var rid = req.params.rid;
-  var content = req.body.t_content;
-
-  Reply.getReplyById(rid, function (err, reply) {
-    if (!reply) {
-      return res.render404('reply not exist or deleted');
-    }
-
-    if (String(reply.author_id) === req.session.user._id.toString() || req.session.user.is_admin) {
-
-      if (content.trim().length > 0) {
-        reply.content = content;
-        reply.update_at = new Date();
-        reply.save(function (err) {
-          if (err) {
-            return next(err);
-          }
-          res.redirect('/topic/' + reply.topic_id + '#' + reply._id);
-        });
-      } else {
-        return res.renderError('reply is too short', 400);
-      }
-    } else {
-      return res.renderError('can not edit this reply', 403);
-    }
-  });
+  } else {
+    return ctx.renderError('can not edit this reply', 403);
+  }
 };
 
-exports.up = function (req, res, next) {
-  var rid = req.params.rid;
-  var uid = req.session.user._id;
-  Reply.getReplyById(rid, function (err, reply) {
-    if (err) {
-      return next(err);
-    }
+exports.up = async function (ctx, next) {
+  try {
+    const rid = ctx.params.rid;
+    const uid = ctx.session.user._id;
+    const reply = await Reply.getReplyById(rid);
+
     if (reply.author_id.equals(uid) && !global.config.debug) {
-      // 不能帮自己点赞
-      res.send({
+      return ctx.body = {
         success: false,
         message: 'can not up yourself',
-      });
-    } else {
-      var action;
-      reply.ups = reply.ups || [];
-      var upIndex = reply.ups.indexOf(uid);
-      if (upIndex === -1) {
-        reply.ups.push(uid);
-        action = 'up';
-      } else {
-        reply.ups.splice(upIndex, 1);
-        action = 'down';
-      }
-      reply.save(function () {
-        res.send({
-          success: true,
-          action: action
-        });
-      });
+      };
     }
-  });
+
+    reply.ups = reply.ups || [];
+    let action;
+    const upIndex = reply.ups.indexOf(uid);
+    if (upIndex === -1) {
+      reply.ups.push(uid);
+      action = 'up';
+    } else {
+      reply.ups.splice(upIndex, 1);
+      action = 'down';
+    }
+    await reply.save();
+
+    ctx.body = {
+      success: true,
+      action: action
+    };
+  } catch (err) {
+    return next(err);
+  }
 };

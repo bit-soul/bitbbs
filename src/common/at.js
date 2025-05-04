@@ -1,6 +1,5 @@
 var User       = require('../proxy').User;
 var Message    = require('./message');
-var EventProxy = require('eventproxy');
 var _          = require('lodash');
 
 /**
@@ -40,55 +39,37 @@ var fetchUserIds = function (text) {
 };
 exports.fetchUserIds = fetchUserIds;
 
+
 /**
  * 根据文本内容中读取用户，并发送消息给提到的用户
- * Callback:
- * - err, 数据库异常
  * @param {String} text 文本内容
  * @param {String} topicId 主题ID
  * @param {String} authorId 作者ID
- * @param {String} replyId 回复ID
- * @param {Function} callback 回调函数
+ * @param {String|null} replyId 回复ID（可选）
  */
-exports.sendMessageToMentionUsers = function (text, topicId, authorId, replyId, callback) {
-  if (typeof replyId === 'function') {
-    callback = replyId;
-    replyId = null;
+exports.sendMessageToMentionUsers = async function (text, topicId, authorId, replyId = null) {
+  const userIds = fetchUserIds(text);
+  const users = await User.getUsersByIds(userIds);
+
+  if (!users) {
+    throw new Error('Users not found');
   }
-  callback = callback || _.noop;
 
-  User.getUsersByIds(fetchUserIds(text), function (err, users) {
-    if (err || !users) {
-      return callback(err);
-    }
-    var ep = new EventProxy();
-    ep.fail(callback);
+  const filteredUsers = users.filter(user => !user._id.equals(authorId));
 
-    users = users.filter(function (user) {
-      return !user._id.equals(authorId);
-    });
-
-    ep.after('sent', users.length, function () {
-      callback();
-    });
-
-    users.forEach(function (user) {
-      Message.sendAtMessage(user._id, authorId, topicId, replyId, ep.done('sent'));
-    });
-  });
+  await Promise.all(
+    filteredUsers.map(user =>
+      Message.sendAtMessage(user._id, authorId, topicId, replyId)
+    )
+  );
 };
 
 /**
  * 根据文本内容，替换为数据库中的数据
- * Callback:
- * - err, 数据库异常
- * - text, 替换后的文本内容
  * @param {String} text 文本内容
- * @param {Function} callback 回调函数
+ * @returns {String} 替换后的文本内容（当前为原样返回）
  */
-exports.textShowProcess = function (text, callback) {
-  if (!callback) {
-    return text;
-  }
-  return callback(null, text);
+exports.textShowProcess = async function (text) {
+  // 如果将来要替换为数据库处理，可在这里扩展
+  return text;
 };
