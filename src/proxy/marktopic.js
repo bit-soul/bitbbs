@@ -1,23 +1,22 @@
-var MarkTopic = require('../models/marktopic').;
-var _ = require('lodash')
+const modelMarkTopic = require('../models/marktopic');
 
 exports.getMarkTopic = async function (userId, topicId) {
-  return await MarkTopic.findOne({ user_id: userId, topic_id: topicId });
+  return await modelMarkTopic.findOne({ user_id: userId, topic_id: topicId });
 };
 
 exports.getMarkTopicsByUserId = async function (userId, opt = {}) {
   const defaultOpt = { sort: '-create_at' };
-  const finalOpt = _.assign(defaultOpt, opt);
-  return await MarkTopic.find({ user_id: userId }, '', finalOpt);
+  const finalOpt = lodash.assign(defaultOpt, opt);
+  return await modelMarkTopic.find({ user_id: userId }, '', finalOpt);
 };
 
 exports.newAndSave = async function (userId, topicId) {
-  const marktopic = new MarkTopic();
+  const marktopic = new modelMarkTopic();
   marktopic.user_id = userId;
   marktopic.topic_id = topicId;
   return await marktopic.save();
 };
 
 exports.remove = async function (userId, topicId) {
-  return await MarkTopic.deleteOne({ user_id: userId, topic_id: topicId });
+  return await modelMarkTopic.deleteOne({ user_id: userId, topic_id: topicId });
 };

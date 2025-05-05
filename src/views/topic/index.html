@@ -202,7 +202,7 @@
     var currentUserId = $('.user_card .user_name').attr('href').split('/user/')[1];
     allUsers.push({ name: currentUserName, id: currentUserId });
     // 去重（根据name和id来去重）
-    allUsers = _.uniq(allUsers, function(user) {
+    allUsers = lodash.uniq(allUsers, function(user) {
       return user.name + user.id;
     });
 
@@ -236,9 +236,9 @@
         insert_tpl: "<span id='${id}'>${atwho-data-value}</span>",
       })
       .on('shown.atwho', function () {
-        CodeMirror.commands.goLineUp = _.noop;
-        CodeMirror.commands.goLineDown = _.noop;
-        CodeMirror.commands.newlineAndIndent = _.noop;
+        CodeMirror.commands.goLineUp = lodash.noop;
+        CodeMirror.commands.goLineDown = lodash.noop;
+        CodeMirror.commands.newlineAndIndent = lodash.noop;
       })
       .on('hidden.atwho', function () {
         CodeMirror.commands.goLineUp = codeMirrorGoLineUp;

@@ -1,15 +1,16 @@
-const Router = require('koa-router');
-var User           = require('../models/user');
-var authMiddleWare = require('../middlewares/auth');
-var uuid           = require('node-uuid');
-const router = new Router();
+const modelUser = require('../models/user');
+const midAuth   = require('../middlewares/auth');
+const midGithub = require('./middlewares/github');
 
+const Router   = require('koa-router');
 const passport = require('koa-passport');
-var midgithub = require('./middlewares/github');
+const uuid     = require('node-uuid');
+
+const router = new Router();
 
 router.get(
   '/auth/github',
-  midgithub.github, // 自定义中间件，形式为 async (ctx, next) => {...}
+  midGithub.github, // 自定义中间件，形式为 async (ctx, next) => {...}
   passport.authenticate('github') // koa-passport 提供的 authenticate 中间件
 );
 
@@ -26,7 +27,7 @@ router.get('/auth/github/callback', passport.authenticate('github', { failureRed
   }
 
   try {
-    let user = await User.findOne({ githubId: profile.id });
+    let user = await modelUser.findOne({ githubId: profile.id });
 
     if (user) {
       // 已注册，更新信息
@@ -38,7 +39,7 @@ router.get('/auth/github/callback', passport.authenticate('github', { failureRed
 
       await user.save();
 
-      authMiddleWare.gen_session(ctx.res, user._id);
+      midAuth.gen_session(ctx.res, user._id);
       ctx.redirect('/');
     } else {
       // 未注册，跳转补充信息页
@@ -78,7 +79,7 @@ router.post('/auth/github/create', async (ctx, next) => {
     return await ctx.render('sign/no_github_email');
   }
 
-  const user = new User({
+  const user = new modelUser({
     name: profile.username,
     pass: profile.accessToken, // 此处你可替换为随机密码
     email,
@@ -92,7 +93,7 @@ router.post('/auth/github/create', async (ctx, next) => {
 
   try {
     await user.save();
-    authMiddleWare.gen_session(ctx.res, user._id);
+    midAuth.gen_session(ctx.res, user._id);
     ctx.redirect('/');
   } catch (err) {
     return next(err);

@@ -1,26 +1,25 @@
-var User    = require('../models/user');
-var utility = require('utility');
-var uuid    = require('node-uuid');
+const modelUser = require('../models/user');
+const uuid      = require('node-uuid');
 
 exports.getUserById = async function (id) {
   if (!id) return null;
-  return await User.findOne({ _id: id });
+  return await modelUser.findOne({ _id: id });
 };
 
 exports.getUsersByIds = async function (ids) {
-  return await User.find({ _id: { $in: ids } });
+  return await modelUser.find({ _id: { $in: ids } });
 };
 
 exports.getUserByMail = async function (email) {
-  return await User.findOne({ email: email });
+  return await modelUser.findOne({ email: email });
 };
 
 exports.getUsersByQuery = async function (query, opt = {}) {
-  return await User.find(query, '', opt);
+  return await modelUser.find(query, '', opt);
 };
 
 exports.newAndSave = async function (name, pass, email, icon, active = false) {
-  const user = new User({
+  const user = new modelUser({
     name,
     pass,
     email,

@@ -1,5 +1,5 @@
-var fetch = require('node-fetch');
-var proxyagent = require('socks-proxy-agent');
+const fetch = require('node-fetch');
+const proxyagent = require('socks-proxy-agent');
 
 var agent = null;
 if (global.config.socks_proxy_url && global.config.socks_proxy_url !== '') {

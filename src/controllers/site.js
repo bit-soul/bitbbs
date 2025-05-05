@@ -1,11 +1,13 @@
-const Router = require('koa-router');
-var User         = require('../proxy/user');
-var Topic        = require('../proxy/topic');
-var cache        = require('../common/cache');
-var xmlbuilder   = require('xmlbuilder');
-var renderHelper = require('../common/render_helper');
-var _            = require('lodash');
-var moment = require('moment');
+const proxyUser    = require('../proxy/user');
+const proxyTopic   = require('../proxy/topic');
+const cache        = require('../common/cache');
+const renderHelper = require('../common/render_helper');
+const tools        = require('../common/tools');
+
+const Router      = require('koa-router');
+const moment      = require('moment');
+const data2xml    = require('data2xml')({ xmlDecl: { version: '1.0', encoding: 'UTF-8' } });
+
 const router = new Router();
 
 router.get('/', async (ctx, next) => {
@@ -36,13 +38,13 @@ router.get('/', async (ctx, next) => {
       no_reply_topics,
       pages
     ] = await Promise.all([
-      Topic.getTopicsByQuery(query, options),
+      proxyTopic.getTopicsByQuery(query, options),
 
       // 取排行榜上的用户
       (async () => {
         let tops = await cache.get('tops');
         if (tops) return tops;
-        tops = await User.getUsersByQuery({ is_block: false }, { limit: 10, sort: '-score' });
+        tops = await proxyUser.getUsersByQuery({ is_block: false }, { limit: 10, sort: '-score' });
         await cache.set('tops', tops, 60);
         return tops;
       })(),
@@ -51,7 +53,7 @@ router.get('/', async (ctx, next) => {
       (async () => {
         let noReply = await cache.get('no_reply_topics');
         if (noReply) return noReply;
-        noReply = await Topic.getTopicsByQuery({ reply_count: 0, tab: { $nin: ['job', 'dev'] } }, { limit: 5, sort: '-create_at' });
+        noReply = await proxyTopic.getTopicsByQuery({ reply_count: 0, tab: { $nin: ['job', 'dev'] } }, { limit: 5, sort: '-create_at' });
         await cache.set('no_reply_topics', noReply, 60);
         return noReply;
       })(),
@@ -61,7 +63,7 @@ router.get('/', async (ctx, next) => {
         const key = JSON.stringify(query) + 'pages';
         let pages = await cache.get(key);
         if (pages) return pages;
-        const count = await Topic.getCountByQuery(query);
+        const count = await proxyTopic.getCountByQuery(query);
         pages = Math.ceil(count / limit);
         await cache.set(key, pages, 60);
         return pages;
@@ -90,25 +92,21 @@ router.get('/sitemap.xml', async (ctx, next) => {
     let sitemapData = await cache.get('sitemap');
 
     if (!sitemapData) {
-      const urlset = xmlbuilder.create('urlset', {
-        version: '1.0',
-        encoding: 'UTF-8'
-      });
-      urlset.att('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
-
-      const topics = await Topic.getLimit5w();
-
-      topics.forEach(topic => {
-        urlset.ele('url').ele('loc', `http://bitbbs.bitsoul.xyz/topic/${topic._id}`);
-      });
-
-      sitemapData = urlset.end();
+      const urlset = {
+        _attr: {
+          xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9'
+        },
+        url: topics.map(topic => ({
+          loc: `https://bitbbs.bitsoul.xyz/topic/${topic._id}`
+        }))
+      };
+      let sitemapData = data2xml('urlset', urlset);
+      sitemapData = tools.utf8ForXml(sitemapData);
       await cache.set('sitemap', sitemapData, 3600 * 24); // 缓存一天
     }
 
     ctx.type = 'xml';
     ctx.body = sitemapData;
-
   } catch (err) {
     return next(err);
   }

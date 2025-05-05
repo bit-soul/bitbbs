@@ -1,16 +1,16 @@
-const Router = require('koa-router');
-var User       = require('../proxy/user');
-var Topic      = require('../proxy/topic');
-var Reply      = require('../proxy/reply');
-var MarkTopic  = require('../proxy/marktopic');
-var utility    = require('utility');
-var util       = require('util');
-var TopicModel = require('../models/topic');
-var ReplyModel = require('../models/reply');
-var tools      = require('../common/tools');
-var validator  = require('validator');
-var _          = require('lodash');
-var uuid = require('node-uuid')
+const modelTopic      = require('../models/topic');
+const modelReply      = require('../models/reply');
+const tools           = require('../common/tools');
+const proxyUser       = require('../proxy/user');
+const proxyTopic      = require('../proxy/topic');
+const proxyReply      = require('../proxy/reply');
+const proxyMarkTopic  = require('../proxy/marktopic');
+
+const validator = require('validator');
+const Router    = require('koa-router');
+const utility   = require('utility');
+const util      = require('util');
+const uuid      = require('node-uuid')
 
 const router = new Router();
 
@@ -19,33 +19,33 @@ router.get('/user/:uid', async (ctx, next) => {
 
   let user;
   try {
-    user = await User.getUserById(uid);
+    user = await proxyUser.getUserById(uid);
   } catch (err) {
     return await next(err);
   }
 
   if (!user) {
     ctx.status = 404;
-    ctx.body = 'User not exist'; // todo 保持原逻辑，如需自定义渲染可封装 render404 方法
+    ctx.body = 'proxyUser not exist'; // todo 保持原逻辑，如需自定义渲染可封装 render404 方法
     return;
   }
 
   try {
     const query = { author_id: user._id };
     const topicOpt = { limit: 5, sort: '-create_at' };
-    const recent_topics = await Topic.getTopicsByQuery(query, topicOpt);
+    const recent_topics = await proxyTopic.getTopicsByQuery(query, topicOpt);
 
     const replyOpt = { limit: 20, sort: '-create_at' };
-    const replies = await Reply.getRepliesByAuthorId(user._id, replyOpt);
+    const replies = await proxyReply.getRepliesByAuthorId(user._id, replyOpt);
 
     let topic_ids = replies.map(reply => reply.topic_id.toString());
-    topic_ids = _.uniq(topic_ids).slice(0, 5);
+    topic_ids = lodash.uniq(topic_ids).slice(0, 5);
 
     const recentQuery = { _id: { '$in': topic_ids } };
     const recentOpt = {};
-    let recent_replies = await Topic.getTopicsByQuery(recentQuery, recentOpt);
+    let recent_replies = await proxyTopic.getTopicsByQuery(recentQuery, recentOpt);
 
-    recent_replies = _.sortBy(recent_replies, topic => {
+    recent_replies = lodash.sortBy(recent_replies, topic => {
       return topic_ids.indexOf(topic._id.toString());
     });
 
@@ -69,7 +69,7 @@ router.get('/user/:uid', async (ctx, next) => {
 
 router.get('/advances', async (ctx, next) => {
   try {
-    const advances = await User.getUsersByQuery({ is_advance: true }, {});
+    const advances = await proxyUser.getUsersByQuery({ is_advance: true }, {});
     ctx.render('user/advances', { advances: advances });
   } catch (err) {
     await next(err);
@@ -80,7 +80,7 @@ router.get('/setting',
   auth.userRequired,
   async (ctx, next) => {
   try {
-    const user = await User.getUserById(ctx.session.user._id);
+    const user = await proxyUser.getUserById(ctx.session.user._id);
     if (!user) {
       return await next();
     }
@@ -124,7 +124,7 @@ router.post('/setting',
       const name = validator.trim(reqBody.name);
       const biog = validator.trim(reqBody.biog);
 
-      const user = await User.getUserById(sessionUser._id);
+      const user = await proxyUser.getUserById(sessionUser._id);
       user.name = name;
       user.biog = biog;
       await user.save();
@@ -140,7 +140,7 @@ router.post('/setting',
         return ctx.body = 'password can not be empty';
       }
 
-      const user = await User.getUserById(sessionUser._id);
+      const user = await proxyUser.getUserById(sessionUser._id);
       const isMatch = await tools.bcompare(old_pass, user.pass);
 
       if (!isMatch) {
@@ -164,7 +164,7 @@ router.post('/user/set_advance',
   async (ctx, next) => {
   try {
     const user_id = ctx.request.body.user_id;
-    const user = await User.getUserById(user_id);
+    const user = await proxyUser.getUserById(user_id);
 
     if (!user) {
       throw new Error('user is not exists');
@@ -185,7 +185,7 @@ router.get('/user/:uid/markedtopics', async (ctx, next) => {
     const page = Number(ctx.query.page) || 1;
     const limit = global.config.list_topic_count;
 
-    const user = await User.getUserById(uid);
+    const user = await proxyUser.getUserById(uid);
     if (!user) {
       throw new Error('user not found');
     }
@@ -196,12 +196,12 @@ router.get('/user/:uid/markedtopics', async (ctx, next) => {
       limit: limit,
     };
 
-    const docs = await MarkTopic.getMarkTopicsByUserId(user._id, opt);
+    const docs = await proxyMarkTopic.getMarkTopicsByUserId(user._id, opt);
     const ids = docs.map(doc => String(doc.topic_id));
 
     const query = { _id: { $in: ids } };
-    let topics = await Topic.getTopicsByQuery(query, {});
-    topics = _.sortBy(topics, topic => ids.indexOf(String(topic._id)));
+    let topics = await proxyTopic.getTopicsByQuery(query, {});
+    topics = lodash.sortBy(topics, topic => ids.indexOf(String(topic._id)));
 
     return ctx.render('user/marktopics', {
       topics,
@@ -218,7 +218,7 @@ router.get('/user/:uid/markedtopics', async (ctx, next) => {
 router.get('/users/top100', async (ctx, next) => {
   try {
     const opt = { limit: 100, sort: '-score' };
-    const tops = await User.getUsersByQuery({ is_block: false }, opt);
+    const tops = await proxyUser.getUsersByQuery({ is_block: false }, opt);
 
     return ctx.render('user/top100', {
       users: tops,
@@ -235,9 +235,9 @@ router.get('/user/:uid/topics', async (ctx, next) => {
     const page = Number(ctx.query.page) || 1;
     const limit = global.config.list_topic_count;
 
-    const user = await User.getUserById(uid);
+    const user = await proxyUser.getUserById(uid);
     if (!user) {
-      return ctx.render404('User not exist');
+      return ctx.render404('proxyUser not exist');
     }
 
     const query = { author_id: user._id };
@@ -248,8 +248,8 @@ router.get('/user/:uid/topics', async (ctx, next) => {
     };
 
     const [topics, total] = await Promise.all([
-      Topic.getTopicsByQuery(query, opt),
-      Topic.getCountByQuery(query)
+      proxyTopic.getTopicsByQuery(query, opt),
+      proxyTopic.getCountByQuery(query)
     ]);
 
     const pages = Math.ceil(total / limit);
@@ -272,9 +272,9 @@ router.get('/user/:uid/replies', async (ctx, next) => {
     const page = Number(ctx.query.page) || 1;
     const limit = 50;
 
-    const user = await User.getUserById(uid);
+    const user = await proxyUser.getUserById(uid);
     if (!user) {
-      return ctx.render404('User not exist');
+      return ctx.render404('proxyUser not exist');
     }
 
     const opt = {
@@ -284,16 +284,16 @@ router.get('/user/:uid/replies', async (ctx, next) => {
     };
 
     const [replies, total] = await Promise.all([
-      Reply.getRepliesByAuthorId(user._id, opt),
-      Reply.getCountByAuthorId(user._id)
+      proxyReply.getRepliesByAuthorId(user._id, opt),
+      proxyReply.getCountByAuthorId(user._id)
     ]);
 
     let topic_ids = replies.map(reply => reply.topic_id.toString());
-    topic_ids = _.uniq(topic_ids);
+    topic_ids = lodash.uniq(topic_ids);
 
     const query = { _id: { $in: topic_ids } };
-    let topics = await Topic.getTopicsByQuery(query, {});
-    topics = _.sortBy(topics, topic => topic_ids.indexOf(topic._id.toString()));
+    let topics = await proxyTopic.getTopicsByQuery(query, {});
+    topics = lodash.sortBy(topics, topic => topic_ids.indexOf(topic._id.toString()));
 
     const pages = Math.ceil(total / limit);
 
@@ -316,9 +316,9 @@ router.post('/user/:uid/block',
     const uid = ctx.params.uid;
     const action = ctx.request.body.action;
 
-    const user = await User.getUserById(uid);
+    const user = await proxyUser.getUserById(uid);
     if (!user) {
-      throw new Error('User not exist');
+      throw new Error('proxyUser not exist');
     }
 
     if (action === 'set_block') {
@@ -341,16 +341,16 @@ router.get('/user/:uid/delete_all',
   try {
     const uid = ctx.params.uid;
 
-    const user = await User.getUserById(uid);
+    const user = await proxyUser.getUserById(uid);
     if (!user) {
       throw new Error('user is not exists');
     }
 
     // 并发执行所有删除操作
     await Promise.all([
-      TopicModel.updateMany({ author_id: user._id }, { $set: { deleted: true } }),
-      ReplyModel.updateMany({ author_id: user._id }, { $set: { deleted: true } }),
-      ReplyModel.updateMany({}, { $pull: { ups: user._id } }),
+      modelTopic.updateMany({ author_id: user._id }, { $set: { deleted: true } }),
+      modelReply.updateMany({ author_id: user._id }, { $set: { deleted: true } }),
+      modelReply.updateMany({}, { $pull: { ups: user._id } }),
     ]);
 
     ctx.body = { status: 'success' };
@@ -365,7 +365,7 @@ router.post('/user/refresh_token',
   try {
     const user_id = ctx.session.user._id;
 
-    const user = await User.getUserById(user_id);
+    const user = await proxyUser.getUserById(user_id);
     user.accessToken = uuid.v4();
     await user.save();
 

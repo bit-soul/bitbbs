@@ -1,35 +1,34 @@
-var Topic      = require('../models/topic');
-var User       = require('./user');
-var Reply      = require('./reply');
-var at         = require('../common/at');
-var _          = require('lodash');
+const modelTopic = require('../models/topic');
+const proxyUser  = require('./user');
+const proxyReply = require('./reply');
+const at         = require('../common/at');
 
 exports.getTopicById = async function (id) {
-  const topic = await Topic.findOne({ _id: id });
+  const topic = await modelTopic.findOne({ _id: id });
   if (!topic) return { topic: null, author: null, lastReply: null };
 
   const [author, lastReply] = await Promise.all([
-    User.getUserById(topic.author_id),
-    topic.last_reply ? Reply.getReplyById(topic.last_reply) : null
+    proxyUser.getUserById(topic.author_id),
+    topic.last_reply ? proxyReply.getReplyById(topic.last_reply) : null
   ]);
 
   return { topic, author, lastReply };
 };
 
 exports.getCountByQuery = async function (query) {
-  return await Topic.countDocuments(query);
+  return await modelTopic.countDocuments(query);
 };
 
 exports.getTopicsByQuery = async function (query, opt = {}) {
   query.deleted = false;
-  const topics = await Topic.find(query, {}, opt);
+  const topics = await modelTopic.find(query, {}, opt);
   if (!topics || topics.length === 0) return [];
 
   const enrichedTopics = await Promise.all(
     topics.map(async (topic) => {
       const [author, reply] = await Promise.all([
-        User.getUserById(topic.author_id),
-        Reply.getReplyById(topic.last_reply),
+        proxyUser.getUserById(topic.author_id),
+        proxyReply.getReplyById(topic.last_reply),
       ]);
 
       if (!author) return null;
@@ -40,30 +39,30 @@ exports.getTopicsByQuery = async function (query, opt = {}) {
     })
   );
 
-  return _.compact(enrichedTopics);
+  return lodash.compact(enrichedTopics);
 };
 
 exports.getLimit5w = async function () {
-  return await Topic.find({ deleted: false }, '_id', {
+  return await modelTopic.find({ deleted: false }, '_id', {
     limit: 50000,
     sort: '-create_at'
   });
 };
 
 exports.getFullTopic = async function (id) {
-  const topic = await Topic.findOne({ _id: id, deleted: false });
+  const topic = await modelTopic.findOne({ _id: id, deleted: false });
   if (!topic) {
-    throw new Error('Topic not exist or deleted');
+    throw new Error('modelTopic not exist or deleted');
   }
 
   const [linkedContent, author, replies] = await Promise.all([
     at.textShowProcess(topic.content),
-    User.getUserById(topic.author_id),
-    Reply.getRepliesByTopicId(topic._id),
+    proxyUser.getUserById(topic.author_id),
+    proxyReply.getRepliesByTopicId(topic._id),
   ]);
 
   if (!author) {
-    throw new Error('Topic author not exist');
+    throw new Error('modelTopic author not exist');
   }
 
   topic.linkedContent = linkedContent;
@@ -71,8 +70,8 @@ exports.getFullTopic = async function (id) {
 };
 
 exports.updateLastReply = async function (topicId, replyId) {
-  const topic = await Topic.findOne({ _id: topicId });
-  if (!topic) throw new Error('Topic not exist');
+  const topic = await modelTopic.findOne({ _id: topicId });
+  if (!topic) throw new Error('modelTopic not exist');
 
   topic.last_reply = replyId;
   topic.last_reply_at = new Date();
@@ -83,16 +82,16 @@ exports.updateLastReply = async function (topicId, replyId) {
 };
 
 exports.getTopic = async function (id) {
-  return await Topic.findOne({ _id: id });
+  return await modelTopic.findOne({ _id: id });
 };
 
 exports.reduceCount = async function (id) {
-  const topic = await Topic.findOne({ _id: id });
-  if (!topic) throw new Error('Topic not exist or deleted');
+  const topic = await modelTopic.findOne({ _id: id });
+  if (!topic) throw new Error('modelTopic not exist or deleted');
 
   topic.reply_count -= 1;
 
-  const reply = await Reply.getLastReplyByTopId(id);
+  const reply = await proxyReply.getLastReplyByTopId(id);
   topic.last_reply = reply.length !== 0 ? reply[0]._id : null;
 
   await topic.save();
@@ -100,7 +99,7 @@ exports.reduceCount = async function (id) {
 };
 
 exports.newAndSave = async function (title, content, tab, authorId) {
-  const topic = new Topic({
+  const topic = new modelTopic({
     title,
     content,
     tab,

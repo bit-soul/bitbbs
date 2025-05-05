@@ -1,7 +1,7 @@
-var mongoose  = require('mongoose');
-var BaseModel = require("./base_model");
-var Schema    = mongoose.Schema;
-var ObjectId  = Schema.ObjectId;
+const mongoose  = require('mongoose');
+const Schema    = mongoose.Schema;
+const ObjectId  = Schema.ObjectId;
+const BaseModel = require("./base_model");
 
 /*
  * type:
@@ -10,8 +10,7 @@ var ObjectId  = Schema.ObjectId;
  * follow: xx 关注了你
  * at: xx ＠了你
  */
-
-var MessageSchema = new Schema({
+const MessageSchema = new Schema({
   type: { type: String },
   master_id: { type: ObjectId},
   author_id: { type: ObjectId },

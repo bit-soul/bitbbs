@@ -1,10 +1,10 @@
-var utility = require('utility');
-var path    = require('path');
-var fs      = require('fs');
+const utility = require('utility');
+const path    = require('path');
+const fs      = require('fs');
 const { pipeline } = require('stream/promises');
 
-var s3sdk = require("@aws-sdk/client-s3");
-var s3presigner = require("@aws-sdk/s3-request-presigner");
+const s3sdk = require("@aws-sdk/client-s3");
+const s3presigner = require("@aws-sdk/s3-request-presigner");
 
 var s3_client = null;
 if (global.config.s3_client && global.config.s3_client.secretAccessKey) {

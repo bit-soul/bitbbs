@@ -1,6 +1,6 @@
-const UserModel = require('../models/user');
-var UserProxy       = require('../proxy/user');
-var MessageProxy = require('../proxy/message');
+const modelUser = require('../models/user');
+const proxyUser    = require('../proxy/user');
+const proxyMessage = require('../proxy/message');
 
 
 exports.adminRequired = async (ctx, next) => {
@@ -65,7 +65,7 @@ exports.authUser = async (ctx, next) => {
   try {
     if (global.config.debug && ctx.cookies.get('mock_user')) {
       const mockUser = JSON.parse(ctx.cookies.get('mock_user'));
-      ctx.session.user = new UserModel(mockUser);
+      ctx.session.user = new modelUser(mockUser);
       if (mockUser.is_admin) {
         ctx.session.user.is_admin = true;
       }
@@ -81,7 +81,7 @@ exports.authUser = async (ctx, next) => {
       if (auth_token) {
         const auth = auth_token.split('$$$$');
         const user_id = auth[0];
-        user = await UserProxy.getUserById(user_id);
+        user = await proxyUser.getUserById(user_id);
       }
     }
 
@@ -90,13 +90,13 @@ exports.authUser = async (ctx, next) => {
       return;
     }
 
-    user = ctx.state.current_user = ctx.session.user = new UserModel(user);
+    user = ctx.state.current_user = ctx.session.user = new modelUser(user);
 
     if (global.config.admins.hasOwnProperty(user._id)) {
       user.is_admin = true;
     }
 
-    const count = await MessageProxy.getMessagesCount(user._id);
+    const count = await proxyMessage.getMessagesCount(user._id);
     user.messages_count = count;
 
     await next();

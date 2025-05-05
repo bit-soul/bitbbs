@@ -1,6 +1,5 @@
-var redis  = require('./redis');
-var _      = require('lodash');
-var logger = require('./logger');
+const redis  = require('./redis');
+const logger = require('./logger');
 
 exports.get = async function (key) {
   const t = new Date();

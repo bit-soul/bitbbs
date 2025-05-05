@@ -1,30 +1,29 @@
-const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const lodash = require('lodash');
 
 const Koa = require('koa');
 const koaonerror = require('koa-onerror')
-const koastatic = require('@koa/static')
+const koastatic = require('koa-static')
 const koabody = require('koa-body')
-const koasession = require('@koa/session');
+const koasession = require('koa-session');
 const koaredis = require('koa-redis');
 const koaejs = require('@koa/ejs')
 const koacors = require('@koa/cors');
-const koacsrf = require('@koa/csrf');
+const koacsrf = require('koa-csrf');
 const koapassport = require('koa-passport');
 const koahelmet = require('koa-helmet');
 
-var midauth = require('./middlewares/auth');
-var miderrpage = require('./middlewares/errpage');
-var midproxy = require('./middlewares/proxy');
-var midreqlog = require('./middlewares/reqlog');
-var midrender = require('./middlewares/render');
-var midgithub = require('./middlewares/github');
+const midAuth = require('./middlewares/auth');
+const midErrpage = require('./middlewares/errpage');
+const midProxy = require('./middlewares/proxy');
+const midReqlog = require('./middlewares/reqlog');
+const midRender = require('./middlewares/render');
+const midGithub = require('./middlewares/github');
 
-var logger = require('./common/logger');
+const logger = require('./common/logger');
 
-var GitHubStrategy = require('passport-github').Strategy;
+const GitHubStrategy = require('passport-github').Strategy;
 
 //choose config file
 switch (process.env.APP_ENV) {
@@ -60,41 +59,41 @@ if(process.env.admins) {
   });
 }
 
-
 // load global variable
 require("./global.js");
 
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
+// set static, dynamic helpers
+lodash.extend(app.context, renderHelpers);
+lodash.extend(app.context, {
+  config: global.config,
+});
 
-
-var csurf = require('csurf');
 
 if (!global.config.debug && global.config.oneapm_key) {
   require('oneapm');
 }
 
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
 if (!global.config.debug) {
-  app.use(function (req, res, next) {
-    if (req.path === '/api' || req.path.indexOf('/api') === -1) {
-      csurf()(req, res, next);
-      return;
+  const csrf = new koacsrf();
+  app.use(async (ctx, next) => {
+    const path = ctx.path;
+    if (path !== '/api' && !path.startsWith('/api/')) {
+      await csrf.middleware()(ctx, next);
+    } else {
+      await next();
     }
-    next();
   });
 }
 
-// set static, dynamic helpers
-_.extend(app.locals, {
-  config: global.config,
+app.use(async (ctx, next) => {
+  ctx.state.csrf = ctx.csrf || '';
+  await next();
 });
 
-_.extend(app.locals, require('./common/render_helper'));
-app.use(function (req, res, next) {
-  res.locals.csrf = req.csrfToken ? req.csrfToken() : '';
-  next();
-});
+app.use(koahelmet());
 
 
 ///////////////////////////////////////////////////////////////////
@@ -105,7 +104,7 @@ app.use(function (req, res, next) {
 const app = new Koa();
 
 // onerror
-onerror(app);
+koaonerror(app);
 
 //ejs
 koaejs(app, {
@@ -129,10 +128,10 @@ const session_config = {
     renew: true, /** 是否在Session快过期时刷新Session的有效期。(默认是 false) */
     store: koaredis(global.config.koaredis_config)
 };
-app.use(session(session_config, app));
+app.use(koasession(session_config, app));
 
 //body
-app.use(koaBody({
+app.use(koabody({
   multipart: true,
   formidable: {
     maxFileSize: 5 * 1024 * 1024, // 5MB
@@ -140,11 +139,8 @@ app.use(koaBody({
   }
 }));
 
-// helmet
-app.use(koahelmet.frameguard({ action: 'sameorigin' }));
-
 //cors
-app.use(cors({
+app.use(koacors({
     maxAge: 86400000,
     exposeHeaders: "Content-Type, Set-tt-Cookie, Content-Length",
     //allowHeaders: 
@@ -156,13 +152,13 @@ if (!fs.existsSync(global.config.log_dir)) {
     fs.mkdirSync(global.config.log_dir, { recursive: true });
 }
 if(global.config.enable_log) {
-  app.use(midreqLog);
-  app.use(midrender.render);
+  app.use(midReqLog);
+  app.use(midRender.render);
 }
 
 // auth user
-app.use(midauth.authUser);
-app.use(midauth.blockUser());
+app.use(midAuth.authUser);
+app.use(midAuth.blockUser());
 
 // oauth middleware
 app.use(koapassport.initialize());
@@ -172,7 +168,7 @@ koapassport.serializeUser(function (user, done) {
 koapassport.deserializeUser(function (user, done) {
   done(null, user);
 });
-koapassport.use(new GitHubStrategy(global.config.GITHUB_OAUTH, midgithub.strategy));
+koapassport.use(new GitHubStrategy(global.config.GITHUB_OAUTH, midGithub.strategy));
 
 //staticfile
 var staticDir = path.join(__dirname, '../static');
@@ -188,13 +184,13 @@ if (!fs.existsSync(uploadDir)) {
 app.use(koastatic(uploadDir));
 
 // error page
-app.use(miderrpage.errorPage);
+app.use(midErrpage.errorPage);
 
 //graceful-shutdown
 app.use(require("./middleware/graceful_shutdown.js"));
 
 // proxy agent
-app.use('/agent', midproxy.proxy);
+app.use('/agent', midProxy.proxy);
 
 //load routers recursively
 (function(){

@@ -1,9 +1,9 @@
-var Reply      = require('../models/reply');
-var User       = require('./user');
-var at         = require('../common/at');
+const modelReply = require('../models/reply');
+const proxyUser  = require('./user');
+const at         = require('../common/at');
 
 exports.getReply = async function (id) {
-  return await Reply.findOne({ _id: id });
+  return await modelReply.findOne({ _id: id });
 };
 
 exports.getReplyById = async function (id) {
@@ -12,10 +12,10 @@ exports.getReplyById = async function (id) {
   }
 
   try {
-    const reply = await Reply.findOne({ _id: id });
+    const reply = await modelReply.findOne({ _id: id });
     if (!reply) return null;
 
-    const author = await User.getUserById(reply.author_id);
+    const author = await proxyUser.getUserById(reply.author_id);
     reply.author = author;
 
     if (reply.is_html) {
@@ -33,13 +33,13 @@ exports.getReplyById = async function (id) {
 
 exports.getRepliesByTopicId = async function (id) {
   try {
-    const replies = await Reply.find({ topic_id: id, deleted: false }, '', { sort: 'create_at' });
+    const replies = await modelReply.find({ topic_id: id, deleted: false }, '', { sort: 'create_at' });
     if (replies.length === 0) {
       return [];
     }
 
     await Promise.all(replies.map(async (reply) => {
-      const author = await User.getUserById(reply.author_id);
+      const author = await proxyUser.getUserById(reply.author_id);
       reply.author = author || { _id: '' };
 
       if (!reply.is_html) {
@@ -56,7 +56,7 @@ exports.getRepliesByTopicId = async function (id) {
 
 exports.newAndSave = async function (content, topicId, authorId, replyId = null) {
   try {
-    const reply = new Reply({
+    const reply = new modelReply({
       content,
       topic_id: topicId,
       author_id: authorId,
@@ -71,16 +71,16 @@ exports.newAndSave = async function (content, topicId, authorId, replyId = null)
 };
 
 exports.getLastReplyByTopId = async function (topicId) {
-  return await Reply.find({ topic_id: topicId, deleted: false }, '_id', {
+  return await modelReply.find({ topic_id: topicId, deleted: false }, '_id', {
     sort: { create_at: -1 },
     limit: 1
   });
 };
 
 exports.getRepliesByAuthorId = async function (authorId, opt = {}) {
-  return await Reply.find({ author_id: authorId }, {}, opt);
+  return await modelReply.find({ author_id: authorId }, {}, opt);
 };
 
 exports.getCountByAuthorId = async function (authorId) {
-  return await Reply.countDocuments({ author_id: authorId });
+  return await modelReply.countDocuments({ author_id: authorId });
 };

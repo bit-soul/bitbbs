@@ -1,26 +1,24 @@
-var _ = require('lodash');
+const modelMessage = require('../models/message');
 
-var Message = require('../models/message');
-
-var User = require('./user');
-var Topic = require('./topic');
-var Reply = require('./reply');
+const proxyUser = require('./user');
+const proxyTopic = require('./topic');
+const proxyReply = require('./reply');
 
 
 /**
  * 获取未读消息数量
  */
 exports.getMessagesCount = async function (id) {
-  return await Message.countDocuments({ master_id: id, has_read: false });
+  return await modelMessage.countDocuments({ master_id: id, has_read: false });
 };
 
 /**
  * 根据消息Id获取消息，并附加关联信息
  */
 exports.getMessageById = async function (id) {
-  const message = await Message.findOne({ _id: id });
+  const message = await modelMessage.findOne({ _id: id });
   if (!message) {
-    throw new Error('Message not found');
+    throw new Error('modelMessage not found');
   }
   return await getMessageRelations(message);
 };
@@ -31,9 +29,9 @@ exports.getMessageById = async function (id) {
 const getMessageRelations = exports.getMessageRelations = async function (message) {
   if (['reply', 'reply2', 'at'].includes(message.type)) {
     const [author, topic, reply] = await Promise.all([
-      User.getUserById(message.author_id),
-      Topic.getTopicById(message.topic_id),
-      Reply.getReplyById(message.reply_id)
+      proxyUser.getUserById(message.author_id),
+      proxyTopic.getTopicById(message.topic_id),
+      proxyReply.getReplyById(message.reply_id)
     ]);
 
     message.author = author;
@@ -54,7 +52,7 @@ const getMessageRelations = exports.getMessageRelations = async function (messag
  * 获取已读消息列表
  */
 exports.getReadMessagesByUserId = async function (userId) {
-  return await Message.find(
+  return await modelMessage.find(
     { master_id: userId, has_read: true },
     null,
     { sort: '-create_at', limit: 20 }
@@ -65,7 +63,7 @@ exports.getReadMessagesByUserId = async function (userId) {
  * 获取未读消息列表
  */
 exports.getUnreadMessageByUserId = async function (userId) {
-  return await Message.find(
+  return await modelMessage.find(
     { master_id: userId, has_read: false },
     null,
     { sort: '-create_at' }
@@ -81,7 +79,7 @@ exports.updateMessagesToRead = async function (userId, messages) {
   const ids = messages.map(m => m.id);
   const query = { master_id: userId, _id: { $in: ids } };
 
-  await Message.updateMany(query, { $set: { has_read: true } });
+  await modelMessage.updateMany(query, { $set: { has_read: true } });
 };
 
 /**
@@ -91,5 +89,5 @@ exports.updateOneMessageToRead = async function (msg_id) {
   if (!msg_id) return;
 
   const query = { _id: msg_id };
-  await Message.updateMany(query, { $set: { has_read: true } });
+  await modelMessage.updateMany(query, { $set: { has_read: true } });
 };

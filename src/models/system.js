@@ -1,7 +1,7 @@
-var mongoose  = require('mongoose');
-var Schema    = mongoose.Schema;
+const mongoose  = require('mongoose');
+const Schema    = mongoose.Schema;
 
-var SystemSchema = new Schema({
+const SystemSchema = new Schema({
   user_cnt: { type: Number, default: 0},
 }, { versionKey: false });
 

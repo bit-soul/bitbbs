@@ -1,8 +1,11 @@
-const Router = require('koa-router');
-var convert      = require('data2xml')();
-var Topic        = require('../proxy/topic');
-var cache        = require('../common/cache');
-var renderHelper = require('../common/render_helper');
+const proxyTopic   = require('../proxy/topic');
+const cache        = require('../common/cache');
+const renderHelper = require('../common/render_helper');
+const tools        = require('../common/tools');
+
+const Router   = require('koa-router');
+const data2xml = require('data2xml')({ xmlDecl: { version: '1.0', encoding: 'UTF-8' } });
+
 const router = new Router();
 
 router.get('/rss', async (ctx, next) => {
@@ -27,7 +30,7 @@ router.get('/rss', async (ctx, next) => {
       sort: '-create_at',
     };
 
-    const topics = await Topic.getTopicsByQuery({ tab: { $nin: ['dev'] } }, opt);
+    const topics = await proxyTopic.getTopicsByQuery({ tab: { $nin: ['dev'] } }, opt);
 
     const rss_obj = {
       _attr: { version: '2.0' },
@@ -51,8 +54,8 @@ router.get('/rss', async (ctx, next) => {
       });
     });
 
-    let rssContent = convert('rss', rss_obj);
-    rssContent = utf8ForXml(rssContent);
+    let rssContent = data2xml('rss', rss_obj);
+    rssContent = tools.utf8ForXml(rssContent);
     await cache.set('rss', rssContent, 60 * 5); // 5分钟缓存
 
     ctx.body = rssContent;
@@ -60,10 +63,5 @@ router.get('/rss', async (ctx, next) => {
     return next(err);
   }
 });
-
-
-function utf8ForXml(inputStr) {
-  return inputStr.replace(/[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm, '');
-}
 
 module.exports = router;

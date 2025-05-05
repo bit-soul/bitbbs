@@ -1,10 +1,11 @@
-var mailer        = require('nodemailer');
-var smtpTransport = require('nodemailer-smtp-transport');
-var util          = require('util');
-var tools          = require('tools');
-var logger = require('./logger');
-var transporter     = mailer.createTransport(smtpTransport(global.config.mail_opts));
-var SITE_ROOT_URL = 'http://' + global.config.host;
+const util   = require('util');
+const tools  = require('tools');
+const logger = require('./logger');
+const mailer = require('nodemailer');
+const smtpTransport = require('nodemailer-smtp-transport');
+
+const transporter   = mailer.createTransport(smtpTransport(global.config.mail_opts));
+const SITE_ROOT_URL = 'http://' + global.config.host;
 
 /**
  * Send an email

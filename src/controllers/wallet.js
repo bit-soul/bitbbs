@@ -1,12 +1,14 @@
-const Router = require('koa-router');
-var User           = require('../models/user');
-var authMiddleWare = require('../middlewares/auth');
-var tools          = require('../common/tools');
-var fetch          = require('../common/fetch');
-var uuid           = require('node-uuid');
-var validator      = require('validator');
-var brcsoul        = require('brcsoul-sdk');
-var System         = require('../proxy/system');
+const modelUser   = require('../models/user');
+const proxySystem = require('../proxy/system');
+const midAuth     = require('../middlewares/auth');
+const tools       = require('../common/tools');
+const fetch       = require('../common/fetch');
+
+const Router    = require('koa-router');
+const uuid      = require('node-uuid');
+const validator = require('validator');
+const brcsoul   = require('brcsoul-sdk');
+
 const router = new Router();
 
 var notJump = [
@@ -78,7 +80,7 @@ router.post('/wallet_login', async (ctx, next) => {
       attr.icon = "https://ordinals.com/content/" + attr.icon;
     }
 
-    let user = await User.findOne({ addr: addr });
+    let user = await modelUser.findOne({ addr: addr });
 
     if (user) {
       user.name = attr.name ? attr.name : 'nobody_' + user.sequence.toString(36).padStart(2, '0');
@@ -86,8 +88,8 @@ router.post('/wallet_login', async (ctx, next) => {
       user.icon = attr.icon ? brcsoul.httpExtraUrl(attr.icon) : '';
       await user.save();
     } else {
-      const count = await System.incrementUserCnt();
-      user = new User({
+      const count = await proxySystem.incrementUserCnt();
+      user = new modelUser({
         addr: addr,
         name: attr.name ? attr.name : 'nobody_' + count.toString(36).padStart(2, '0'),
         biog: attr.biog || '',
@@ -99,7 +101,7 @@ router.post('/wallet_login', async (ctx, next) => {
       await user.save();
     }
 
-    authMiddleWare.gen_session(ctx, user._id); // 假设你已支持为 Koa 注入 ctx 的 session 方法
+    midAuth.gen_session(ctx, user._id); // 假设你已支持为 Koa 注入 ctx 的 session 方法
     ctx.body = { code: 1, mess: "redirect" };
 
   } catch (error) {
@@ -154,7 +156,7 @@ router.post('/authkey_login', async (ctx) => {
     delete global.authkeys[authkey];
 
     ctx.session.is_authkey_login = true;
-    authMiddleWare.gen_session(ctx, userid, maxage);
+    midAuth.gen_session(ctx, userid, maxage);
     ctx.body = { code: 1, mess: "redirect" };
   } else {
     result.code = -1;

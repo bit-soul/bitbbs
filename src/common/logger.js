@@ -1,9 +1,8 @@
-var path = require('path')
+const path = require('path')
+const log4js = require('log4js');
 
-var env = process.env.NODE_ENV || "development"
+const env = process.env.NODE_ENV || "development"
 
-
-var log4js = require('log4js');
 log4js.configure({
   appenders: [
     { type: 'console' },

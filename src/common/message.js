@@ -1,8 +1,7 @@
-const Message = require('../models/message');
-const _ = require('lodash');
+const modelMessage = require('../models/message');
 
 exports.sendReplyMessage = async function (master_id, author_id, topic_id, reply_id) {
-  const message = new Message();
+  const message = new modelMessage();
   message.type = 'reply';
   message.master_id = master_id;
   message.author_id = author_id;
@@ -13,7 +12,7 @@ exports.sendReplyMessage = async function (master_id, author_id, topic_id, reply
 };
 
 exports.sendAtMessage = async function (master_id, author_id, topic_id, reply_id) {
-  const message = new Message();
+  const message = new modelMessage();
   message.type = 'at';
   message.master_id = master_id;
   message.author_id = author_id;

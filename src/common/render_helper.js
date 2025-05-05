@@ -1,11 +1,11 @@
-var MarkdownIt = require('markdown-it');
-var _          = require('lodash');
-var validator  = require('validator');
-var jsxss      = require('xss');
-var multiline = require('multiline')
+const MarkdownIt = require('markdown-it');
+const lodash     = require('lodash');
+const validator  = require('validator');
+const jsxss      = require('xss');
+const multiline = require('multiline')
 
 // Set default options
-var md = new MarkdownIt();
+const md = new MarkdownIt();
 
 md.set({
   html:         false,        // Enable HTML tags in source
@@ -48,7 +48,7 @@ exports.markdown = function (text) {
 
 exports.escapeBiog = function (biog) {
   return biog.split('\n').map(function (p) {
-    return _.escape(p);
+    return lodash.escape(p);
   }).join('<br>');
 };
 
@@ -60,7 +60,7 @@ exports.staticFile = function (filePath) {
 };
 
 exports.tabName = function (tab) {
-  var pair = _.find(global.config.tabs, function (pair) {
+  var pair = lodash.find(global.config.tabs, function (pair) {
     return pair[0] === tab;
   });
   if (pair) {

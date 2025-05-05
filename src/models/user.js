@@ -1,10 +1,8 @@
-var mongoose  = require('mongoose');
-var BaseModel = require("./base_model");
-var Schema    = mongoose.Schema;
-var utility   = require('utility');
-var _ = require('lodash');
+const mongoose  = require('mongoose');
+const Schema    = mongoose.Schema;
+const BaseModel = require("./base_model");
 
-var UserSchema = new Schema({
+const UserSchema = new Schema({
   name: { type: String},
   biog: { type: String },
   icon: { type: String },

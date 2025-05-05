@@ -1,19 +1,20 @@
-const Router = require('koa-router');
-var validator  = require('validator');
-var _          = require('lodash');
-var at         = require('../common/at');
-var message    = require('../common/message');
-var User       = require('../proxy/user');
-var Topic      = require('../proxy/topic');
-var Reply      = require('../proxy/reply');
+const proxyUser   = require('../proxy/user');
+const proxyTopic  = require('../proxy/topic');
+const proxyReply  = require('../proxy/reply');
+const midAuth     = require('./middlewares/auth');
+const midLimit    = require('./middlewares/midLimit');
+const at          = require('../common/at');
+const message     = require('../common/message');
 
-var auth = require('./middlewares/auth');
-var limit = require('./middlewares/limit');
+const Router    = require('koa-router');
+const lodash    = require('lodash');
+const validator = require('validator');
+
 const router = new Router();
 
 router.post('/:tid/reply', 
-  auth.userRequired, 
-  limit.peruserperday('create_reply', global.config.create_reply_per_day, {showJson: false}),
+  midAuth.userRequired, 
+  midLimit.peruserperday('create_reply', global.config.create_reply_per_day, {showJson: false}),
   async (ctx, next) => {
   try {
     const content = ctx.request.body.r_content;
@@ -25,23 +26,23 @@ router.post('/:tid/reply',
       return ctx.renderError('Content can not be empty', 422);
     }
 
-    const topic = await Topic.getTopic(tid);
+    const topic = await proxyTopic.getTopic(tid);
     if (!topic) return next(); // 404
     if (topic.lock) {
       ctx.status = 403;
-      return ctx.body = 'Topic is locked';
+      return ctx.body = 'proxyTopic is locked';
     }
 
-    const topicAuthor = await User.getUserById(topic.author_id);
+    const topicAuthor = await proxyUser.getUserById(topic.author_id);
 
-    const reply = await Reply.newAndSave(content, tid, ctx.session.user._id, rid);
-    await Topic.updateLastReply(tid, reply._id);
+    const reply = await proxyReply.newAndSave(content, tid, ctx.session.user._id, rid);
+    await proxyTopic.updateLastReply(tid, reply._id);
 
     // @提及功能
     const newContent = content.replace(`[@${topicAuthor.name}](/user/${topicAuthor._id})`, '');
     at.sendMessageToMentionUsers(newContent, tid, ctx.session.user._id, reply._id);
 
-    const user = await User.getUserById(ctx.session.user._id);
+    const user = await proxyUser.getUserById(ctx.session.user._id);
     user.score += 5;
     user.reply_count += 1;
     await user.save();
@@ -58,11 +59,11 @@ router.post('/:tid/reply',
 });
 
 router.post('/reply/:rid/delete', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx, next) => {
   try {
     const rid = ctx.params.rid;
-    const reply = await Reply.getReplyById(rid);
+    const reply = await proxyReply.getReplyById(rid);
 
     if (!reply) {
       ctx.status = 422;
@@ -87,17 +88,17 @@ router.post('/reply/:rid/delete',
       ctx.body = { status: 'failed' };
     }
 
-    Topic.reduceCount(reply.topic_id, _.noop);
+    proxyTopic.reduceCount(reply.topic_id, lodash.noop);
   } catch (err) {
     return next(err);
   }
 });
 
 router.get('/reply/:rid/edit', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx, next) => {
   const rid = ctx.params.rid;
-  const reply = await Reply.getReplyById(rid);
+  const reply = await proxyReply.getReplyById(rid);
 
   if (!reply) {
     return ctx.render404('reply not exist or deleted');
@@ -117,12 +118,12 @@ router.get('/reply/:rid/edit',
 });
 
 router.post('/reply/:rid/edit', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx, next) => {
   const rid = ctx.params.rid;
   const content = ctx.request.body.t_content;
 
-  const reply = await Reply.getReplyById(rid);
+  const reply = await proxyReply.getReplyById(rid);
   if (!reply) {
     return ctx.render404('reply not exist or deleted');
   }
@@ -145,12 +146,12 @@ router.post('/reply/:rid/edit',
 });
 
 router.post('/reply/:rid/up', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx, next) => {
   try {
     const rid = ctx.params.rid;
     const uid = ctx.session.user._id;
-    const reply = await Reply.getReplyById(rid);
+    const reply = await proxyReply.getReplyById(rid);
 
     if (reply.author_id.equals(uid) && !global.config.debug) {
       return ctx.body = {

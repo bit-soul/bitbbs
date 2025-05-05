@@ -1,9 +1,9 @@
-var mongoose  = require('mongoose');
-var BaseModel = require("./base_model");
-var Schema    = mongoose.Schema;
-var ObjectId  = Schema.ObjectId;
+const mongoose  = require('mongoose');
+const Schema    = mongoose.Schema;
+const ObjectId  = Schema.ObjectId;
+const BaseModel = require("./base_model");
 
-var ReplySchema = new Schema({
+const ReplySchema = new Schema({
   content: { type: String },
   topic_id: { type: ObjectId},
   author_id: { type: ObjectId },

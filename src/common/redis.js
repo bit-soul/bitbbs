@@ -1,7 +1,7 @@
-var Redis = require('ioredis');
-var logger = require('./logger')
+const Redis = require('ioredis');
+const logger = require('./logger')
 
-var client = new Redis({
+const client = new Redis({
   port: global.config.redis_cfg.port,
   host: global.config.redis_cfg.host,
   db: global.config.redis_cfg.db,

@@ -1,6 +1,6 @@
-var User       = require('../proxy/user');
-var Message    = require('./message');
-var _          = require('lodash');
+const proxyUser  = require('../proxy/user');
+const Message    = require('./message');
+const lodash     = require('lodash');
 
 /**
  * 从文本中提取出@username 标记的用户名数组
@@ -34,7 +34,7 @@ var fetchUserIds = function (text) {
       uids.push(uid);
     }
   }
-  uids = _.uniq(uids);
+  uids = lodash.uniq(uids);
   return uids;
 };
 exports.fetchUserIds = fetchUserIds;
@@ -49,7 +49,7 @@ exports.fetchUserIds = fetchUserIds;
  */
 exports.sendMessageToMentionUsers = async function (text, topicId, authorId, replyId = null) {
   const userIds = fetchUserIds(text);
-  const users = await User.getUsersByIds(userIds);
+  const users = await proxyUser.getUsersByIds(userIds);
 
   if (!users) {
     throw new Error('Users not found');

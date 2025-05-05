@@ -1,5 +1,6 @@
-const Router = require('koa-router');
-var Message    = require('../proxy/message');
+const proxyMessage = require('../proxy/message');
+const Router       = require('koa-router');
+
 const router = new Router();
 
 router.get('/my/messages', async (ctx, next) => {
@@ -8,14 +9,14 @@ router.get('/my/messages', async (ctx, next) => {
 
     // 并发获取已读和未读消息原始数据
     const [has_read, unread] = await Promise.all([
-      Message.getReadMessagesByUserId(user_id),
-      Message.getUnreadMessageByUserId(user_id)
+      proxyMessage.getReadMessagesByUserId(user_id),
+      proxyMessage.getUnreadMessageByUserId(user_id)
     ]);
 
     // 辅助函数：填充消息详情
     const fillMessages = async (messages) => {
       const filled = await Promise.all(
-        messages.map(msg => Message.getMessageRelations(msg))
+        messages.map(msg => proxyMessage.getMessageRelations(msg))
       );
       return filled.filter(doc => !doc.is_invalid);
     };
@@ -27,7 +28,7 @@ router.get('/my/messages', async (ctx, next) => {
     ]);
 
     // 标记未读为已读（不等待）
-    Message.updateMessagesToRead(user_id, unread).catch(console.error);
+    proxyMessage.updateMessagesToRead(user_id, unread).catch(console.error);
 
     // 渲染视图（保持原res.render模式）
     return ctx.render('message/index', {

@@ -1,18 +1,17 @@
+const proxyUser       = require('../proxy/user');
+const proxyTopic      = require('../proxy/topic');
+const proxyMarkTopic  = require('../proxy/marktopic');
+const midAuth         = require('./middlewares/midAuth');
+const midLimit        = require('./middlewares/midLimit');
+const at              = require('../common/at');
+const tools           = require('../common/tools');
+const store           = require('../common/store');
+const cache           = require('../common/cache');
+const logger          = require('../common/logger')
+
 const Router = require('koa-router');
-var validator = require('validator');
+const validator = require('validator');
 
-var at         = require('../common/at');
-var User       = require('../proxy/user');
-var Topic      = require('../proxy/topic');
-var MarkTopic  = require('../proxy/marktopic');
-var tools      = require('../common/tools');
-var store      = require('../common/store');
-var _          = require('lodash');
-var cache      = require('../common/cache');
-var logger = require('../common/logger')
-
-var auth = require('./middlewares/auth');
-var limit = require('./middlewares/limit');
 const router = new Router();
 
 router.get('/topic/:tid', async (ctx, next) => {
@@ -27,11 +26,11 @@ router.get('/topic/:tid', async (ctx, next) => {
   const currentUser = ctx.session.user;
 
   if (topic_id.length !== 24) {
-    return ctx.render404('Topic not exist or deleted');
+    return ctx.render404('proxyTopic not exist or deleted');
   }
 
   try {
-    const [message, topic, author, replies] = await Topic.getFullTopic(topic_id);
+    const [message, topic, author, replies] = await proxyTopic.getFullTopic(topic_id);
 
     if (message) {
       logger.error('getFullTopic error topic_id: ' + topic_id);
@@ -46,32 +45,32 @@ router.get('/topic/:tid', async (ctx, next) => {
 
     topic.reply_up_threshold = (() => {
       const allUpCount = replies.map(reply => (reply.ups ? reply.ups.length : 0));
-      const sorted = _.sortBy(allUpCount).reverse();
+      const sorted = lodash.sortBy(allUpCount).reverse();
       let threshold = sorted[2] || 0;
       if (threshold < 3) threshold = 3;
       return threshold;
     })();
 
     // get other_topics
-    const other_topics = await Topic.getTopicsByQuery(
+    const other_topics = await proxyTopic.getTopicsByQuery(
       { author_id: topic.author_id, _id: { $nin: [topic._id] } },
-      { limit: 5, sort: '-last_reply_at' }
+      { midLimit: 5, sort: '-last_reply_at' }
     );
 
     // get no_reply_topics
     const no_reply_topics = await (async () => {
       let cached = await cache.get('no_reply_topics');
       if (cached) return cached;
-      const fresh = await Topic.getTopicsByQuery(
+      const fresh = await proxyTopic.getTopicsByQuery(
         { reply_count: 0, tab: { $nin: ['job', 'dev'] } },
-        { limit: 5, sort: '-create_at' }
+        { midLimit: 5, sort: '-create_at' }
       );
       await cache.set('no_reply_topics', fresh, 60);
       return fresh;
     })();
 
     const is_mark = currentUser
-      ? await MarkTopic.getMarkTopic(currentUser._id, topic_id)
+      ? await proxyMarkTopic.getMarkTopic(currentUser._id, topic_id)
       : null;
 
     await ctx.render('topic/index', {
@@ -88,7 +87,7 @@ router.get('/topic/:tid', async (ctx, next) => {
 });
 
 router.get('/topic/create', 
-  auth.userRequired,
+  midAuth.userRequired,
   async (ctx) => {
   await ctx.render('topic/edit', {
     tabs: global.config.tabs
@@ -96,8 +95,8 @@ router.get('/topic/create',
 });
 
 router.post('/topic/create', 
-  auth.userRequired, 
-  limit.peruserperday('create_topic', global.config.create_post_per_day, {showJson: false}),
+  midAuth.userRequired, 
+  midLimit.peruserperday('create_topic', global.config.create_post_per_day, {showJson: false}),
   async (ctx, next) => {
   const title = validator.trim(ctx.request.body.title || '');
   const tab = validator.trim(ctx.request.body.tab || '');
@@ -128,10 +127,10 @@ router.post('/topic/create',
   }
 
   try {
-    const topic = await Topic.newAndSave(title, content, tab, ctx.session.user._id);
+    const topic = await proxyTopic.newAndSave(title, content, tab, ctx.session.user._id);
 
     // 更新用户分数
-    const user = await User.getUserById(ctx.session.user._id);
+    const user = await proxyUser.getUserById(ctx.session.user._id);
     user.score += 5;
     user.topic_count += 1;
     await user.save();
@@ -148,14 +147,14 @@ router.post('/topic/create',
 });
 
 router.get('/topic/:tid/edit', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx) => {
   const topic_id = ctx.params.tid;
 
-  const [topic] = await Topic.getTopicById(topic_id);
+  const [topic] = await proxyTopic.getTopicById(topic_id);
 
   if (!topic) {
-    return ctx.render404('Topic not exist or deleted');
+    return ctx.render404('proxyTopic not exist or deleted');
   }
 
   const isOwner = String(topic.author_id) === String(ctx.session.user._id);
@@ -176,17 +175,17 @@ router.get('/topic/:tid/edit',
 });
 
 router.post('/topic/:tid/edit', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx, next) => {
   const topic_id = ctx.params.tid;
   let { title, tab, t_content: content } = ctx.request.body;
 
   const allTabs = global.config.tabs.map(tPair => tPair[0]);
 
-  const [topic] = await Topic.getTopicById(topic_id);
+  const [topic] = await proxyTopic.getTopicById(topic_id);
 
   if (!topic) {
-    return ctx.render404('Topic not exist or deleted');
+    return ctx.render404('proxyTopic not exist or deleted');
   }
 
   const isOwner = topic.author_id.equals(ctx.session.user._id);
@@ -235,7 +234,7 @@ router.post('/topic/:tid/edit',
 });
 
 router.post('/topic/:tid/delete', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx) => {
   //删除话题, 话题作者topic_count减1
   //删除回复，回复作者reply_count减1
@@ -243,11 +242,11 @@ router.post('/topic/:tid/delete',
   const topic_id = ctx.params.tid;
 
   try {
-    const [err_msg, topic, author, replies] = await Topic.getFullTopic(topic_id);
+    const [err_msg, topic, author, replies] = await proxyTopic.getFullTopic(topic_id);
 
     if (!topic) {
       ctx.status = 422;
-      ctx.body = { success: false, message: 'Topic not exist or deleted' };
+      ctx.body = { success: false, message: 'proxyTopic not exist or deleted' };
       return;
     }
 
@@ -267,25 +266,25 @@ router.post('/topic/:tid/delete',
     topic.deleted = true;
     await topic.save();
 
-    ctx.body = { success: true, message: 'Topic is deleted' };
+    ctx.body = { success: true, message: 'proxyTopic is deleted' };
   } catch (err) {
     ctx.body = { success: false, message: err.message };
   }
 });
 
 router.post('/topic/:tid/top', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx, next) => {
   const topic_id = ctx.params.tid;
   const referer = ctx.get('referer');
 
   if (topic_id.length !== 24) {
-    return ctx.render404('Topic not exist or deleted');
+    return ctx.render404('proxyTopic not exist or deleted');
   }
 
   try {
-    const topic = await Topic.getTopic(topic_id);
-    if (!topic) return ctx.render404('Topic not exist or deleted');
+    const topic = await proxyTopic.getTopic(topic_id);
+    if (!topic) return ctx.render404('proxyTopic not exist or deleted');
 
     topic.top = !topic.top;
     await topic.save();
@@ -299,14 +298,14 @@ router.post('/topic/:tid/top',
 });
 
 router.post('/topic/:tid/good', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx, next) => {
   const topicId = ctx.params.tid;
   const referer = ctx.get('referer');
 
   try {
-    const topic = await Topic.getTopic(topicId);
-    if (!topic) return ctx.render404('Topic not exist or deleted');
+    const topic = await proxyTopic.getTopic(topicId);
+    if (!topic) return ctx.render404('proxyTopic not exist or deleted');
 
     topic.good = !topic.good;
     await topic.save();
@@ -320,14 +319,14 @@ router.post('/topic/:tid/good',
 });
 
 router.post('/topic/:tid/lock', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx, next) => {
   const topicId = ctx.params.tid;
   const referer = ctx.get('referer');
 
   try {
-    const topic = await Topic.getTopic(topicId);
-    if (!topic) return ctx.render404('Topic not exist or deleted');
+    const topic = await proxyTopic.getTopic(topicId);
+    if (!topic) return ctx.render404('proxyTopic not exist or deleted');
 
     topic.lock = !topic.lock;
     await topic.save();
@@ -341,26 +340,26 @@ router.post('/topic/:tid/lock',
 });
 
 router.post('/topic/mark', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx, next) => {
   const topic_id = ctx.request.body.topic_id;
   const user_id = ctx.session.user._id;
 
   try {
-    const topic = await Topic.getTopic(topic_id);
+    const topic = await proxyTopic.getTopic(topic_id);
     if (!topic) {
       ctx.body = { status: 'failed' };
       return;
     }
 
-    const exists = await MarkTopic.getMarkTopic(user_id, topic._id);
+    const exists = await proxyMarkTopic.getMarkTopic(user_id, topic._id);
     if (exists) {
       ctx.body = { status: 'failed' };
       return;
     }
 
-    await MarkTopic.newAndSave(user_id, topic._id);
-    const user = await User.getUserById(user_id);
+    await proxyMarkTopic.newAndSave(user_id, topic._id);
+    const user = await proxyUser.getUserById(user_id);
 
     user.mark_topic_count += 1;
     await user.save();
@@ -377,25 +376,25 @@ router.post('/topic/mark',
 });
 
 router.post('/topic/unmark', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx, next) => {
   const topic_id = ctx.request.body.topic_id;
   const user_id = ctx.session.user._id;
 
   try {
-    const topic = await Topic.getTopic(topic_id);
+    const topic = await proxyTopic.getTopic(topic_id);
     if (!topic) {
       ctx.body = { status: 'failed' };
       return;
     }
 
-    const result = await MarkTopic.remove(user_id, topic._id);
+    const result = await proxyMarkTopic.remove(user_id, topic._id);
     if (result?.n === 0) {
       ctx.body = { status: 'failed' };
       return;
     }
 
-    const user = await User.getUserById(user_id);
+    const user = await proxyUser.getUserById(user_id);
     user.mark_topic_count -= 1;
     await user.save();
 
@@ -412,7 +411,7 @@ router.post('/topic/unmark',
 });
 
 router.get('/presignedurl', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx, next) => {
   const fileName = ctx.query.filename;
   const fileType = ctx.query.filetype;
@@ -450,7 +449,7 @@ router.get('/presignedurl',
 
 //todo 参考bootkoa
 router.post('/upload', 
-  auth.userRequired, 
+  midAuth.userRequired, 
   async (ctx, next) => {
   try {
     const file = ctx.request.files.file; // "file" 是上传字段名

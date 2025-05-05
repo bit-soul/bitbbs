@@ -1,11 +1,13 @@
-const Router = require('koa-router');
-var validator      = require('validator');
-var User           = require('../proxy/user');
-var mail           = require('../common/mail');
-var tools          = require('../common/tools');
-var utility        = require('utility');
-var authMiddleWare = require('../middlewares/auth');
-var uuid           = require('node-uuid');
+const proxyUser = require('../proxy/user');
+const midAuth   = require('../middlewares/auth');
+const mail      = require('../common/mail');
+const tools     = require('../common/tools');
+
+const Router    = require('koa-router');
+const uuid      = require('node-uuid');
+const utility   = require('utility');
+const validator = require('validator');
+
 const router = new Router();
 
 /**
@@ -53,14 +55,14 @@ router.post('/signup', async (ctx, next) => {
   }
 
   try {
-    const users = await User.getUsersByQuery({ email });
+    const users = await proxyUser.getUsersByQuery({ email });
     if (users.length > 0) {
       return await renderError('邮箱已被使用。');
     }
 
     const passhash = await tools.bhash(pass);
     // 创建用户
-    const user = await User.newAndSave(name, passhash, email, null, false);
+    const user = await proxyUser.newAndSave(name, passhash, email, null, false);
 
     // 发激活邮件
     const token = utility.md5(email + passhash + global.config.session_secret);
@@ -90,7 +92,7 @@ router.post('/signin', async (ctx, next) => {
   }
 
   try {
-    const user = await User.getUserByMail(email);
+    const user = await proxyUser.getUserByMail(email);
     if (!user) {
       ctx.status = 403;
       return ctx.render('sign/signin', { error: '用户名或密码错误' });
@@ -111,7 +113,7 @@ router.post('/signin', async (ctx, next) => {
       });
     }
 
-    authMiddleWare.gen_session(ctx.res, user._id);
+    midAuth.gen_session(ctx.res, user._id);
 
     let refer = ctx.session._loginReferer || '/';
     if (notJump.some(nj => refer.indexOf(nj) >= 0)) {
@@ -136,7 +138,7 @@ router.get('/active_account', async (ctx, next) => {
   const uid = validator.trim(ctx.query.uid);
 
   try {
-    const user = await User.getUserById(uid);
+    const user = await proxyUser.getUserById(uid);
     if (!user) throw new Error('[ACTIVE_ACCOUNT] no such user: ' + uid);
 
     const validKey = utility.md5(user.email + user.pass + global.config.session_secret);
@@ -170,7 +172,7 @@ router.post('/search_pass', async (ctx, next) => {
   const retrieveTime = Date.now();
 
   try {
-    const user = await User.getUserByMail(email);
+    const user = await proxyUser.getUserByMail(email);
     if (!user) {
       return ctx.render('sign/search_pass', { error: '没有这个电子邮箱。', email });
     }
@@ -195,7 +197,7 @@ router.get('/reset_pass', async (ctx, next) => {
   const uid = validator.trim(ctx.query.uid || '');
 
   try {
-    const user = await User.getUserById(uid);
+    const user = await proxyUser.getUserById(uid);
 
     if (!user || user.retrieve_key !== key) {
       ctx.status = 403;
@@ -227,7 +229,7 @@ router.post('/reset_pass', async (ctx, next) => {
   }
 
   try {
-    const user = await User.getUserById(uid);
+    const user = await proxyUser.getUserById(uid);
     if (user.retrieve_key !== key) {
       return ctx.render('notify/notify', { error: '错误的激活链接' });
     }

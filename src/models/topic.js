@@ -1,10 +1,9 @@
-var mongoose  = require('mongoose');
-var BaseModel = require("./base_model");
-var Schema    = mongoose.Schema;
-var ObjectId  = Schema.ObjectId;
-var _         = require('lodash');
+const mongoose  = require('mongoose');
+const Schema    = mongoose.Schema;
+const ObjectId  = Schema.ObjectId;
+const BaseModel = require("./base_model");
 
-var TopicSchema = new Schema({
+const TopicSchema = new Schema({
   title: { type: String },
   content: { type: String },
   author_id: { type: ObjectId },
@@ -31,7 +30,7 @@ TopicSchema.index({author_id: 1, create_at: -1});
 
 TopicSchema.virtual('tabName').get(function () {
   var tab  = this.tab;
-  var pair = _.find(global.config.tabs, function (_pair) {
+  var pair = lodash.find(global.config.tabs, function (_pair) {
     return _pair[0] === tab;
   });
 
