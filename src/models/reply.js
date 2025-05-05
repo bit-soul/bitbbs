@@ -19,4 +19,4 @@ ReplySchema.plugin(BaseModel);
 ReplySchema.index({topic_id: 1});
 ReplySchema.index({author_id: 1, create_at: -1});
 
-mongoose.model('Reply', ReplySchema);
+module.exports = mongoose.model('Reply', ReplySchema);

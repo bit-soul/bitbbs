@@ -1,16 +1,21 @@
+const Router = require('koa-router');
 var validator = require('validator');
 
 var at         = require('../common/at');
-var User       = require('../proxy').User;
-var Topic      = require('../proxy').Topic;
-var MarkTopic  = require('../proxy').MarkTopic;
+var User       = require('../proxy/user');
+var Topic      = require('../proxy/topic');
+var MarkTopic  = require('../proxy/marktopic');
 var tools      = require('../common/tools');
 var store      = require('../common/store');
 var _          = require('lodash');
 var cache      = require('../common/cache');
 var logger = require('../common/logger')
 
-exports.index = async function (ctx, next) {
+var auth = require('./middlewares/auth');
+var limit = require('./middlewares/limit');
+const router = new Router();
+
+router.get('/topic/:tid', async (ctx, next) => {
   function isUped(user, reply) {
     if (!reply.ups) {
       return false;
@@ -80,15 +85,20 @@ exports.index = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.create = async function (ctx) {
+router.get('/topic/create', 
+  auth.userRequired,
+  async (ctx) => {
   await ctx.render('topic/edit', {
     tabs: global.config.tabs
   });
-};
+});
 
-exports.put = async function (ctx, next) {
+router.post('/topic/create', 
+  auth.userRequired, 
+  limit.peruserperday('create_topic', global.config.create_post_per_day, {showJson: false}),
+  async (ctx, next) => {
   const title = validator.trim(ctx.request.body.title || '');
   const tab = validator.trim(ctx.request.body.tab || '');
   const content = validator.trim(ctx.request.body.t_content || '');
@@ -135,9 +145,11 @@ exports.put = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.showEdit = async function (ctx) {
+router.get('/topic/:tid/edit', 
+  auth.userRequired, 
+  async (ctx) => {
   const topic_id = ctx.params.tid;
 
   const [topic] = await Topic.getTopicById(topic_id);
@@ -161,9 +173,11 @@ exports.showEdit = async function (ctx) {
   } else {
     return ctx.renderError('Can not edit this topic', 403);
   }
-};
+});
 
-exports.update = async function (ctx, next) {
+router.post('/topic/:tid/edit', 
+  auth.userRequired, 
+  async (ctx, next) => {
   const topic_id = ctx.params.tid;
   let { title, tab, t_content: content } = ctx.request.body;
 
@@ -218,9 +232,11 @@ exports.update = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.delete = async function (ctx) {
+router.post('/topic/:tid/delete', 
+  auth.userRequired, 
+  async (ctx) => {
   //删除话题, 话题作者topic_count减1
   //删除回复，回复作者reply_count减1
   //删除marktopic，用户mark_topic_count减1
@@ -255,9 +271,11 @@ exports.delete = async function (ctx) {
   } catch (err) {
     ctx.body = { success: false, message: err.message };
   }
-};
+});
 
-exports.top = async function (ctx, next) {
+router.post('/topic/:tid/top', 
+  auth.userRequired, 
+  async (ctx, next) => {
   const topic_id = ctx.params.tid;
   const referer = ctx.get('referer');
 
@@ -278,9 +296,11 @@ exports.top = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.good = async function (ctx, next) {
+router.post('/topic/:tid/good', 
+  auth.userRequired, 
+  async (ctx, next) => {
   const topicId = ctx.params.tid;
   const referer = ctx.get('referer');
 
@@ -297,9 +317,11 @@ exports.good = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.lock = async function (ctx, next) {
+router.post('/topic/:tid/lock', 
+  auth.userRequired, 
+  async (ctx, next) => {
   const topicId = ctx.params.tid;
   const referer = ctx.get('referer');
 
@@ -316,9 +338,11 @@ exports.lock = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.mark = async function (ctx, next) {
+router.post('/topic/mark', 
+  auth.userRequired, 
+  async (ctx, next) => {
   const topic_id = ctx.request.body.topic_id;
   const user_id = ctx.session.user._id;
 
@@ -350,9 +374,11 @@ exports.mark = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.unmark = async function (ctx, next) {
+router.post('/topic/unmark', 
+  auth.userRequired, 
+  async (ctx, next) => {
   const topic_id = ctx.request.body.topic_id;
   const user_id = ctx.session.user._id;
 
@@ -383,9 +409,11 @@ exports.unmark = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.presignedurl = async function (ctx, next) {
+router.get('/presignedurl', 
+  auth.userRequired, 
+  async (ctx, next) => {
   const fileName = ctx.query.filename;
   const fileType = ctx.query.filetype;
   const fileSize = parseInt(ctx.query.filesize, 10);
@@ -418,10 +446,12 @@ exports.presignedurl = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
 //todo 参考bootkoa
-exports.upload = async function (ctx, next) {
+router.post('/upload', 
+  auth.userRequired, 
+  async (ctx, next) => {
   try {
     const file = ctx.request.files.file; // "file" 是上传字段名
     if (!file) {
@@ -451,5 +481,6 @@ exports.upload = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
+module.exports = router;

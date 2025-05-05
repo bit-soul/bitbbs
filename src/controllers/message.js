@@ -1,6 +1,8 @@
-var Message    = require('../proxy').Message;
+const Router = require('koa-router');
+var Message    = require('../proxy/message');
+const router = new Router();
 
-exports.index = async function (ctx, next) {
+router.get('/my/messages', async (ctx, next) => {
   try {
     const user_id = ctx.session.user._id;
 
@@ -36,4 +38,6 @@ exports.index = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
+
+module.exports = router;

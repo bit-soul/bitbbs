@@ -1,13 +1,15 @@
+const Router = require('koa-router');
 const multiline = require('multiline');
+const router = new Router();
 
 // about page
-exports.about = async function (ctx, next) {
+router.get('/about', async (ctx, next) => {
   await ctx.render('static/about', {
     pageTitle: 'About'
   });
-};
+});
 
-exports.robots = async function (ctx, next) {
+router.get('/robots', async (ctx, next) => {
   ctx.type = 'text/plain';
   ctx.body = multiline(function () {;
 /*
@@ -18,4 +20,6 @@ exports.robots = async function (ctx, next) {
 # Disallow: /
 */
   });
-};
+});
+
+module.exports = router;

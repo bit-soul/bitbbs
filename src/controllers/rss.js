@@ -1,9 +1,11 @@
+const Router = require('koa-router');
 var convert      = require('data2xml')();
-var Topic        = require('../proxy').Topic;
+var Topic        = require('../proxy/topic');
 var cache        = require('../common/cache');
 var renderHelper = require('../common/render_helper');
+const router = new Router();
 
-exports.index = async function (ctx, next) {
+router.get('/rss', async (ctx, next) => {
   try {
     if (!global.config.rss) {
       ctx.status = 404;
@@ -57,9 +59,11 @@ exports.index = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
 
 function utf8ForXml(inputStr) {
   return inputStr.replace(/[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm, '');
 }
+
+module.exports = router;

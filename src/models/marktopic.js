@@ -12,4 +12,4 @@ var MarkTopicSchema = new Schema({
 MarkTopicSchema.plugin(BaseModel);
 MarkTopicSchema.index({user_id: 1, topic_id: 1}, {unique: true});
 
-mongoose.model('MarkTopic', MarkTopicSchema);
+module.exports = mongoose.model('MarkTopic', MarkTopicSchema);

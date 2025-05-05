@@ -1,4 +1,4 @@
-var System = require('../models').System;
+var System = require('../models/system');
 
 exports.incrementUserCnt = async function () {
   const result = await System.findOneAndUpdate(

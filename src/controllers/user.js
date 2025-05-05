@@ -1,17 +1,20 @@
-var User       = require('../proxy').User;
-var Topic      = require('../proxy').Topic;
-var Reply      = require('../proxy').Reply;
-var MarkTopic  = require('../proxy').MarkTopic;
+const Router = require('koa-router');
+var User       = require('../proxy/user');
+var Topic      = require('../proxy/topic');
+var Reply      = require('../proxy/reply');
+var MarkTopic  = require('../proxy/marktopic');
 var utility    = require('utility');
 var util       = require('util');
-var TopicModel = require('../models').Topic;
-var ReplyModel = require('../models').Reply;
+var TopicModel = require('../models/topic');
+var ReplyModel = require('../models/reply');
 var tools      = require('../common/tools');
 var validator  = require('validator');
 var _          = require('lodash');
 var uuid = require('node-uuid')
 
-exports.index = async function (ctx, next) {
+const router = new Router();
+
+router.get('/user/:uid', async (ctx, next) => {
   const uid = ctx.params.uid;
 
   let user;
@@ -62,18 +65,20 @@ exports.index = async function (ctx, next) {
   } catch (err) {
     return await next(err);
   }
-};
+});
 
-exports.listAdvances = async function (ctx, next) {
+router.get('/advances', async (ctx, next) => {
   try {
     const advances = await User.getUsersByQuery({ is_advance: true }, {});
     ctx.render('user/advances', { advances: advances });
   } catch (err) {
     await next(err);
   }
-};
+});
 
-exports.showSetting = async function (ctx, next) {
+router.get('/setting', 
+  auth.userRequired,
+  async (ctx, next) => {
   try {
     const user = await User.getUserById(ctx.session.user._id);
     if (!user) {
@@ -89,9 +94,11 @@ exports.showSetting = async function (ctx, next) {
   } catch (err) {
     return await next(err);
   }
-};
+});
 
-exports.setting = async function (ctx, next) {
+router.post('/setting', 
+  auth.userRequired,
+  async (ctx, next) => {
   const reqBody = ctx.request.body;
   const sessionUser = ctx.session.user;
 
@@ -149,9 +156,12 @@ exports.setting = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.toggleAdvance = async function (ctx, next) {
+//todo cancel_advance
+router.post('/user/set_advance', 
+  auth.adminRequired,
+  async (ctx, next) => {
   try {
     const user_id = ctx.request.body.user_id;
     const user = await User.getUserById(user_id);
@@ -167,9 +177,9 @@ exports.toggleAdvance = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.listMarkedTopics = async function (ctx, next) {
+router.get('/user/:uid/markedtopics', async (ctx, next) => {
   try {
     const uid = ctx.params.uid;
     const page = Number(ctx.query.page) || 1;
@@ -203,9 +213,9 @@ exports.listMarkedTopics = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.top100 = async function (ctx, next) {
+router.get('/users/top100', async (ctx, next) => {
   try {
     const opt = { limit: 100, sort: '-score' };
     const tops = await User.getUsersByQuery({ is_block: false }, opt);
@@ -217,9 +227,9 @@ exports.top100 = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.listTopics = async function (ctx, next) {
+router.get('/user/:uid/topics', async (ctx, next) => {
   try {
     const uid = ctx.params.uid;
     const page = Number(ctx.query.page) || 1;
@@ -254,9 +264,9 @@ exports.listTopics = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.listReplies = async function (ctx, next) {
+router.get('/user/:uid/replies', async (ctx, next) => {
   try {
     const uid = ctx.params.uid;
     const page = Number(ctx.query.page) || 1;
@@ -297,9 +307,11 @@ exports.listReplies = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.block = async function (ctx, next) {
+router.post('/user/:uid/block', 
+  auth.adminRequired,
+  async (ctx, next) => {
   try {
     const uid = ctx.params.uid;
     const action = ctx.request.body.action;
@@ -321,9 +333,11 @@ exports.block = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.deleteAll = async function (ctx, next) {
+router.get('/user/:uid/delete_all', 
+  auth.adminRequired,
+  async (ctx, next) => {
   try {
     const uid = ctx.params.uid;
 
@@ -343,9 +357,11 @@ exports.deleteAll = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.refreshToken = async function (ctx, next) {
+router.post('/user/refresh_token', 
+  auth.userRequired,
+  async (ctx, next) => {
   try {
     const user_id = ctx.session.user._id;
 
@@ -360,4 +376,6 @@ exports.refreshToken = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
+
+module.exports = router;

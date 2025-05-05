@@ -1,12 +1,20 @@
+const Router = require('koa-router');
 var validator  = require('validator');
 var _          = require('lodash');
 var at         = require('../common/at');
 var message    = require('../common/message');
-var User       = require('../proxy').User;
-var Topic      = require('../proxy').Topic;
-var Reply      = require('../proxy').Reply;
+var User       = require('../proxy/user');
+var Topic      = require('../proxy/topic');
+var Reply      = require('../proxy/reply');
 
-exports.add = async function (ctx, next) {
+var auth = require('./middlewares/auth');
+var limit = require('./middlewares/limit');
+const router = new Router();
+
+router.post('/:tid/reply', 
+  auth.userRequired, 
+  limit.peruserperday('create_reply', global.config.create_reply_per_day, {showJson: false}),
+  async (ctx, next) => {
   try {
     const content = ctx.request.body.r_content;
     const tid = ctx.params.tid;
@@ -47,9 +55,11 @@ exports.add = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.delete = async function (ctx, next) {
+router.post('/reply/:rid/delete', 
+  auth.userRequired, 
+  async (ctx, next) => {
   try {
     const rid = ctx.params.rid;
     const reply = await Reply.getReplyById(rid);
@@ -81,9 +91,11 @@ exports.delete = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.showEdit = async function (ctx, next) {
+router.get('/reply/:rid/edit', 
+  auth.userRequired, 
+  async (ctx, next) => {
   const rid = ctx.params.rid;
   const reply = await Reply.getReplyById(rid);
 
@@ -102,9 +114,11 @@ exports.showEdit = async function (ctx, next) {
   } else {
     return ctx.renderError('can not edit this reply', 403);
   }
-};
+});
 
-exports.update = async function (ctx, next) {
+router.post('/reply/:rid/edit', 
+  auth.userRequired, 
+  async (ctx, next) => {
   const rid = ctx.params.rid;
   const content = ctx.request.body.t_content;
 
@@ -128,9 +142,11 @@ exports.update = async function (ctx, next) {
   } else {
     return ctx.renderError('can not edit this reply', 403);
   }
-};
+});
 
-exports.up = async function (ctx, next) {
+router.post('/reply/:rid/up', 
+  auth.userRequired, 
+  async (ctx, next) => {
   try {
     const rid = ctx.params.rid;
     const uid = ctx.session.user._id;
@@ -162,4 +178,6 @@ exports.up = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
+
+module.exports = router;

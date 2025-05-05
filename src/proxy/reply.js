@@ -1,5 +1,4 @@
-var models     = require('../models');
-var Reply      = models.Reply;
+var Reply      = require('../models/reply');
 var User       = require('./user');
 var at         = require('../common/at');
 

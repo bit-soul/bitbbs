@@ -1,12 +1,22 @@
-var Models         = require('../models');
-var User           = Models.User;
+const Router = require('koa-router');
+var User           = require('../models/user');
 var authMiddleWare = require('../middlewares/auth');
 var uuid           = require('node-uuid');
+const router = new Router();
+
+const passport = require('koa-passport');
+var midgithub = require('./middlewares/github');
+
+router.get(
+  '/auth/github',
+  midgithub.github, // 自定义中间件，形式为 async (ctx, next) => {...}
+  passport.authenticate('github') // koa-passport 提供的 authenticate 中间件
+);
 
 /**
  * GitHub OAuth 回调
  */
-exports.callback = async function (ctx, next) {
+router.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/signin' }), async (ctx, next) => {
   const profile = ctx.state.user; // passport 插入的 user 对象
   const email = profile.emails && profile.emails[0]?.value;
 
@@ -39,21 +49,21 @@ exports.callback = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
 /**
  * 显示新建 OAuth 用户信息填写页
  */
-exports.new = async function (ctx) {
+router.get('/auth/github/new', async (ctx) => {
   await ctx.render('sign/new_oauth', {
     actionPath: '/auth/github/create'
   });
-};
+});
 
 /**
  * 创建 GitHub OAuth 用户
  */
-exports.create = async function (ctx, next) {
+router.post('/auth/github/create', async (ctx, next) => {
   const profile = ctx.session.profile;
 
   if (!profile) {
@@ -87,4 +97,6 @@ exports.create = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
+
+module.exports = router;

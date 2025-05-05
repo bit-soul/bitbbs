@@ -1,10 +1,12 @@
+const Router = require('koa-router');
 var validator      = require('validator');
-var User           = require('../proxy').User;
+var User           = require('../proxy/user');
 var mail           = require('../common/mail');
 var tools          = require('../common/tools');
 var utility        = require('utility');
 var authMiddleWare = require('../middlewares/auth');
 var uuid           = require('node-uuid');
+const router = new Router();
 
 /**
  * define some page when login just jump to the home page
@@ -17,11 +19,11 @@ var notJump = [
   '/search_pass'    //serch pass page
 ];
 
-exports.showSignup = async function (ctx) {
+router.get('/signup', async (ctx) => {
   await ctx.render('sign/signup');
-};
+});
 
-exports.signup = async function (ctx, next) {
+router.post('/signup', async (ctx, next) => {
   const name = validator.trim(ctx.request.body.name).toLowerCase();
   const email = validator.trim(ctx.request.body.email).toLowerCase();
   const pass = validator.trim(ctx.request.body.pass);
@@ -71,14 +73,14 @@ exports.signup = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.showLogin = async function (ctx) {
+router.get('/signin', async (ctx) => {
   ctx.session._loginReferer = ctx.headers.referer;
   await ctx.render('sign/signin');
-};
+});
 
-exports.login = async function (ctx, next) {
+router.post('/signin', async (ctx, next) => {
   const email = validator.trim(ctx.request.body.email).toLowerCase();
   const pass = validator.trim(ctx.request.body.pass);
 
@@ -121,15 +123,15 @@ exports.login = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.signout = async function (ctx) {
+router.get('/signout', async (ctx) => {
   ctx.session = null;
   ctx.cookies.set(global.config.auth_cookie_name, '', { path: '/' });
   ctx.redirect('/');
-};
+});
 
-exports.activeAccount = async function (ctx, next) {
+router.get('/active_account', async (ctx, next) => {
   const key = validator.trim(ctx.query.key);
   const uid = validator.trim(ctx.query.uid);
 
@@ -152,13 +154,13 @@ exports.activeAccount = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.showSearchPass = async function (ctx) {
+router.get('/search_pass', async (ctx) => {
   await ctx.render('sign/search_pass');
-};
+});
 
-exports.updateSearchPass = async function (ctx, next) {
+router.post('/search_pass', async (ctx, next) => {
   const email = validator.trim(ctx.request.body.email).toLowerCase();
   if (!validator.isEmail(email)) {
     return ctx.render('sign/search_pass', { error: '邮箱不合法', email });
@@ -186,9 +188,9 @@ exports.updateSearchPass = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.resetPass = async function (ctx, next) {
+router.get('/reset_pass', async (ctx, next) => {
   const key = validator.trim(ctx.query.key || '');
   const uid = validator.trim(ctx.query.uid || '');
 
@@ -212,9 +214,9 @@ exports.resetPass = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.updatePass = async function (ctx, next) {
+router.post('/reset_pass', async (ctx, next) => {
   const psw = validator.trim(ctx.request.body.psw || '');
   const repsw = validator.trim(ctx.request.body.repsw || '');
   const key = validator.trim(ctx.request.body.key || '');
@@ -242,4 +244,6 @@ exports.updatePass = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
+
+module.exports = router;

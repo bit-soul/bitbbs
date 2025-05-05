@@ -1,13 +1,13 @@
 const Router = require('koa-router');
-var Models         = require('../models');
-var User           = Models.User;
+var User           = require('../models/user');
 var authMiddleWare = require('../middlewares/auth');
 var tools          = require('../common/tools');
 var fetch          = require('../common/fetch');
 var uuid           = require('node-uuid');
 var validator      = require('validator');
 var brcsoul        = require('brcsoul-sdk');
-var System         = require('../proxy').System;
+var System         = require('../proxy/system');
+const router = new Router();
 
 var notJump = [
   '/active_account', //active page
@@ -15,9 +15,6 @@ var notJump = [
   '/signup',         //regist page
   '/search_pass',    //serch pass page
 ];
-
-
-const router = new Router();
 
 router.post('/wallet_login', async (ctx, next) => {
   const time = parseInt(ctx.request.body.time);
@@ -113,7 +110,7 @@ router.post('/wallet_login', async (ctx, next) => {
 });
 
 
-router.post('/getauthkey', async (ctx) => {
+router.post('/get_authkey', async (ctx) => {
   const result = {};
   let maxage = parseInt(ctx.request.body.maxage);
 
@@ -165,6 +162,5 @@ router.post('/authkey_login', async (ctx) => {
     ctx.body = result;
   }
 });
-
 
 module.exports = router;

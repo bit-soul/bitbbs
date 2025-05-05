@@ -1,4 +1,4 @@
-var User       = require('../proxy').User;
+var User       = require('../proxy/user');
 var Message    = require('./message');
 var _          = require('lodash');
 

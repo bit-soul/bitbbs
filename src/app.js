@@ -64,8 +64,6 @@ if(process.env.admins) {
 // load global variable
 require("./global.js");
 
-require('./models');
-
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -201,7 +199,7 @@ app.use('/agent', midproxy.proxy);
 //load routers recursively
 (function(){
 
-   loadRouters("./router");
+   loadRouters("./controllers");
 
    function loadRouters(router_path)
    {

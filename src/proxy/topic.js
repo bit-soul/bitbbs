@@ -1,5 +1,4 @@
-var models     = require('../models');
-var Topic      = models.Topic;
+var Topic      = require('../models/topic');
 var User       = require('./user');
 var Reply      = require('./reply');
 var at         = require('../common/at');

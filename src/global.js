@@ -19,6 +19,19 @@ global.config.hostname = urlinfo.hostname || global.config.host;
 
 var mongoose = require('mongoose');
 
+mongoose.set('strictQuery', true);
+mongoose.connect(global.config.mongodb_cfg.db, {
+  maxPoolSize: 10,  
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 10000,
+}, function (err) {
+  if (err) {
+    logger.error('connect to %s error: ', global.config.mongodb_cfg.db, err.message);
+    process.exit(1);
+  }
+});
+
 if (global.config.debug) {
   var traceMQuery = function (method, info, query) {
     return function (err, result, millis) {

@@ -5,4 +5,4 @@ var SystemSchema = new Schema({
   user_cnt: { type: Number, default: 0},
 }, { versionKey: false });
 
-mongoose.model('System', SystemSchema);
+module.exports = mongoose.model('System', SystemSchema);

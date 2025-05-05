@@ -1,12 +1,14 @@
-var User         = require('../proxy').User;
-var Topic        = require('../proxy').Topic;
+const Router = require('koa-router');
+var User         = require('../proxy/user');
+var Topic        = require('../proxy/topic');
 var cache        = require('../common/cache');
 var xmlbuilder   = require('xmlbuilder');
 var renderHelper = require('../common/render_helper');
 var _            = require('lodash');
 var moment = require('moment');
+const router = new Router();
 
-exports.index = async function (ctx, next) {
+router.get('/', async (ctx, next) => {
   try {
     let page = parseInt(ctx.query.page, 10) || 1;
     page = page > 0 ? page : 1;
@@ -81,9 +83,9 @@ exports.index = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
 
-exports.sitemap = async function (ctx, next) {
+router.get('/sitemap.xml', async (ctx, next) => {
   try {
     let sitemapData = await cache.get('sitemap');
 
@@ -110,4 +112,6 @@ exports.sitemap = async function (ctx, next) {
   } catch (err) {
     return next(err);
   }
-};
+});
+
+module.exports = router;

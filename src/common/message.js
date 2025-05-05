@@ -1,5 +1,4 @@
-const models = require('../models');
-const Message = models.Message;
+const Message = require('../models/message');
 const _ = require('lodash');
 
 exports.sendReplyMessage = async function (master_id, author_id, topic_id, reply_id) {

@@ -1,6 +1,6 @@
 var _ = require('lodash');
 
-var Message = require('../models').Message;
+var Message = require('../models/message');
 
 var User = require('./user');
 var Topic = require('./topic');

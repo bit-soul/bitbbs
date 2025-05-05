@@ -42,4 +42,4 @@ TopicSchema.virtual('tabName').get(function () {
   }
 });
 
-mongoose.model('Topic', TopicSchema);
+module.exports = mongoose.model('Topic', TopicSchema);

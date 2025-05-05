@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
-const UserModel = mongoose.model('User');
-const { Message: MessageProxy, User: UserProxy } = require('../proxy');
+const UserModel = require('../models/user');
+var UserProxy       = require('../proxy/user');
+var MessageProxy = require('../proxy/message');
 
 
 exports.adminRequired = async (ctx, next) => {

@@ -1,4 +1,4 @@
-var MarkTopic = require('../models').MarkTopic;
+var MarkTopic = require('../models/marktopic').;
 var _ = require('lodash')
 
 exports.getMarkTopic = async function (userId, topicId) {

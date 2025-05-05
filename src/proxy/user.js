@@ -1,5 +1,4 @@
-var models  = require('../models');
-var User    = models.User;
+var User    = require('../models/user');
 var utility = require('utility');
 var uuid    = require('node-uuid');
 
