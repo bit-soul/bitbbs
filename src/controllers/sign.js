@@ -3,7 +3,7 @@ const midAuth   = require('../middlewares/auth');
 const mail      = require('../common/mail');
 const tools     = require('../common/tools');
 
-const Router    = require('koa-router');
+const Router    = require('@koa/router');
 const uuid      = require('node-uuid');
 const utility   = require('utility');
 const validator = require('validator');

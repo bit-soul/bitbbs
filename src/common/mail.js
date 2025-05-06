@@ -1,5 +1,5 @@
 const util   = require('util');
-const tools  = require('tools');
+const tools  = require('./tools');
 const logger = require('./logger');
 const mailer = require('nodemailer');
 const smtpTransport = require('nodemailer-smtp-transport');

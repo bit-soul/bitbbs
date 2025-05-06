@@ -1,30 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-const lodash = require('lodash');
-
-const Koa = require('koa');
-const koaonerror = require('koa-onerror')
-const koastatic = require('koa-static')
-const koabody = require('koa-body')
-const koasession = require('koa-session');
-const koaredis = require('koa-redis');
-const koaejs = require('@koa/ejs')
-const koacors = require('@koa/cors');
-const koacsrf = require('koa-csrf');
-const koapassport = require('koa-passport');
-const koahelmet = require('koa-helmet');
-
-const midAuth = require('./middlewares/auth');
-const midErrpage = require('./middlewares/errpage');
-const midProxy = require('./middlewares/proxy');
-const midReqlog = require('./middlewares/reqlog');
-const midRender = require('./middlewares/render');
-const midGithub = require('./middlewares/github');
-
-const logger = require('./common/logger');
-
-const GitHubStrategy = require('passport-github').Strategy;
-
 //choose config file
 switch (process.env.APP_ENV) {
   case 'dev':
@@ -59,8 +32,43 @@ if(process.env.admins) {
   });
 }
 
+const fs = require('fs');
+const path = require('path');
+const lodash = require('lodash');
+
+const Koa = require('koa');
+const koaonerror = require('koa-onerror')
+const koastatic = require('koa-static')
+const koabody = require('koa-body')
+const koasession = require('koa-session');
+const koaredis = require('koa-redis');
+const koaejs = require('@koa/ejs')
+const koacors = require('@koa/cors');
+const koacsrf = require('koa-csrf');
+const koapassport = require('koa-passport');
+const koahelmet = require('koa-helmet');
+const koarouter = require('@koa/router');
+
+const midAuth = require('./middlewares/auth');
+const midErrpage = require('./middlewares/errpage');
+const midProxy = require('./middlewares/proxy');
+const midReqlog = require('./middlewares/reqlog');
+const midRender = require('./middlewares/render');
+const midGithub = require('./middlewares/github');
+
+const logger = require('./common/logger');
+const renderHelpers = require('./common/render_helper');
+
+const GitHubStrategy = require('passport-github').Strategy;
+
 // load global variable
 require("./global.js");
+
+if (!global.config.debug && global.config.oneapm_key) {
+  require('oneapm');
+}
+
+const app = new Koa();
 
 // set static, dynamic helpers
 lodash.extend(app.context, renderHelpers);
@@ -68,14 +76,7 @@ lodash.extend(app.context, {
   config: global.config,
 });
 
-
-if (!global.config.debug && global.config.oneapm_key) {
-  require('oneapm');
-}
-
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
+// security
 if (!global.config.debug) {
   const csrf = new koacsrf();
   app.use(async (ctx, next) => {
@@ -95,16 +96,8 @@ app.use(async (ctx, next) => {
 
 app.use(koahelmet());
 
-
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-
-//创建Koa应用
-const app = new Koa();
-
 // onerror
-koaonerror(app);
+koaonerror.onerror(app);
 
 //ejs
 koaejs(app, {
@@ -128,10 +121,10 @@ const session_config = {
     renew: true, /** 是否在Session快过期时刷新Session的有效期。(默认是 false) */
     store: koaredis(global.config.koaredis_config)
 };
-app.use(koasession(session_config, app));
+app.use(koasession.createSession(session_config, app));
 
 //body
-app.use(koabody({
+app.use(koabody.koaBody({
   multipart: true,
   formidable: {
     maxFileSize: 5 * 1024 * 1024, // 5MB
@@ -187,15 +180,16 @@ app.use(koastatic(uploadDir));
 app.use(midErrpage.errorPage);
 
 //graceful-shutdown
-app.use(require("./middleware/graceful_shutdown.js"));
+//app.use(require("./middleware/graceful_shutdown.js"));
 
 // proxy agent
-app.use('/agent', midProxy.proxy);
+const router = new koarouter();
+router.all('/agent/(.*)', midProxy.proxy);
 
 //load routers recursively
 (function(){
 
-   loadRouters("./controllers");
+   loadRouters(path.join(__dirname, './controllers'));
 
    function loadRouters(router_path)
    {
@@ -258,4 +252,4 @@ process.on('SIGINT', graceful_shutdown);
 process.on('SIGTERM', graceful_shutdown);
 
 /*启动服务*/
-app.listen(global.config.koa_app_port, "127.0.0.1");
+app.listen(global.config.port, "127.0.0.1");

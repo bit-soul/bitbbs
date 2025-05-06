@@ -3,7 +3,7 @@ const cache        = require('../common/cache');
 const renderHelper = require('../common/render_helper');
 const tools        = require('../common/tools');
 
-const Router   = require('koa-router');
+const Router   = require('@koa/router');
 const data2xml = require('data2xml')({ xmlDecl: { version: '1.0', encoding: 'UTF-8' } });
 
 const router = new Router();

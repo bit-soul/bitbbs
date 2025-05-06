@@ -75,5 +75,5 @@ exports.proxy = function (url) {
 };
 
 // 为了在 view 中使用
-exports._ = _;
+exports.lodash = lodash;
 exports.multiline = multiline;

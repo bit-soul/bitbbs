@@ -1,12 +1,12 @@
 const proxyUser   = require('../proxy/user');
 const proxyTopic  = require('../proxy/topic');
 const proxyReply  = require('../proxy/reply');
-const midAuth     = require('./middlewares/auth');
-const midLimit    = require('./middlewares/midLimit');
+const midAuth     = require('../middlewares/auth');
+const midLimit    = require('../middlewares/limit');
 const at          = require('../common/at');
 const message     = require('../common/message');
 
-const Router    = require('koa-router');
+const Router    = require('@koa/router');
 const lodash    = require('lodash');
 const validator = require('validator');
 

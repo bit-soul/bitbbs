@@ -7,7 +7,7 @@ const ALLOW_HOSTNAME = [
   'gravatar.com', 'www.google-analytics.com',
 ];
 
-exports.proxy = async function (ctx, next) {
+exports.proxy = async (ctx, next) => {
   const url = decodeURIComponent(ctx.query.url || '');
   const hostname = new URL(url).hostname;
 

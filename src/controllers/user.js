@@ -5,9 +5,10 @@ const proxyUser       = require('../proxy/user');
 const proxyTopic      = require('../proxy/topic');
 const proxyReply      = require('../proxy/reply');
 const proxyMarkTopic  = require('../proxy/marktopic');
+const midAuth         = require('../middlewares/auth');
 
 const validator = require('validator');
-const Router    = require('koa-router');
+const Router    = require('@koa/router');
 const utility   = require('utility');
 const util      = require('util');
 const uuid      = require('node-uuid')
@@ -77,7 +78,7 @@ router.get('/advances', async (ctx, next) => {
 });
 
 router.get('/setting', 
-  auth.userRequired,
+  midAuth.userRequired,
   async (ctx, next) => {
   try {
     const user = await proxyUser.getUserById(ctx.session.user._id);
@@ -97,7 +98,7 @@ router.get('/setting',
 });
 
 router.post('/setting', 
-  auth.userRequired,
+  midAuth.userRequired,
   async (ctx, next) => {
   const reqBody = ctx.request.body;
   const sessionUser = ctx.session.user;
@@ -160,7 +161,7 @@ router.post('/setting',
 
 //todo cancel_advance
 router.post('/user/set_advance', 
-  auth.adminRequired,
+  midAuth.adminRequired,
   async (ctx, next) => {
   try {
     const user_id = ctx.request.body.user_id;
@@ -310,7 +311,7 @@ router.get('/user/:uid/replies', async (ctx, next) => {
 });
 
 router.post('/user/:uid/block', 
-  auth.adminRequired,
+  midAuth.adminRequired,
   async (ctx, next) => {
   try {
     const uid = ctx.params.uid;
@@ -336,7 +337,7 @@ router.post('/user/:uid/block',
 });
 
 router.get('/user/:uid/delete_all', 
-  auth.adminRequired,
+  midAuth.adminRequired,
   async (ctx, next) => {
   try {
     const uid = ctx.params.uid;
@@ -360,7 +361,7 @@ router.get('/user/:uid/delete_all',
 });
 
 router.post('/user/refresh_token', 
-  auth.userRequired,
+  midAuth.userRequired,
   async (ctx, next) => {
   try {
     const user_id = ctx.session.user._id;

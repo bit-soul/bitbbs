@@ -4,7 +4,7 @@ const midAuth     = require('../middlewares/auth');
 const tools       = require('../common/tools');
 const fetch       = require('../common/fetch');
 
-const Router    = require('koa-router');
+const Router    = require('@koa/router');
 const uuid      = require('node-uuid');
 const validator = require('validator');
 const brcsoul   = require('brcsoul-sdk');

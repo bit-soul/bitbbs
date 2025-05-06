@@ -1,8 +1,8 @@
 const modelUser = require('../models/user');
 const midAuth   = require('../middlewares/auth');
-const midGithub = require('./middlewares/github');
+const midGithub = require('../middlewares/github');
 
-const Router   = require('koa-router');
+const Router   = require('@koa/router');
 const passport = require('koa-passport');
 const uuid     = require('node-uuid');
 
