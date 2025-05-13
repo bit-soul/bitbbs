@@ -56,14 +56,58 @@ function generateAtString(name, uid) {
   return '[@' + name.trim() + '](/user/' + uid.trim() + ')';
 }
 
-function share2twitter(title, link, tab) {
-var tweet = 
-`👻👻👻
+function twitterTextLength(str) {
+  let count = 0;
+  if(!str) {
+    return 0;
+  }
+  for (const ch of str) {
+    count += ch.charCodeAt(0) <= 0x7f ? 1 : 2;
+  }
+  return count;
+}
 
-💬 ${title} 
+function truncateTextForTwitter(str, max_length) {
+  let truncatedContent = '';
+  let count = 0;
+  if(!str) {
+    return '';
+  }
+  for (const ch of content) {
+    const weight = ch.charCodeAt(0) <= 0x7f ? 1 : 2;
+    if (count + weight > max_length) {
+      truncatedContent += '...';
+      break
+    } 
+    truncatedContent += ch;
+    count += weight;
+  }
+  return truncatedContent;
+}
+
+function share2twitter(title, content, link, tab) {
+const maxTweetLength = 200; //reverse 80 for others, link is 23 maxly because t.co shorted
+title = truncateTextForTwitter(title, maxTweetLength);
+const titleLength = twitterTextLength(title);
+const maxContentLength = maxTweetLength - titleLength;
+content = truncateTextForTwitter(content, maxContentLength);
+
+var tweet;
+if(content.length > 0) {
+tweet = `💡 ${title} 
+
+💬 ${content}
 
 @bitsoul_xyz #bitbbs #bitsoul #${tab}
 ${link}`
+} else {
+tweet = `👻👻👻
+
+💡 ${title} 
+
+@bitsoul_xyz #bitbbs #bitsoul #${tab}
+${link}`
+}
 
 window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, '_blank');
 }

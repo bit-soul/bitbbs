@@ -15,7 +15,6 @@
     "bcryptjs": "2.3.0",
     "brcsoul-sdk": "^0.0.17",
     "cross-env": "^7.0.3",
-    "csurf": "1.8.3",
     "data2xml": "1.2.4",
     "ioredis": "^4.29.1",
     "koa": "^2.16.1",
