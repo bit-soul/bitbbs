@@ -1,4 +1,4 @@
-<%- partial('../sidebar') %>
+<%- include('../sidebar') %>
 
 <div id='content'>
   <div class='panel'>
@@ -19,7 +19,7 @@
           <th>Replys</th>
         </thead>
         <tbody>
-        <%- partial('../user/top100_user',{collection:users,as:'user'}) %>
+        <%- include('../user/top100_user',{collection:users,as:'user'}) %>
         </tbody>
       </table>
       <% }else{ %>

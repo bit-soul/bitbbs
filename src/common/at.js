@@ -7,7 +7,7 @@ const lodash     = require('lodash');
  * @param {String} text 文本内容
  * @return {Array} 用户名数组
  */
-var fetchUserIds = function (text) {
+exports.fetchUserIds = function (text) {
   if (!text) {
     return [];
   }
@@ -37,8 +37,6 @@ var fetchUserIds = function (text) {
   uids = lodash.uniq(uids);
   return uids;
 };
-exports.fetchUserIds = fetchUserIds;
-
 
 /**
  * 根据文本内容中读取用户，并发送消息给提到的用户

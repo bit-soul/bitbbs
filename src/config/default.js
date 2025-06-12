@@ -2,6 +2,7 @@ var path = require('path');
 
 var config = {
   debug: false,
+  cache: true,
   diststatic: true,
   port: 3000,
   proxyurl: null,
@@ -29,6 +30,7 @@ var config = {
   google_tracker_id: '', // 默认的Google tracker ID，自有站点请修改，申请地址：http://www.google.com/analytics/
   cnzz_tracker_id: '', // 默认的cnzz tracker ID，自有站点请修改
   oneapm_key: '', // oneapm 是个用来监控网站性能的服务
+  proxyurl: '', //http请求代理服务
 
   session_secret: 'bitbbs_secret', // 务必修改
   auth_cookie_name: 'bitbbs',

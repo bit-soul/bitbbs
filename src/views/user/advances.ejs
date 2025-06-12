@@ -1,4 +1,4 @@
-<%- partial('../sidebar') %>
+<%- include('../sidebar') %>
 
 <div id='content'>
   <div class='panel'>
@@ -10,7 +10,7 @@
     </div>
     <div class='inner'>
       <% if(typeof(advances) !== 'undefined' && advances.length > 0){ %>
-      <%- partial('../user/user',{collection:advances,as:'user'}) %>
+      <%- include('../user/user',{collection:advances,as:'user'}) %>
       <% }else{ %>
       <p>No advance user</p>
       <% } %>

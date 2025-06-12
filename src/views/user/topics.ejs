@@ -1,4 +1,4 @@
-<%- partial('../sidebar') %>
+<%- include('../sidebar') %>
 
 <div id='content'>
   <div class='panel'>
@@ -13,7 +13,7 @@
     <div class="header"><%=user.name%> Created Topics</div>
     <div class="inner padding">
     <% if(typeof(topics) !== 'undefined' && topics.length > 0 ){ %>
-    <%- partial('../topic/list',
+    <%- include('../topic/list',
     {topics:topics,pages:pages,current_pages:current_page,base:'/user/'+user._id+'/topics'}) %>
     <% }else{ %>
     <div class='inner'>

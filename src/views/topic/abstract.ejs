@@ -30,7 +30,7 @@
 
   <div class="topic_title_wrapper">
     <a class='topic_title' href='/topic/<%= topic._id %>' title='<%= topic.title %>'>
-      <%- partial('./_top_good', {topic: topic}) %>
+      <%- include('./top_good', {topic: topic}) %>
       <%= topic.title %>
     </a>
   </div>

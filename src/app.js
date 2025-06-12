@@ -71,9 +71,9 @@ if (!global.config.debug && global.config.oneapm_key) {
 const app = new Koa();
 
 // set static, dynamic helpers
-lodash.extend(app.context, renderHelpers);
 lodash.extend(app.context, {
   config: global.config,
+  helper: global.config,
 });
 
 // security
@@ -103,9 +103,9 @@ koaonerror.onerror(app);
 koaejs(app, {
   root: path.join(__dirname, 'views'),
   viewExt: 'ejs',
-  layout: false,
-  cache: true,
-  debug: false
+  layout: 'layout',
+  cache: global.config.cache,
+  debug: global.config.debug,
 });
 
 // session
@@ -248,8 +248,10 @@ function graceful_shutdown()
     console.log("shuting...");
   }
 }
-process.on('SIGINT', graceful_shutdown);
-process.on('SIGTERM', graceful_shutdown);
+if(!global.config.debug) {
+  process.on('SIGINT', graceful_shutdown);
+  process.on('SIGTERM', graceful_shutdown);
+}
 
 /*启动服务*/
 app.listen(global.config.port, "127.0.0.1");

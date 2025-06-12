@@ -4,13 +4,9 @@
       <span class='col_fade'>Author</span>
     </div>
     <div class='inner'>
-      <%- partial('../user/card', { object: topic.author, as: 'user' }) %>
+      <%- include('../user/card', { object: topic.author, as: 'user' }) %>
     </div>
   </div>
-
-  <% if (!current_user || !current_user.isAdvanced) { %>
-    <%- partial('../_ads') %>
-  <% } %>
 
   <div class='panel'>
     <div class='header'>
@@ -19,7 +15,7 @@
     <div class='inner'>
       <% if (typeof(author_other_topics) === 'undefined' || author_other_topics.length > 0) { %>
       <ul class='unstyled'>
-        <%- partial('../topic/small', { collection: author_other_topics, as: 'topic' }) %>
+        <%- include('../topic/small', { collection: author_other_topics, as: 'topic' }) %>
       </ul>
       <% } else { %>
       <p>None</p>
@@ -34,7 +30,7 @@
     <div class='inner'>
       <% if (typeof(no_reply_topics) !== 'undefined' && no_reply_topics.length > 0) { %>
       <ul class='unstyled'>
-        <%- partial('../topic/small', { collection: no_reply_topics, as: 'topic' }) %>
+        <%- include('../topic/small', { collection: no_reply_topics, as: 'topic' }) %>
       </ul>
       <% } else { %>
       <p>None</p>
@@ -48,11 +44,12 @@
     <div class='header topic_header'>
       <div>
         <span class="topic_full_title">
-          <%- partial('./_top_good', {topic: topic}) %>
+          <%- include('./top_good', {topic: topic}) %>
           <%= topic.title %>
         </span>
         <i class="fa fa-lg fa-twitter share_topic" title="share to twitter" 
-           onclick="share2twitter('<%=topic.title%>', '<%=config.host%>/topic/<%=topic._id%>', '<%=tabName(topic.tab)%>')">
+          <% const safeTitle = topic.title.replace(/'/g, "\\'").replace(/"/g, '\\"'); %>
+          onclick="share2twitter('<%=safeTitle%>', '<%=config.host%>/topic/<%=topic._id%>', '<%=tabName(topic.tab)%>')">
         </i>
       </div>
       <div class="changes">
@@ -143,7 +140,7 @@
     <div class='header'>
       <span class='col_fade'><%= topic.replies.length %>reply</span>
     </div>
-    <%- partial('../reply/reply', topic.replies) %>
+    <%- include('../reply/reply', topic.replies) %>
   </div>
   <% } %>
   <% if (current_user && typeof(topic) !== 'undefined') { %>
@@ -187,7 +184,7 @@
 
 <% if (current_user && typeof(topic) !== 'undefined') { %>
 <!-- markdown editor -->
-<%- partial('../includes/editor') %>
+<%- include('../editor/editor') %>
 <script>
   $(document).ready(function () {
     // 获取所有回复者name和id

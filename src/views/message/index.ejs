@@ -1,4 +1,4 @@
-<%- partial('../sidebar') %>
+<%- include('../sidebar') %>
 
 <div id='content'>
   <div class='panel'>
@@ -9,7 +9,7 @@
       </ul>
     </div>
     <% if (typeof(hasnot_read_messages) !== 'undefined' && hasnot_read_messages.length > 0) { %>
-    <%- partial('../message/message', { collection: hasnot_read_messages, as: 'message' }) %>
+    <%- include('../message/message', { collection: hasnot_read_messages, as: 'message' }) %>
     <% } else { %>
     <div class='inner'>
       <p>No Message</p>
@@ -21,7 +21,7 @@
       <span class='col_fade'>Old Message</span>
     </div>
     <% if (typeof(has_read_messages) !== 'undefined' && has_read_messages.length > 0) { %>
-    <%- partial('../message/message', { collection: has_read_messages, as: 'message' }) %>
+    <%- include('../message/message', { collection: has_read_messages, as: 'message' }) %>
     <% } else { %>
     <div class='inner'>
       <p>No Message</p>

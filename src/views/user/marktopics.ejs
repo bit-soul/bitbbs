@@ -1,4 +1,4 @@
-<%- partial('../sidebar') %>
+<%- include('../sidebar') %>
 
 <div id='content'>
   <div class='panel'>
@@ -10,7 +10,7 @@
     </div>
     <div class='inner no-padding'>
       <% if (topics.length > 0) { %>
-      <%- partial('../topic/list', { topics: topics, pages: pages, current_pages: current_page, base: '/user/' + user._id + '/markedtopics' }) %>
+      <%- include('../topic/list', { topics: topics, pages: pages, current_pages: current_page, base: '/user/' + user._id + '/markedtopics' }) %>
       <% } else { %>
       <p>No Topic (T_T)</p>
       <% } %>

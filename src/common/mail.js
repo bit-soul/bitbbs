@@ -11,7 +11,7 @@ const SITE_ROOT_URL = 'http://' + global.config.host;
  * Send an email
  * @param {Object} data 邮件对象
  */
-var sendMail = async function (data) {
+exports.sendMail = async function (data) {
   if (global.config.debug) {
     return;
   }
@@ -29,8 +29,6 @@ var sendMail = async function (data) {
     logger.error('send mail finally error', err, data);
   }
 };
-
-exports.sendMail = sendMail;
 
 /**
  * 发送激活通知邮件

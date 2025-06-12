@@ -2,6 +2,7 @@ var config_default = require('./default');
 
 var config = {
   debug: false,
+  cache: true,
   diststatic: true,
   port: 3000,
   proxyurl: null,
@@ -21,6 +22,7 @@ var config = {
 
   site_static_host: 'https://bitbbsres.bitsoul.xyz',
   host: 'https://bitbbs.bitsoul.xyz',
+  proxyurl: 'socks5://host.docker.internal:40000',
 
   session_secret: process.env.session_secret,
 
