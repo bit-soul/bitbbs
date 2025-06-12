@@ -9,7 +9,7 @@
 
   <meta name="twitter:card" content="summary" />
   <% if (typeof(topic) !== 'undefined') { %>
-  <meta property="og:title" content="<%=config.bbsname%> - <%=tabName(topic.tab)%>" />
+  <meta property="og:title" content="<%=config.bbsname%> - <%= helpler.tabName(topic.tab)%>" />
   <meta property="og:description" content="<%=topic.title%>" />
   <meta property="og:url" content="<%=config.host%>/topic/<%=topic._id%>" />
   <meta property="og:image" content="<%=config.site_static_host%><%=config.bbsogimg%>" />
@@ -96,7 +96,7 @@
     <div class='container'>
       <a class='brand' href='/'>
         <% if (config.bbslogo) {%>
-          <img src="<%- staticFile(config.bbslogo) %>" style="width: 45px; height:45px; margin-top: -5px;"/>
+          <img src="<%- helper.staticFile(config.bbslogo) %>" style="width: 45px; height:45px; margin-top: -5px;"/>
         <%} else {%>
           <%- config.bbsname %>
         <%}%>
@@ -181,7 +181,7 @@
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script', "<%- proxy('https://www.google-analytics.com/analytics.js') %>",'ga');
+  })(window,document,'script', "<%- helper.proxy('https://www.google-analytics.com/analytics.js') %>",'ga');
 
   ga('create', '<%-config.google_tracker_id%>', 'auto');
   ga('send', 'pageview');

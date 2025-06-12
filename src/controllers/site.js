@@ -71,7 +71,7 @@ router.get('/', async (ctx, next) => {
     ]);
 
     const tabName = renderHelper.tabName(tab);
-    await ctx.render('index', {
+    return await ctx.render('index', {
       topics,
       current_page: page,
       list_topic_count: limit,

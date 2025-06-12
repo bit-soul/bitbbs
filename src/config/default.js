@@ -4,6 +4,7 @@ var config = {
   debug: false,
   cache: true,
   diststatic: true,
+  enable_log: false,
   port: 3000,
   proxyurl: null,
 

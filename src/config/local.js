@@ -4,6 +4,7 @@ var config = {
   debug: true,
   cache: false,
   diststatic: false,
+  enable_log: true,
   port: 3000,
   proxyurl: 'socks://127.0.0.1:7890',
 

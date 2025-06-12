@@ -9,7 +9,7 @@
     </div>
     <div class='inner userinfo'>
       <div class='user_big_avatar'>
-        <img src="<%= proxy(user.avatar_url) %>" class="user_avatar" title="<%= user.name %>"/>
+        <img src="<%= helper.proxy(user.avatar_url) %>" class="user_avatar" title="<%= user.name %>"/>
       </div>
       <a class='dark'><%= user.name %></a>
 
@@ -20,7 +20,7 @@
             <br />
             <span class="biog">
               <% if (user.biog) {%>
-                <%-escapeBiog(user.biog)%>
+                <%- helper.escapeBiog(user.biog)%>
               <%}%>
             </span>
           </li>

@@ -1,8 +1,6 @@
 const MarkdownIt = require('markdown-it');
-const lodash     = require('lodash');
 const validator  = require('validator');
 const jsxss      = require('xss');
-const multiline = require('multiline')
 
 // Set default options
 const md = new MarkdownIt();
@@ -73,7 +71,3 @@ exports.proxy = function (url) {
   // 当 google 和 github 封锁严重时，则需要通过服务器代理访问它们的静态资源
   // return '/agent?url=' + encodeURIComponent(url);
 };
-
-// 为了在 view 中使用
-exports.lodash = lodash;
-exports.multiline = multiline;

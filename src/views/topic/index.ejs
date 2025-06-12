@@ -49,7 +49,7 @@
         </span>
         <i class="fa fa-lg fa-twitter share_topic" title="share to twitter" 
           <% const safeTitle = topic.title.replace(/'/g, "\\'").replace(/"/g, '\\"'); %>
-          onclick="share2twitter('<%=safeTitle%>', '<%=config.host%>/topic/<%=topic._id%>', '<%=tabName(topic.tab)%>')">
+          onclick="share2twitter('<%=safeTitle%>', '<%=config.host%>/topic/<%=topic._id%>', '<%= helper.tabName(topic.tab)%>')">
         </i>
       </div>
       <div class="changes">
@@ -131,7 +131,7 @@
     <div class='inner topic'>
 
       <div class='topic_content'>
-        <%- markdown(topic.linkedContent) %>
+        <%- helper.markdown(topic.linkedContent) %>
       </div>
     </div>
   </div>

@@ -57,7 +57,6 @@ const midRender = require('./middlewares/render');
 const midGithub = require('./middlewares/github');
 
 const logger = require('./common/logger');
-const renderHelpers = require('./common/render_helper');
 
 const GitHubStrategy = require('passport-github').Strategy;
 
@@ -69,12 +68,6 @@ if (!global.config.debug && global.config.oneapm_key) {
 }
 
 const app = new Koa();
-
-// set static, dynamic helpers
-lodash.extend(app.context, {
-  config: global.config,
-  helper: global.config,
-});
 
 // security
 if (!global.config.debug) {
@@ -107,6 +100,7 @@ koaejs(app, {
   cache: global.config.cache,
   debug: global.config.debug,
 });
+app.use(midRender.extend);
 
 // session
 app.keys = [global.config.koa_session_app_key];
@@ -145,8 +139,8 @@ if (!fs.existsSync(global.config.log_dir)) {
     fs.mkdirSync(global.config.log_dir, { recursive: true });
 }
 if(global.config.enable_log) {
-  app.use(midReqLog);
-  app.use(midRender.render);
+  app.use(midReqlog);
+  app.use(midRender.times);
 }
 
 // auth user

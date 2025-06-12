@@ -1,7 +1,7 @@
 <div class='user'>
   <div>
     <a href="/user/<%= user._id %>">
-      <img class='user_avatar' src="<%= proxy(user.avatar_url) %>" title="<%= user.name %>"/>
+      <img class='user_avatar' src="<%= helper.proxy(user.avatar_url) %>" title="<%= user.name %>"/>
     </a>
     <span class='user_name'><a class='dark' href="/user/<%= user._id %>"><%= user.name %></a></span>
 

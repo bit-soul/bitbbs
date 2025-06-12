@@ -1,7 +1,7 @@
 <div class='user_card'>
   <div>
     <a class='user_avatar' href="/user/<%= user._id %>">
-      <img src="<%= proxy(user.avatar_url) %>" title="<%= user.name %>"/>
+      <img src="<%= helper.proxy(user.avatar_url) %>" title="<%= user.name %>"/>
     </a>
     <a class='user_name dark' href="/user/<%= user._id %>"><%= user.name %></a>
 
@@ -13,7 +13,7 @@
     <div class="space clearfix"></div>
     <span class="biog">
       <% if (user.biog) {%>
-        <%-escapeBiog(user.biog)%>
+        <%- helper.escapeBiog(user.biog)%>
       <%}%>
     </span>
   </div>

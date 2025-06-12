@@ -8,9 +8,7 @@ router.get('/search', async (ctx, next) => {
 
 router.get('/test', async (ctx, next) => {
   ctx.state.user ="abc";
-  return await ctx.render('test', options={
-    layout: false,
-  });
+  return await ctx.render('test', {layout:false});
 });
 
 module.exports = router;
