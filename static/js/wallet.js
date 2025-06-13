@@ -29,7 +29,7 @@ async function wallet_login(wallet) {
         time: login_date.getTime(),
     }),
     success: function(response) {
-        var res = JSON.parse(response);
+        var res = (typeof(response)=='string' ? JSON.parse(response) : response);
         if(res.code == 1) {
           window.location.href = '/';
         } else {
@@ -51,7 +51,7 @@ async function get_authkey() {
         maxage: 1000 * 60 * 60 * 24 * 30,
     }),
     success: function(response) {
-        var res = JSON.parse(response);
+        var res = (typeof(response)=='string' ? JSON.parse(response) : response);
         if(res.code == 0) {
           alert("Please use it in 10-minutes, authkey: " + res.data);
         } else {
@@ -74,7 +74,7 @@ async function authkey_login() {
         authkey: authkey,
     }),
     success: function(response) {
-        var res = JSON.parse(response);
+        var res = (typeof(response)=='string' ? JSON.parse(response) : response);
         if(res.code == 1) {
           window.location.href = '/';
         } else {

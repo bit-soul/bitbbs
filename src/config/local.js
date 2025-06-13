@@ -21,6 +21,8 @@ var config = {
     ['others', 'Others'],
   ],
 
+  session_secret: process.env.session_secret,
+
   admins: {
     '67bbd4927b051e20a87453e5': true,
   },

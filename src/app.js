@@ -38,17 +38,18 @@ const lodash = require('lodash');
 
 const Koa = require('koa');
 const koaonerror = require('koa-onerror')
+const koarouter = require('@koa/router');
 const koastatic = require('koa-static')
 const koamount = require('koa-mount');
-const koabody = require('koa-body')
-const koasession = require('koa-session');
-const koaredis = require('koa-redis');
 const koaejs = require('@koa/ejs')
+const koabody = require('koa-body')
+const koaredis = require('koa-redis');
+const koasession = require('koa-session');
+
 const koacors = require('@koa/cors');
 const koacsrf = require('koa-csrf');
-const koapassport = require('koa-passport');
 const koahelmet = require('koa-helmet');
-const koarouter = require('@koa/router');
+const koapassport = require('koa-passport');
 
 const midAuth = require('./middlewares/auth');
 const midErrpage = require('./middlewares/errpage');
@@ -88,7 +89,11 @@ app.use(async (ctx, next) => {
   await next();
 });
 
-app.use(koahelmet());
+app.use(
+  koahelmet({
+    contentSecurityPolicy: false,
+  }),
+);
 
 // onerror
 koaonerror.onerror(app);
@@ -103,7 +108,7 @@ koaejs(app, {
 app.use(midRender.extend);
 
 // session
-app.keys = [global.config.koa_session_app_key];
+app.keys = [global.config.session_secret];
 const session_config = {
     key: 'koa:tt', /**  cookie的key。 (默认是 koa:sess) */
     maxAge: global.config.koa_session_max_age,   /**  session 过期时间，以毫秒ms为单位计算 。*/
