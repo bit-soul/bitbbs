@@ -6,7 +6,7 @@
       <span class='col_fade'>Profile</span>
     </div>
     <div class='inner'>
-      <%- include('user/card',{ object: typeof(user) === 'undefined' ? current_user : user, as: 'user' }) %>
+      <%- include('user/card',{ user: typeof(user) === 'undefined' ? current_user : user}) %>
     </div>
     <% } else { %>
     <div class='inner'>
@@ -40,7 +40,9 @@
     <div class='inner'>
       <% if (no_reply_topics.length > 0) { %>
       <ul class="unstyled">
-        <%- include('topic/small', { collection: no_reply_topics, as: 'topic' }) %>
+      <% no_reply_topics.forEach(function(topic){ %>
+        <%- include('topic/small', { topic: topic }) %>
+      <% }); %>
       </ul>
       <% } else { %>
       <p>None</p>
@@ -59,7 +61,9 @@
     <div class='inner'>
       <% if (tops.length > 0) { %>
       <ol>
-        <%- include('user/top', { collection: tops, as: 'user' }) %>
+      <% tops.forEach(function(user){ %>
+        <%- include('user/top', { user: user }) %>
+      <% }); %>
       </ol>
       <% } else { %>
       <p>None</p>

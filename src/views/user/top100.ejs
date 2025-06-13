@@ -19,7 +19,9 @@
           <th>Replys</th>
         </thead>
         <tbody>
-        <%- include('../user/top100_user',{collection:users,as:'user'}) %>
+        <% users.forEach(function(user, index){ %>
+          <%- include('../user/top100_user',{user: user, index: index}) %>
+        <% }); %>
         </tbody>
       </table>
       <% }else{ %>

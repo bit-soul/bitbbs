@@ -10,7 +10,9 @@
     </div>
     <div class='inner'>
       <% if (users.length > 0) { %>
-      <%- include('../user/user', { collection: users, as: 'user' }) %>
+      <% users.forEach(function(user){ %>
+        <%- include('../user/user', { user: user }) %>
+      <% }); %>
       <% } else { %>
       <p>No Follower</p>
       <% } %>

@@ -98,7 +98,7 @@ koaejs(app, {
   viewExt: 'ejs',
   layout: 'layout',
   cache: global.config.cache,
-  debug: global.config.debug,
+  compileDebug: global.config.debug,
 });
 app.use(midRender.extend);
 
