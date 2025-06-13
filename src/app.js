@@ -39,6 +39,7 @@ const lodash = require('lodash');
 const Koa = require('koa');
 const koaonerror = require('koa-onerror')
 const koastatic = require('koa-static')
+const koamount = require('koa-mount');
 const koabody = require('koa-body')
 const koasession = require('koa-session');
 const koaredis = require('koa-redis');
@@ -98,7 +99,6 @@ koaejs(app, {
   viewExt: 'ejs',
   layout: 'layout',
   cache: global.config.cache,
-  compileDebug: global.config.debug,
 });
 app.use(midRender.extend);
 
@@ -162,13 +162,13 @@ var staticDir = path.join(__dirname, '../static');
 if(config.diststatic){
   staticDir = path.join(__dirname, '../dist/static');
 }
-app.use(koastatic(staticDir));
+app.use(koamount('/static', koastatic(staticDir)));
 
 var uploadDir = path.join(__dirname, '../upload');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
-app.use(koastatic(uploadDir));
+app.use(koamount('/upload', koastatic(uploadDir)));
 
 // error page
 app.use(midErrpage.errorPage);
