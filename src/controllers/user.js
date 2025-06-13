@@ -1,3 +1,4 @@
+const lodash          = require('lodash');
 const modelTopic      = require('../models/topic');
 const modelReply      = require('../models/reply');
 const tools           = require('../common/tools');

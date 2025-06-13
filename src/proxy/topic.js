@@ -1,3 +1,4 @@
+const lodash     = require('lodash');
 const modelTopic = require('../models/topic');
 const proxyUser  = require('./user');
 const proxyReply = require('./reply');

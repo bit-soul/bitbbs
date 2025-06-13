@@ -1,3 +1,4 @@
+const lodash     = require('lodash');
 const MarkdownIt = require('markdown-it');
 const validator  = require('validator');
 const jsxss      = require('xss');

@@ -1,3 +1,4 @@
+const lodash         = require('lodash');
 const modelMarkTopic = require('../models/marktopic');
 
 exports.getMarkTopic = async function (userId, topicId) {

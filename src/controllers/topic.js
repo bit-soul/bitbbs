@@ -1,3 +1,4 @@
+const lodash          = require('lodash');
 const proxyUser       = require('../proxy/user');
 const proxyTopic      = require('../proxy/topic');
 const proxyMarkTopic  = require('../proxy/marktopic');
