@@ -23,7 +23,8 @@ router.post('/:tid/reply',
 
     const str = validator.trim(String(content));
     if (str === '') {
-      return ctx.renderError('Content can not be empty', 422);
+      ctx.status = 422;
+      return ctx.render('notify/notify', { error: 'Content can not be empty' });
     }
 
     const topic = await proxyTopic.getTopic(tid);
@@ -101,7 +102,8 @@ router.get('/reply/:rid/edit',
   const reply = await proxyReply.getReplyById(rid);
 
   if (!reply) {
-    return ctx.render404('reply not exist or deleted');
+    ctx.status = 404;
+    return ctx.render('notify/notify', { error: 'reply not exist or deleted' });
   }
 
   const isOwner = ctx.session.user._id.equals(reply.author_id);
@@ -113,7 +115,8 @@ router.get('/reply/:rid/edit',
       content: reply.content
     });
   } else {
-    return ctx.renderError('can not edit this reply', 403);
+    ctx.status = 403;
+    return ctx.render('notify/notify', { error: 'Can not edit this repy' });
   }
 });
 
@@ -125,7 +128,8 @@ router.post('/reply/:rid/edit',
 
   const reply = await proxyReply.getReplyById(rid);
   if (!reply) {
-    return ctx.render404('reply not exist or deleted');
+    ctx.status = 404;
+    return ctx.render('notify/notify', { error: 'reply not exist or deleted' });
   }
 
   const isOwner = String(reply.author_id) === ctx.session.user._id.toString();
@@ -138,10 +142,12 @@ router.post('/reply/:rid/edit',
       await reply.save();
       return ctx.redirect(`/topic/${reply.topic_id}#${reply._id}`);
     } else {
-      return ctx.renderError('reply is too short', 400);
+      ctx.status = 400;
+      return ctx.render('notify/notify', { error: 'reply is too short' });
     }
   } else {
-    return ctx.renderError('can not edit this reply', 403);
+    ctx.status = 403;
+    return ctx.render('notify/notify', { error: 'Can not edit this repy' });
   }
 });
 

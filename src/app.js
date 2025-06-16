@@ -1,4 +1,6 @@
-//choose config file
+//*****************************************************************************
+// choose config file
+//*****************************************************************************
 switch (process.env.APP_ENV) {
   case 'dev':
     global.env = 'dev';
@@ -32,6 +34,10 @@ if(process.env.admins) {
   });
 }
 
+
+//*****************************************************************************
+// require modules
+//*****************************************************************************
 const fs = require('fs');
 const path = require('path');
 const lodash = require('lodash');
@@ -52,24 +58,43 @@ const koahelmet = require('koa-helmet');
 const koapassport = require('koa-passport');
 
 const midAuth = require('./middlewares/auth');
-const midErrpage = require('./middlewares/errpage');
 const midProxy = require('./middlewares/proxy');
 const midReqlog = require('./middlewares/reqlog');
 const midRender = require('./middlewares/render');
 const midGithub = require('./middlewares/github');
 
 const logger = require('./common/logger');
+const gracefulShutdown = require('http-graceful-shutdown');
 
 const GitHubStrategy = require('passport-github').Strategy;
 
+
+//*****************************************************************************
 // load global variable
+//*****************************************************************************
 require("./global.js");
 
 if (!global.config.debug && global.config.oneapm_key) {
   require('oneapm');
 }
 
+
+//*****************************************************************************
+// create app and load middlewares
+//*****************************************************************************
 const app = new Koa();
+
+// onerror
+koaonerror.onerror(app);
+
+//logger
+if (!fs.existsSync(global.config.log_dir)) {
+    fs.mkdirSync(global.config.log_dir, { recursive: true });
+}
+if(global.config.debug) {
+  app.use(midReqlog);
+  app.use(midRender.times);
+}
 
 // security
 if (!global.config.debug) {
@@ -95,17 +120,18 @@ app.use(
   }),
 );
 
-// onerror
-koaonerror.onerror(app);
+//staticfile
+var staticDir = path.join(__dirname, '../static');
+if(config.diststatic){
+  staticDir = path.join(__dirname, '../dist/static');
+}
+app.use(koamount('/static', koastatic(staticDir)));
 
-//ejs
-koaejs(app, {
-  root: path.join(__dirname, 'views'),
-  viewExt: 'ejs',
-  layout: 'layout',
-  cache: global.config.cache,
-});
-app.use(midRender.extend);
+var uploadDir = path.join(__dirname, '../upload');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+app.use(koamount('/upload', koastatic(uploadDir)));
 
 // session
 app.keys = [global.config.session_secret];
@@ -118,9 +144,32 @@ const session_config = {
     signed: true, /** 是否签名。(默认是 true) */
     rolling: false, /** 是否每次响应时刷新Session的有效期。(默认是 false) */
     renew: true, /** 是否在Session快过期时刷新Session的有效期。(默认是 false) */
-    store: koaredis(global.config.koaredis_config)
+    store: koaredis(global.config.koaredis_cfg)
 };
 app.use(koasession.createSession(session_config, app));
+
+// auth user
+app.use(midAuth.authUser);
+app.use(midAuth.blockUser());
+
+// oauth middleware
+app.use(koapassport.initialize());
+koapassport.serializeUser(function (user, done) {
+  done(null, user);
+});
+koapassport.deserializeUser(function (user, done) {
+  done(null, user);
+});
+koapassport.use(new GitHubStrategy(global.config.GITHUB_OAUTH, midGithub.strategy));
+
+//ejs
+koaejs(app, {
+  root: path.join(__dirname, 'views'),
+  viewExt: 'ejs',
+  layout: 'layout',
+  cache: global.config.cache,
+});
+app.use(midRender.extend);
 
 //body
 app.use(koabody.koaBody({
@@ -139,49 +188,10 @@ app.use(koacors({
     //credentials: true,
 }));
 
-//logger
-if (!fs.existsSync(global.config.log_dir)) {
-    fs.mkdirSync(global.config.log_dir, { recursive: true });
-}
-if(global.config.enable_log) {
-  app.use(midReqlog);
-  app.use(midRender.times);
-}
 
-// auth user
-app.use(midAuth.authUser);
-app.use(midAuth.blockUser());
-
-// oauth middleware
-app.use(koapassport.initialize());
-koapassport.serializeUser(function (user, done) {
-  done(null, user);
-});
-koapassport.deserializeUser(function (user, done) {
-  done(null, user);
-});
-koapassport.use(new GitHubStrategy(global.config.GITHUB_OAUTH, midGithub.strategy));
-
-//staticfile
-var staticDir = path.join(__dirname, '../static');
-if(config.diststatic){
-  staticDir = path.join(__dirname, '../dist/static');
-}
-app.use(koamount('/static', koastatic(staticDir)));
-
-var uploadDir = path.join(__dirname, '../upload');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-app.use(koamount('/upload', koastatic(uploadDir)));
-
-// error page
-app.use(midErrpage.errorPage);
-
-//graceful-shutdown
-//app.use(require("./middleware/graceful_shutdown.js"));
-
-// proxy agent
+//*****************************************************************************
+// load proxy agent and routers
+//*****************************************************************************
 const router = new koarouter();
 router.all('/agent/(.*)', midProxy.proxy);
 
@@ -210,47 +220,20 @@ router.all('/agent/(.*)', midProxy.proxy);
          }
          else
          {
-            console.log('[alert]: cann\'t load router ' + router_path);
+            logger.error('cann\'t load router %s', router_path);
          }
       }
       //it's neither a directory or js file
       else
       {  
-         console.log('[alert]: router skip file ' + router_path);
+         logger.info('load router skip file %s', router_path);
       }
    }
 })();
 
-/*延后60秒退出*/
-global.shutdown = false;
-global.shutdown_cnt = 0;
-function graceful_shutdown()
-{
-  ++global.shutdown_cnt;
-  if(global.shutdown_cnt>=3)
-  {
-    console.log("exit: " + Date.now())
-    process.exit();
-  }
 
-  if(global.shutdown==false)
-  {
-    global.shutdown = true;
-    console.log("preshut: " + Date.now());
-    setTimeout(function(){
-      console.log("exit: " + Date.now())
-      process.exit();
-    }, 60000)
-  }
-  else
-  {
-    console.log("shuting...");
-  }
-}
-if(!global.config.debug) {
-  process.on('SIGINT', graceful_shutdown);
-  process.on('SIGTERM', graceful_shutdown);
-}
-
-/*启动服务*/
-app.listen(global.config.port, "127.0.0.1");
+//*****************************************************************************
+// start server
+//*****************************************************************************
+const server = app.listen(global.config.port, "127.0.0.1");
+gracefulShutdown(server);

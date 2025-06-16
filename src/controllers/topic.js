@@ -27,15 +27,16 @@ router.get('/topic/:tid', async (ctx, next) => {
   const currentUser = ctx.session.user;
 
   if (topic_id.length !== 24) {
-    return ctx.render404('proxyTopic not exist or deleted');
+    ctx.status = 404;
+    return ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
   }
 
   try {
     const [message, topic, author, replies] = await proxyTopic.getFullTopic(topic_id);
 
     if (message) {
-      logger.error('getFullTopic error topic_id: ' + topic_id);
-      return ctx.renderError(message);
+      ctx.status = 400;
+      return ctx.render('notify/notify', { error: message });
     }
 
     topic.visit_count += 1;
@@ -155,7 +156,8 @@ router.get('/topic/:tid/edit',
   const [topic] = await proxyTopic.getTopicById(topic_id);
 
   if (!topic) {
-    return ctx.render404('proxyTopic not exist or deleted');
+    ctx.status = 404;
+    return ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
   }
 
   const isOwner = String(topic.author_id) === String(ctx.session.user._id);
@@ -171,7 +173,8 @@ router.get('/topic/:tid/edit',
       tabs: global.config.tabs
     });
   } else {
-    return ctx.renderError('Can not edit this topic', 403);
+    ctx.status = 403;
+    return ctx.render('notify/notify', { error: 'Can not edit this topic' });
   }
 });
 
@@ -186,14 +189,16 @@ router.post('/topic/:tid/edit',
   const [topic] = await proxyTopic.getTopicById(topic_id);
 
   if (!topic) {
-    return ctx.render404('proxyTopic not exist or deleted');
+    ctx.status = 404;
+    return ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
   }
 
   const isOwner = topic.author_id.equals(ctx.session.user._id);
   const isAdmin = ctx.session.user.is_admin;
 
   if (!(isOwner || isAdmin)) {
-    return ctx.renderError('Can not edit this topic', 403);
+    ctx.status = 403;
+    return ctx.render('notify/notify', { error: 'Can not edit this topic' });
   }
 
   title = validator.trim(title);
@@ -280,12 +285,16 @@ router.post('/topic/:tid/top',
   const referer = ctx.get('referer');
 
   if (topic_id.length !== 24) {
-    return ctx.render404('proxyTopic not exist or deleted');
+    ctx.status = 404;
+    return ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
   }
 
   try {
     const topic = await proxyTopic.getTopic(topic_id);
-    if (!topic) return ctx.render404('proxyTopic not exist or deleted');
+    if (!topic) {
+      ctx.status = 404;
+      return ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
+    } 
 
     topic.top = !topic.top;
     await topic.save();
@@ -306,7 +315,10 @@ router.post('/topic/:tid/good',
 
   try {
     const topic = await proxyTopic.getTopic(topicId);
-    if (!topic) return ctx.render404('proxyTopic not exist or deleted');
+    if (!topic) {
+      ctx.status = 404;
+      return ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
+    } 
 
     topic.good = !topic.good;
     await topic.save();
@@ -327,7 +339,10 @@ router.post('/topic/:tid/lock',
 
   try {
     const topic = await proxyTopic.getTopic(topicId);
-    if (!topic) return ctx.render404('proxyTopic not exist or deleted');
+    if (!topic) {
+      ctx.status = 404;
+      return ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
+    } 
 
     topic.lock = !topic.lock;
     await topic.save();

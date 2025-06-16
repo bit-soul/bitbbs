@@ -1,12 +1,7 @@
 const Redis = require('ioredis');
 const logger = require('./logger')
 
-const client = new Redis({
-  port: global.config.redis_cfg.port,
-  host: global.config.redis_cfg.host,
-  db: global.config.redis_cfg.db,
-  password: global.config.redis_cfg.password,
-});
+const client = new Redis(global.config.ioredis_cfg);
 
 client.on('error', function (err) {
   if (err) {

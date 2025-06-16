@@ -4,7 +4,6 @@ var config = {
   debug: false,
   cache: true,
   diststatic: true,
-  enable_log: false,
   port: 3000,
   proxyurl: null,
 
@@ -35,10 +34,17 @@ var config = {
     db: 'mongodb://host.docker.internal:27017/bitbbs_prod',
   },
 
-  redis_cfg: {
+  koaredis_cfg: {
     host: 'host.docker.internal',
     port: 6379,
-    db: 4,
+    db: 8,
+    password: null,
+  },
+
+  ioredis_cfg: {
+    host: 'host.docker.internal',
+    port: 6379,
+    db: 9,
     password: null,
   },
 

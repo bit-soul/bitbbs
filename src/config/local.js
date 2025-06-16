@@ -4,7 +4,6 @@ var config = {
   debug: true,
   cache: false,
   diststatic: false,
-  enable_log: true,
   port: 3000,
   proxyurl: 'socks://127.0.0.1:7890',
 
@@ -32,10 +31,17 @@ var config = {
     db: 'mongodb://127.0.0.1:27017/bitbbs_local',
   },
 
-  redis_cfg: {
+  koaredis_cfg: {
     host: '127.0.0.1',
     port: 6379,
     db: 0,
+    password: null,
+  },
+
+  ioredis_cfg: {
+    host: '127.0.0.1',
+    port: 6379,
+    db: 1,
     password: null,
   },
 

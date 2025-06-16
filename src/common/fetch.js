@@ -38,7 +38,6 @@ exports.fetchData = async function (url, method = 'GET', body = null) {
       data: await response.text(),
     };
   } catch (err) {
-    console.log(err);
     return {
       code: -999,
       mess: err.toString(),
