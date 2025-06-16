@@ -4,8 +4,6 @@ const mail      = require('../common/mail');
 const tools     = require('../common/tools');
 
 const Router    = require('@koa/router');
-const uuid      = require('node-uuid');
-const utility   = require('utility');
 const validator = require('validator');
 
 const router = new Router();
@@ -65,7 +63,7 @@ router.post('/signup', async (ctx, next) => {
     const user = await proxyUser.newAndSave(name, passhash, email, null, false);
 
     // 发激活邮件
-    const token = utility.md5(email + passhash + global.config.session_secret);
+    const token = tools.md5(email + passhash + global.config.session_secret);
     await mail.sendActiveMail(email, name, token, user._id);
 
     await ctx.render('sign/signup', {
@@ -105,7 +103,7 @@ router.post('/signin', async (ctx, next) => {
     }
 
     if (!user.active) {
-      const token = utility.md5(user.email + user.pass + global.config.session_secret);
+      const token = tools.md5(user.email + user.pass + global.config.session_secret);
       await mail.sendActiveMail(user.email, user.name, token, user._id);
       ctx.status = 403;
       return ctx.render('sign/signin', {
@@ -141,7 +139,7 @@ router.get('/active_account', async (ctx, next) => {
     const user = await proxyUser.getUserById(uid);
     if (!user) throw new Error('[ACTIVE_ACCOUNT] no such user: ' + uid);
 
-    const validKey = utility.md5(user.email + user.pass + global.config.session_secret);
+    const validKey = tools.md5(user.email + user.pass + global.config.session_secret);
     if (key !== validKey) {
       return ctx.render('notify/notify', { error: '信息有误，帐号无法被激活。' });
     }
@@ -168,7 +166,7 @@ router.post('/search_pass', async (ctx, next) => {
     return ctx.render('sign/search_pass', { error: '邮箱不合法', email });
   }
 
-  const retrieveKey = uuid.v4();
+  const retrieveKey = tools.uuid();
   const retrieveTime = Date.now();
 
   try {

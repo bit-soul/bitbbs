@@ -1,10 +1,11 @@
-const utility = require('utility');
 const path    = require('path');
 const fs      = require('fs');
 const { pipeline } = require('stream/promises');
 
 const s3sdk = require("@aws-sdk/client-s3");
 const s3presigner = require("@aws-sdk/s3-request-presigner");
+
+const tools  = require('./tools');
 
 var s3_client = null;
 if (global.config.s3_client && global.config.s3_client.secretAccessKey) {
@@ -44,7 +45,7 @@ var local = {
     const filename = options.filename;
 
     const newFilename =
-      utility.md5(filename + String(Date.now())) + path.extname(filename);
+      tools.md5(filename + String(Date.now())) + path.extname(filename);
 
     const upload_path = global.config.upload.path;
     const base_url = global.config.upload.url;

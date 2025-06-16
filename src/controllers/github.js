@@ -1,10 +1,10 @@
+const tools     = require('../common/tools');
 const modelUser = require('../models/user');
 const midAuth   = require('../middlewares/auth');
 const midGithub = require('../middlewares/github');
 
 const Router   = require('@koa/router');
 const passport = require('koa-passport');
-const uuid     = require('node-uuid');
 
 const router = new Router();
 
@@ -88,7 +88,7 @@ router.post('/auth/github/create', async (ctx, next) => {
     githubUsername: profile.username,
     githubAccessToken: profile.accessToken,
     active: true,
-    accessToken: uuid.v4(),
+    accessToken: tools.uuid(),
   });
 
   try {

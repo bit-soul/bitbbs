@@ -1,10 +1,9 @@
 const util   = require('util');
 const tools  = require('./tools');
 const logger = require('./logger');
-const mailer = require('nodemailer');
-const smtpTransport = require('nodemailer-smtp-transport');
+const nodemailer = require('nodemailer');
 
-const transporter   = mailer.createTransport(smtpTransport(global.config.mail_opts));
+const transporter   = nodemailer.createTransport(global.config.mail_opts);
 const SITE_ROOT_URL = 'http://' + global.config.host;
 
 /**

@@ -1,5 +1,5 @@
 const modelUser = require('../models/user');
-const uuid      = require('node-uuid');
+const tools     = require('../common/tools');
 
 exports.getUserById = async function (id) {
   if (!id) return null;
@@ -25,7 +25,7 @@ exports.newAndSave = async function (name, pass, email, icon, active = false) {
     email,
     icon,
     active,
-    accessToken: uuid.v4()
+    accessToken: tools.uuid()
   });
 
   await user.save();

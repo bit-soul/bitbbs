@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const moment = require('moment');
 
 moment.locale('en');
@@ -40,6 +41,14 @@ exports.bhash = async function (str) {
 exports.bcompare = async function (str, hash) {
   return await bcrypt.compare(str, hash);
 };
+
+exports.md5 = function (str) {
+  return crypto.createHash('md5').update(str).digest('hex');
+}
+
+exports.uuid = function () {
+  return crypto.randomUUID();
+}
 
 exports.generateauthkey = function (userid, maxage) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';

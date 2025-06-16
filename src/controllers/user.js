@@ -10,9 +10,7 @@ const midAuth         = require('../middlewares/auth');
 
 const validator = require('validator');
 const Router    = require('@koa/router');
-const utility   = require('utility');
 const util      = require('util');
-const uuid      = require('node-uuid')
 
 const router = new Router();
 
@@ -53,7 +51,7 @@ router.get('/user/:uid', async (ctx, next) => {
 
     let token = '';
     if (!user.active && ctx.session.user && ctx.session.user.is_admin) {
-      token = utility.md5(user.email + user.pass + global.config.session_secret);
+      token = tools.md5(user.email + user.pass + global.config.session_secret);
     }
 
     ctx.render('user/index', {
@@ -368,7 +366,7 @@ router.post('/user/refresh_token',
     const user_id = ctx.session.user._id;
 
     const user = await proxyUser.getUserById(user_id);
-    user.accessToken = uuid.v4();
+    user.accessToken = tools.uuid();
     await user.save();
 
     ctx.body = {

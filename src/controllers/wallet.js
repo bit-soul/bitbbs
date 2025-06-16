@@ -5,7 +5,6 @@ const tools       = require('../common/tools');
 const fetch       = require('../common/fetch');
 
 const Router    = require('@koa/router');
-const uuid      = require('node-uuid');
 const validator = require('validator');
 const brcsoul   = require('brcsoul-sdk');
 
@@ -96,7 +95,7 @@ router.post('/wallet_login', async (ctx, next) => {
         icon: attr.icon ? brcsoul.httpExtraUrl(attr.icon) : '',
         active: true,
         sequence: count,
-        accessToken: uuid.v4(),
+        accessToken: tools.uuid(),
       });
       await user.save();
     }

@@ -1,6 +1,5 @@
 const renderHelpers = require('../common/render_helper');
 const logger = require('../common/logger');
-const multiline = require('multiline')
 const lodash     = require('lodash');
 
 exports.times = async function (ctx, next) {
@@ -21,7 +20,6 @@ exports.times = async function (ctx, next) {
 exports.extend = async function (ctx, next) {
   ctx.state.config = global.config;
   ctx.state.helper = renderHelpers;
-  ctx.state.multiline = multiline;
   ctx.state.lodash = lodash;
   await next();
 };
