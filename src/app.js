@@ -33,6 +33,9 @@ if(process.env.admins) {
     global.config.admins[item.trim()] = true;
   });
 }
+const { URL } = require('url');
+var urlinfo = new URL(global.config.host);
+global.config.hostname = urlinfo.hostname || global.config.host;
 
 
 //*****************************************************************************
@@ -56,6 +59,8 @@ const koacors = require('@koa/cors');
 const koacsrf = require('koa-csrf');
 const koahelmet = require('koa-helmet');
 const koapassport = require('koa-passport');
+const GitHubStrategy = require('passport-github').Strategy;
+const gracefulShutdown = require('http-graceful-shutdown');
 
 const midAuth = require('./middlewares/auth');
 const midProxy = require('./middlewares/proxy');
@@ -64,9 +69,6 @@ const midRender = require('./middlewares/render');
 const midGithub = require('./middlewares/github');
 
 const logger = require('./common/logger');
-const gracefulShutdown = require('http-graceful-shutdown');
-
-const GitHubStrategy = require('passport-github').Strategy;
 
 
 //*****************************************************************************
@@ -95,30 +97,6 @@ if(global.config.debug) {
   app.use(midReqlog);
   app.use(midRender.times);
 }
-
-// security
-if (!global.config.debug) {
-  const csrf = new koacsrf();
-  app.use(async (ctx, next) => {
-    const path = ctx.path;
-    if (path !== '/api' && !path.startsWith('/api/')) {
-      await csrf.middleware()(ctx, next);
-    } else {
-      await next();
-    }
-  });
-}
-
-app.use(async (ctx, next) => {
-  ctx.state.csrf = ctx.csrf || '';
-  await next();
-});
-
-app.use(
-  koahelmet({
-    contentSecurityPolicy: false,
-  }),
-);
 
 //staticfile
 var staticDir = path.join(__dirname, '../static');
@@ -149,6 +127,23 @@ const session_config = {
     sameSite: 'lax', /** (string) session cookie sameSite options (default null, don't set it) */
 };
 app.use(koasession.createSession(session_config, app));
+
+// csrf
+if (!global.config.debug) {
+  const csrf = new koacsrf();
+  app.use(async (ctx, next) => {
+    const path = ctx.path;
+    if (path !== '/api' && !path.startsWith('/api/')) {
+      await csrf.middleware()(ctx, next);
+    } else {
+      await next();
+    }
+  });
+}
+app.use(async (ctx, next) => {
+  ctx.state.csrf = ctx.csrf || '';
+  await next();
+});
 
 // auth user
 app.use(midAuth.authUser);
@@ -181,6 +176,13 @@ app.use(koabody.koaBody({
     keepExtensions: true
   }
 }));
+
+//helmet
+app.use(
+  koahelmet({
+    contentSecurityPolicy: false,
+  }),
+);
 
 //cors
 app.use(koacors({
@@ -224,13 +226,13 @@ router.all('/agent/(.*)', midProxy.proxy);
          }
          else
          {
-            logger.error('cann\'t load router %s', router_path);
+            logger.error(`cann\'t load router ${router_path}`);
          }
       }
       //it's neither a directory or js file
       else
       {  
-         logger.info('load router skip file %s', router_path);
+          logger.info(`cann\'t load router ${router_path}`);
       }
    }
 })();

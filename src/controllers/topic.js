@@ -1,4 +1,3 @@
-const lodash          = require('lodash');
 const proxyUser       = require('../proxys/user');
 const proxyTopic      = require('../proxys/topic');
 const proxyMarkTopic  = require('../proxys/marktopic');
@@ -12,6 +11,7 @@ const logger          = require('../common/logger')
 
 const Router    = require('@koa/router');
 const validator = require('validator');
+const lodash    = require('lodash');
 
 const router = new Router();
 

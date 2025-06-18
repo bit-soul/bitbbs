@@ -3,7 +3,6 @@ const MarkdownIt = require('markdown-it');
 const validator  = require('validator');
 const jsxss      = require('xss');
 
-// Set default options
 const md = new MarkdownIt();
 
 md.set({
@@ -34,7 +33,7 @@ md.renderer.rules.code_block = function (tokens, idx /*, options*/) {
 
 var myxss = new jsxss.FilterXSS({
   onIgnoreTagAttr: function (tag, name, value, isWhiteAttr) {
-    // 让 prettyprint 可以工作
+    // let prettyprint work
     if (tag === 'pre' && name === 'class') {
       return name + '="' + jsxss.escapeAttrValue(value) + '"';
     }
@@ -69,6 +68,6 @@ exports.tabName = function (tab) {
 
 exports.proxy = function (url) {
   return url;
-  // 当 google 和 github 封锁严重时，则需要通过服务器代理访问它们的静态资源
+  // some resource need proxy to avoid gtw
   // return '/agent?url=' + encodeURIComponent(url);
 };

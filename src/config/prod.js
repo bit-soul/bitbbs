@@ -5,7 +5,7 @@ var config = {
   cache: true,
   diststatic: true,
   port: 3000,
-  proxyurl: null,
+  proxyurl: 'socks5://host.docker.internal:40000',
 
   tabs: [
     ['btc', 'BTC'],
@@ -22,7 +22,6 @@ var config = {
 
   site_static_host: 'https://bitbbsres.bitsoul.xyz',
   host: 'https://bitbbs.bitsoul.xyz',
-  proxyurl: 'socks5://host.docker.internal:40000',
 
   session_secret: process.env.session_secret,
   session_max_age: 1000 * 60 * 60 * 24 * 30, // 30 days for production

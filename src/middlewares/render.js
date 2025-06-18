@@ -1,6 +1,6 @@
-const renderHelpers = require('../common/render_helper');
-const logger = require('../common/logger');
-const lodash = require('lodash');
+const renders = require('../common/renders');
+const logger  = require('../common/logger');
+const lodash  = require('lodash');
 
 exports.times = async function (ctx, next) {
   const originalRender = ctx.render;
@@ -19,7 +19,7 @@ exports.times = async function (ctx, next) {
 
 exports.extend = async function (ctx, next) {
   ctx.state.config = global.config;
-  ctx.state.helper = renderHelpers;
+  ctx.state.helper = renders;
   ctx.state.lodash = lodash;
   await next();
 };

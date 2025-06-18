@@ -4,7 +4,6 @@ const moment = require('moment');
 
 moment.locale('en');
 
-// 格式化时间
 exports.formatDate = function (date, friendly) {
   date = moment(date);
 

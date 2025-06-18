@@ -52,7 +52,6 @@ var local = {
     const filePath = path.join(upload_path, newFilename);
     const fileUrl = base_url + newFilename;
 
-    // 使用 stream/promises 中的 pipeline 来 await 写入完成
     await pipeline(file, fs.createWriteStream(filePath));
 
     return { url: fileUrl };

@@ -10,13 +10,11 @@ global.authkeys = {
 };
 
 
-
-const { URL } = require('url');
-var urlinfo = new URL(global.config.host);
-global.config.hostname = urlinfo.hostname || global.config.host;
-
-
-
+/****************************************************************************************
+ *
+ *  mongoose database connection
+ *
+ ****************************************************************************************/
 var mongoose = require('mongoose');
 
 mongoose.set('strictQuery', true);
@@ -27,7 +25,7 @@ mongoose.connect(global.config.mongodb_cfg.db, {
   serverSelectionTimeoutMS: 10000,
 }, function (err) {
   if (err) {
-    logger.error('connect to %s error: ', global.config.mongodb_cfg.db, err.message);
+    logger.error(`connect to ${global.config.mongodb_cfg.db} error: ${err.message}`);
     process.exit(1);
   }
 });

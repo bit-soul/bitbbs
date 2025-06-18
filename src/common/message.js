@@ -8,7 +8,7 @@ exports.sendReplyMessage = async function (master_id, author_id, topic_id, reply
   message.topic_id = topic_id;
   message.reply_id = reply_id;
 
-  return await message.save(); // 返回保存结果
+  return await message.save();
 };
 
 exports.sendAtMessage = async function (master_id, author_id, topic_id, reply_id) {
@@ -19,5 +19,5 @@ exports.sendAtMessage = async function (master_id, author_id, topic_id, reply_id
   message.topic_id = topic_id;
   message.reply_id = reply_id;
 
-  return await message.save(); // 返回保存结果
+  return await message.save();
 };

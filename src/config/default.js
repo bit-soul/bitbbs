@@ -30,7 +30,6 @@ var config = {
   google_tracker_id: '', // 默认的Google tracker ID，自有站点请修改，申请地址：http://www.google.com/analytics/
   cnzz_tracker_id: '', // 默认的cnzz tracker ID，自有站点请修改
   oneapm_key: '', // oneapm 是个用来监控网站性能的服务
-  proxyurl: '', //http请求代理服务
 
   session_secret: 'bitbbs_secret', // !!!务必修改
   session_max_age: 1000 * 60 * 60 * 24 * 30,
@@ -103,8 +102,8 @@ var config = {
 
   file_limit: '1MB', // file upload size limit
   list_topic_count: 20, // 话题列表显示的话题数量
-  create_post_per_day: 30, // 每个用户一天可以发的主题数
-  create_reply_per_day: 100, // 每个用户一天可以发的评论数
+  create_post_per_day: 20, // 每个用户一天可以发的主题数
+  create_reply_per_day: 200, // 每个用户一天可以发的评论数
   create_user_per_ip: 10, // 每个 ip 每天可以注册账号的次数
   visit_per_day: 1000, // 每个 ip 每天能访问的次数
 };

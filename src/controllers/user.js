@@ -1,4 +1,3 @@
-const lodash          = require('lodash');
 const modelTopic      = require('../models/topic');
 const modelReply      = require('../models/reply');
 const tools           = require('../common/tools');
@@ -8,9 +7,9 @@ const proxyReply      = require('../proxys/reply');
 const proxyMarkTopic  = require('../proxys/marktopic');
 const midAuth         = require('../middlewares/auth');
 
-const validator = require('validator');
 const Router    = require('@koa/router');
-const util      = require('util');
+const validator = require('validator');
+const lodash    = require('lodash');
 
 const router = new Router();
 
@@ -59,7 +58,7 @@ router.get('/user/:uid', async (ctx, next) => {
       recent_topics: recent_topics,
       recent_replies: recent_replies,
       token: token,
-      pageTitle: util.format('@%s Home Page', user.name),
+      pageTitle: `@${user.name} Home Page`,
     });
 
   } catch (err) {

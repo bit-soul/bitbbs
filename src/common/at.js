@@ -1,6 +1,6 @@
-const proxyUser  = require('../proxys/user');
-const Message    = require('./message');
 const lodash     = require('lodash');
+const Message    = require('./message');
+const proxyUser  = require('../proxys/user');
 
 /**
  * 从文本中提取出@username 标记的用户名数组
