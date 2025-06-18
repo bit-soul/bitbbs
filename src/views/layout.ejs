@@ -9,7 +9,7 @@
 
   <meta name="twitter:card" content="summary" />
   <% if (typeof(topic) !== 'undefined') { %>
-  <meta property="og:title" content="<%=config.bbsname%> - <%= helpler.tabName(topic.tab)%>" />
+  <meta property="og:title" content="<%=config.bbsname%> - <%= helper.tabName(topic.tab)%>" />
   <meta property="og:description" content="<%=topic.title%>" />
   <meta property="og:url" content="<%=config.host%>/topic/<%=topic._id%>" />
   <meta property="og:image" content="<%=config.site_static_host%><%=config.bbsogimg%>" />

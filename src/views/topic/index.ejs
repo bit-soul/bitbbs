@@ -144,7 +144,9 @@
     <div class='header'>
       <span class='col_fade'><%= topic.replies.length %>reply</span>
     </div>
-    <%- include('../reply/reply', topic.replies) %>
+    <% topic.replies.forEach(function(reply, index){ %>
+      <%- include('../reply/reply', {reply: reply, index: index}) %>
+    <% }); %>
   </div>
   <% } %>
   <% if (current_user && typeof(topic) !== 'undefined') { %>

@@ -7,7 +7,7 @@
 
     <div class='user_info'>
       <a class='dark reply_author' href="/user/<%= reply.author._id %>"><%= reply.author.name %></a>
-      <a class="reply_time" href="#<%= reply._id %>"><%= indexInCollection + 1 %>-Floor•<%= reply.create_at_ago()
+      <a class="reply_time" href="#<%= reply._id %>"><%= index + 1 %>-Floor•<%= reply.create_at_ago()
         %></a>
       <% if(reply.author._id == topic.author._id){ %>
         <span class="reply_by_author">Author</span>

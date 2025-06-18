@@ -32,7 +32,7 @@ router.get('/topic/:tid', async (ctx, next) => {
   }
 
   try {
-    const [message, topic, author, replies] = await proxyTopic.getFullTopic(topic_id);
+    const {message, topic, author, replies} = await proxyTopic.getFullTopic(topic_id);
 
     if (message) {
       ctx.status = 400;
@@ -82,7 +82,6 @@ router.get('/topic/:tid', async (ctx, next) => {
       is_uped: isUped,
       is_mark,
     });
-
   } catch (err) {
     return next(err);
   }
