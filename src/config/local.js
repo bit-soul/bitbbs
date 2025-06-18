@@ -21,6 +21,9 @@ var config = {
   ],
 
   session_secret: process.env.session_secret,
+  session_max_age: 1000 * 60 * 60 * 1, // 1 hour for local development
+  session_cookie_key: 'koa:sess',
+  auth_cookie_name: 'bitbbs',
 
   admins: {
     '67bbd4927b051e20a87453e5': true,

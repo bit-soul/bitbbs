@@ -32,7 +32,9 @@ var config = {
   oneapm_key: '', // oneapm 是个用来监控网站性能的服务
   proxyurl: '', //http请求代理服务
 
-  session_secret: 'bitbbs_secret', // 务必修改
+  session_secret: 'bitbbs_secret', // !!!务必修改
+  session_max_age: 1000 * 60 * 60 * 24 * 30,
+  session_cookie_key: 'koa:sess',
   auth_cookie_name: 'bitbbs',
 
   log_dir: path.join(__dirname, '../../logs'),

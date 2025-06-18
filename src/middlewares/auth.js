@@ -29,21 +29,19 @@ exports.userRequired = async (ctx, next) => {
 };
 
 
-exports.blockUser = () => {
-  return async (ctx, next) => {
-    if (ctx.path === '/signout') {
-      await next();
-      return;
-    }
-
-    if (ctx.session.user && ctx.session.user.is_block && ctx.method !== 'GET') {
-      ctx.status = 403;
-      ctx.body = 'You are blocked by Admin';
-      return;
-    }
-
+exports.blockUser = async (ctx, next) => {
+  if (ctx.path === '/signout') {
     await next();
-  };
+    return;
+  }
+
+  if (ctx.session.user && ctx.session.user.is_block && ctx.method !== 'GET') {
+    ctx.status = 403;
+    ctx.body = 'You are blocked by Admin';
+    return;
+  }
+
+  await next();
 };
 
 
@@ -54,6 +52,7 @@ exports.gen_session = async (ctx, userid, maxage) => {
     maxAge: maxage ? maxage : 1000 * 60 * 60 * 24 * 30, // 30 days
     signed: true,
     httpOnly: true,
+    sameSite: 'lax',
   };
   ctx.cookies.set(global.config.auth_cookie_name, auth_token, opts);
 }

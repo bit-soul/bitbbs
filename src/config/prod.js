@@ -25,6 +25,9 @@ var config = {
   proxyurl: 'socks5://host.docker.internal:40000',
 
   session_secret: process.env.session_secret,
+  session_max_age: 1000 * 60 * 60 * 24 * 30, // 30 days for production
+  session_cookie_key: 'koa:sess',
+  auth_cookie_name: 'bitbbs',
 
   admins: {
   },

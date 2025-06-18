@@ -136,21 +136,23 @@ app.use(koamount('/upload', koastatic(uploadDir)));
 // session
 app.keys = [global.config.session_secret];
 const session_config = {
-    key: 'koa:tt', /**  cookie的key。 (默认是 koa:sess) */
-    maxAge: global.config.koa_session_max_age,   /**  session 过期时间，以毫秒ms为单位计算 。*/
-    autoCommit: true, /** 自动提交到响应头。(默认是 true) */
-    overwrite: true, /** 是否允许重写 。(默认是 true) */
-    httpOnly: true, /** 是否设置HttpOnly，如果在Cookie中设置了"HttpOnly"属性，那么通过程序(JS脚本、Applet等)将无法读取到Cookie信息，这样能有效的防止XSS攻击。  (默认 true) */
-    signed: true, /** 是否签名。(默认是 true) */
-    rolling: false, /** 是否每次响应时刷新Session的有效期。(默认是 false) */
-    renew: true, /** 是否在Session快过期时刷新Session的有效期。(默认是 false) */
-    store: koaredis(global.config.koaredis_cfg)
+    key: global.config.session_cookie_key, /** Cookie key (default is koa:sess) */
+    maxAge: global.config.session_max_age, /** Session expiration time in milliseconds */
+    autoCommit: true, /** Automatically add session to response header (default: true) */
+    overwrite: true, /** Allow overwriting session cookie (default: true) */
+    httpOnly: true, /** HTTPOnly to prevent JS access and reduce XSS risk (default: true) */
+    signed: true, /** Sign the cookie (default: true) */
+    rolling: false, /** Refresh session on every response (default: false) */
+    renew: true, /** Renew session if it's about to expire (default: false) */
+    store: koaredis(global.config.koaredis_cfg), /** Use Redis as session store */
+    secure: true, /** (boolean) secure cookie*/
+    sameSite: 'lax', /** (string) session cookie sameSite options (default null, don't set it) */
 };
 app.use(koasession.createSession(session_config, app));
 
 // auth user
 app.use(midAuth.authUser);
-app.use(midAuth.blockUser());
+app.use(midAuth.blockUser);
 
 // oauth middleware
 app.use(koapassport.initialize());
@@ -175,17 +177,19 @@ app.use(midRender.extend);
 app.use(koabody.koaBody({
   multipart: true,
   formidable: {
-    maxFileSize: 5 * 1024 * 1024, // 5MB
+    maxFileSize: 1 * 1024 * 1024, // 1MB
     keepExtensions: true
   }
 }));
 
 //cors
 app.use(koacors({
-    maxAge: 86400000,
-    exposeHeaders: "Content-Type, Set-tt-Cookie, Content-Length",
-    //allowHeaders: 
-    //credentials: true,
+  origin: true,
+  maxAge: 86400,
+  //credentials: true,
+  //expose: ['Content-Type', 'Content-Length'],
+  //methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  //headers: ['Content-Type', 'Authorization', 'Accept'],
 }));
 
 
