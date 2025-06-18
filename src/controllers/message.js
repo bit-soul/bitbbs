@@ -1,4 +1,4 @@
-const proxyMessage = require('../proxy/message');
+const proxyMessage = require('../proxys/message');
 const Router       = require('@koa/router');
 
 const router = new Router();

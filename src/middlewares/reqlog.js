@@ -1,9 +1,9 @@
 const logger = require('../common/logger');
 
-const ignore = /^\/(static|agent)/;
+const ignore = /^\/(static|agent|upload)/;
 
 module.exports = async function (ctx, next) {
-  // Assets do not out log.
+  // Assets do not output log.
   if (ignore.test(ctx.url)) {
     await next();
     return;

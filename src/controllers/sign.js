@@ -1,4 +1,4 @@
-const proxyUser = require('../proxy/user');
+const proxyUser = require('../proxys/user');
 const midAuth   = require('../middlewares/auth');
 const mail      = require('../common/mail');
 const tools     = require('../common/tools');

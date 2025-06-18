@@ -1,4 +1,4 @@
-const proxyUser  = require('../proxy/user');
+const proxyUser  = require('../proxys/user');
 const Message    = require('./message');
 const lodash     = require('lodash');
 

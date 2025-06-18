@@ -1,6 +1,6 @@
 const renderHelpers = require('../common/render_helper');
 const logger = require('../common/logger');
-const lodash     = require('lodash');
+const lodash = require('lodash');
 
 exports.times = async function (ctx, next) {
   const originalRender = ctx.render;

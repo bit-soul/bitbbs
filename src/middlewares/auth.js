@@ -1,6 +1,6 @@
-const modelUser = require('../models/user');
-const proxyUser    = require('../proxy/user');
-const proxyMessage = require('../proxy/message');
+const modelUser    = require('../models/user');
+const proxyUser    = require('../proxys/user');
+const proxyMessage = require('../proxys/message');
 
 
 exports.adminRequired = async (ctx, next) => {

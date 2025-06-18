@@ -2,10 +2,10 @@ const lodash          = require('lodash');
 const modelTopic      = require('../models/topic');
 const modelReply      = require('../models/reply');
 const tools           = require('../common/tools');
-const proxyUser       = require('../proxy/user');
-const proxyTopic      = require('../proxy/topic');
-const proxyReply      = require('../proxy/reply');
-const proxyMarkTopic  = require('../proxy/marktopic');
+const proxyUser       = require('../proxys/user');
+const proxyTopic      = require('../proxys/topic');
+const proxyReply      = require('../proxys/reply');
+const proxyMarkTopic  = require('../proxys/marktopic');
 const midAuth         = require('../middlewares/auth');
 
 const validator = require('validator');

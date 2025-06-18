@@ -1,5 +1,5 @@
 const modelUser   = require('../models/user');
-const proxySystem = require('../proxy/system');
+const proxySystem = require('../proxys/system');
 const midAuth     = require('../middlewares/auth');
 const tools       = require('../common/tools');
 const fetch       = require('../common/fetch');

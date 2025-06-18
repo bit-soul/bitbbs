@@ -1,5 +1,5 @@
-const proxyUser    = require('../proxy/user');
-const proxyTopic   = require('../proxy/topic');
+const proxyUser    = require('../proxys/user');
+const proxyTopic   = require('../proxys/topic');
 const cache        = require('../common/cache');
 const renderHelper = require('../common/render_helper');
 const tools        = require('../common/tools');
