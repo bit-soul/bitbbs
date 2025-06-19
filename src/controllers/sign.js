@@ -52,27 +52,22 @@ router.post('/signup', async (ctx, next) => {
     return await renderError('两次密码输入不一致。');
   }
 
-  try {
-    const users = await proxyUser.getUsersByQuery({ email });
-    if (users.length > 0) {
-      return await renderError('邮箱已被使用。');
-    }
-
-    const passhash = await tools.bhash(pass);
-    // 创建用户
-    const user = await proxyUser.newAndSave(name, passhash, email, null, false);
-
-    // 发激活邮件
-    const token = tools.md5(email + passhash + global.config.session_secret);
-    await mail.sendActiveMail(email, name, token, user._id);
-
-    await ctx.render('sign/signup', {
-      success: `欢迎加入 ${global.config.bbsname}！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。`
-    });
-
-  } catch (err) {
-    return next(err);
+  const users = await proxyUser.getUsersByQuery({ email });
+  if (users.length > 0) {
+    return await renderError('邮箱已被使用。');
   }
+
+  const passhash = await tools.bhash(pass);
+  // 创建用户
+  const user = await proxyUser.newAndSave(name, passhash, email, null, false);
+
+  // 发激活邮件
+  const token = tools.md5(email + passhash + global.config.session_secret);
+  await mail.sendActiveMail(email, name, token, user._id);
+
+  await ctx.render('sign/signup', {
+    success: `欢迎加入 ${global.config.bbsname}！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。`
+  });
 });
 
 router.get('/signin', async (ctx) => {
@@ -89,40 +84,35 @@ router.post('/signin', async (ctx, next) => {
     return ctx.render('sign/signin', { error: '信息不完整。' });
   }
 
-  try {
-    const user = await proxyUser.getUserByMail(email);
-    if (!user) {
-      ctx.status = 403;
-      return ctx.render('sign/signin', { error: '用户名或密码错误' });
-    }
-
-    const isMatch = await tools.bcompare(pass, user.pass);
-    if (!isMatch) {
-      ctx.status = 403;
-      return ctx.render('sign/signin', { error: '用户名或密码错误' });
-    }
-
-    if (!user.active) {
-      const token = tools.md5(user.email + user.pass + global.config.session_secret);
-      await mail.sendActiveMail(user.email, user.name, token, user._id);
-      ctx.status = 403;
-      return ctx.render('sign/signin', {
-        error: `此帐号还没有被激活，激活链接已发送到 ${user.email} 邮箱，请查收。`
-      });
-    }
-
-    midAuth.gen_session(ctx.res, user._id);
-
-    let refer = ctx.session._loginReferer || '/';
-    if (notJump.some(nj => refer.indexOf(nj) >= 0)) {
-      refer = '/';
-    }
-
-    ctx.redirect(refer);
-
-  } catch (err) {
-    return next(err);
+  const user = await proxyUser.getUserByMail(email);
+  if (!user) {
+    ctx.status = 403;
+    return ctx.render('sign/signin', { error: '用户名或密码错误' });
   }
+
+  const isMatch = await tools.bcompare(pass, user.pass);
+  if (!isMatch) {
+    ctx.status = 403;
+    return ctx.render('sign/signin', { error: '用户名或密码错误' });
+  }
+
+  if (!user.active) {
+    const token = tools.md5(user.email + user.pass + global.config.session_secret);
+    await mail.sendActiveMail(user.email, user.name, token, user._id);
+    ctx.status = 403;
+    return ctx.render('sign/signin', {
+      error: `此帐号还没有被激活，激活链接已发送到 ${user.email} 邮箱，请查收。`
+    });
+  }
+
+  midAuth.gen_session(ctx.res, user._id);
+
+  let refer = ctx.session._loginReferer || '/';
+  if (notJump.some(nj => refer.indexOf(nj) >= 0)) {
+    refer = '/';
+  }
+
+  ctx.redirect(refer);
 });
 
 router.get('/signout', async (ctx) => {
@@ -135,25 +125,20 @@ router.get('/active_account', async (ctx, next) => {
   const key = validator.trim(ctx.query.key);
   const uid = validator.trim(ctx.query.uid);
 
-  try {
-    const user = await proxyUser.getUserById(uid);
-    if (!user) throw new Error('[ACTIVE_ACCOUNT] no such user: ' + uid);
+  const user = await proxyUser.getUserById(uid);
+  if (!user) throw new Error('[ACTIVE_ACCOUNT] no such user: ' + uid);
 
-    const validKey = tools.md5(user.email + user.pass + global.config.session_secret);
-    if (key !== validKey) {
-      return ctx.render('notify/notify', { error: '信息有误，帐号无法被激活。' });
-    }
-    if (user.active) {
-      return ctx.render('notify/notify', { error: '帐号已经是激活状态。' });
-    }
-
-    user.active = true;
-    await user.save();
-    return ctx.render('notify/notify', { success: '帐号已被激活，请登录' });
-
-  } catch (err) {
-    return next(err);
+  const validKey = tools.md5(user.email + user.pass + global.config.session_secret);
+  if (key !== validKey) {
+    return ctx.render('notify/notify', { error: '信息有误，帐号无法被激活。' });
   }
+  if (user.active) {
+    return ctx.render('notify/notify', { error: '帐号已经是激活状态。' });
+  }
+
+  user.active = true;
+  await user.save();
+  return ctx.render('notify/notify', { success: '帐号已被激活，请登录' });
 });
 
 router.get('/search_pass', async (ctx) => {
@@ -169,51 +154,41 @@ router.post('/search_pass', async (ctx, next) => {
   const retrieveKey = tools.uuid();
   const retrieveTime = Date.now();
 
-  try {
-    const user = await proxyUser.getUserByMail(email);
-    if (!user) {
-      return ctx.render('sign/search_pass', { error: '没有这个电子邮箱。', email });
-    }
-
-    user.retrieve_key = retrieveKey;
-    user.retrieve_time = retrieveTime;
-    await user.save();
-
-    await mail.sendResetPassMail(email, retrieveKey, user._id);
-
-    return ctx.render('notify/notify', {
-      success: '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。'
-    });
-
-  } catch (err) {
-    return next(err);
+  const user = await proxyUser.getUserByMail(email);
+  if (!user) {
+    return ctx.render('sign/search_pass', { error: '没有这个电子邮箱。', email });
   }
+
+  user.retrieve_key = retrieveKey;
+  user.retrieve_time = retrieveTime;
+  await user.save();
+
+  await mail.sendResetPassMail(email, retrieveKey, user._id);
+
+  return ctx.render('notify/notify', {
+    success: '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。'
+  });
 });
 
 router.get('/reset_pass', async (ctx, next) => {
   const key = validator.trim(ctx.query.key || '');
   const uid = validator.trim(ctx.query.uid || '');
 
-  try {
-    const user = await proxyUser.getUserById(uid);
+  const user = await proxyUser.getUserById(uid);
 
-    if (!user || user.retrieve_key !== key) {
-      ctx.status = 403;
-      return ctx.render('notify/notify', { error: '信息有误，密码无法重置。' });
-    }
-
-    const now = Date.now();
-    const oneDay = 1000 * 60 * 60 * 24;
-    if (!user.retrieve_time || now - user.retrieve_time > oneDay) {
-      ctx.status = 403;
-      return ctx.render('notify/notify', { error: '该链接已过期，请重新申请。' });
-    }
-
-    return ctx.render('sign/reset', { uid, key });
-
-  } catch (err) {
-    return next(err);
+  if (!user || user.retrieve_key !== key) {
+    ctx.status = 403;
+    return ctx.render('notify/notify', { error: '信息有误，密码无法重置。' });
   }
+
+  const now = Date.now();
+  const oneDay = 1000 * 60 * 60 * 24;
+  if (!user.retrieve_time || now - user.retrieve_time > oneDay) {
+    ctx.status = 403;
+    return ctx.render('notify/notify', { error: '该链接已过期，请重新申请。' });
+  }
+
+  return ctx.render('sign/reset', { uid, key });
 });
 
 router.post('/reset_pass', async (ctx, next) => {
@@ -226,24 +201,19 @@ router.post('/reset_pass', async (ctx, next) => {
     return ctx.render('sign/reset', { uid, key, error: '两次密码输入不一致。' });
   }
 
-  try {
-    const user = await proxyUser.getUserById(uid);
-    if (user.retrieve_key !== key) {
-      return ctx.render('notify/notify', { error: '错误的激活链接' });
-    }
-
-    const passhash = await tools.bhash(psw);
-    user.pass = passhash;
-    user.retrieve_key = null;
-    user.retrieve_time = null;
-    user.active = true;
-
-    await user.save();
-    return ctx.render('notify/notify', { success: '你的密码已重置。' });
-
-  } catch (err) {
-    return next(err);
+  const user = await proxyUser.getUserById(uid);
+  if (user.retrieve_key !== key) {
+    return ctx.render('notify/notify', { error: '错误的激活链接' });
   }
+
+  const passhash = await tools.bhash(psw);
+  user.pass = passhash;
+  user.retrieve_key = null;
+  user.retrieve_time = null;
+  user.active = true;
+
+  await user.save();
+  return ctx.render('notify/notify', { success: '你的密码已重置。' });
 });
 
 module.exports = router;

@@ -26,29 +26,24 @@ router.get('/auth/github/callback', passport.authenticate('github', { failureRed
     return await ctx.render('sign/no_github_email');
   }
 
-  try {
-    let user = await modelUser.findOne({ githubId: profile.id });
+  let user = await modelUser.findOne({ githubId: profile.id });
 
-    if (user) {
-      // 已注册，更新信息
-      user.githubUsername = profile.username;
-      user.githubId = profile.id;
-      user.githubAccessToken = profile.accessToken;
-      user.icon = profile._json.avatar_url;
-      user.email = email || user.email;
+  if (user) {
+    // 已注册，更新信息
+    user.githubUsername = profile.username;
+    user.githubId = profile.id;
+    user.githubAccessToken = profile.accessToken;
+    user.icon = profile._json.avatar_url;
+    user.email = email || user.email;
 
-      await user.save();
+    await user.save();
 
-      midAuth.gen_session(ctx.res, user._id);
-      ctx.redirect('/');
-    } else {
-      // 未注册，跳转补充信息页
-      ctx.session.profile = profile;
-      ctx.redirect('/auth/github/new');
-    }
-
-  } catch (err) {
-    return next(err);
+    midAuth.gen_session(ctx.res, user._id);
+    ctx.redirect('/');
+  } else {
+    // 未注册，跳转补充信息页
+    ctx.session.profile = profile;
+    ctx.redirect('/auth/github/new');
   }
 });
 
@@ -91,13 +86,9 @@ router.post('/auth/github/create', async (ctx, next) => {
     accessToken: tools.uuid(),
   });
 
-  try {
-    await user.save();
-    midAuth.gen_session(ctx.res, user._id);
-    ctx.redirect('/');
-  } catch (err) {
-    return next(err);
-  }
+  await user.save();
+  midAuth.gen_session(ctx.res, user._id);
+  ctx.redirect('/');
 });
 
 module.exports = router;

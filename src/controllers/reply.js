@@ -16,7 +16,6 @@ router.post('/:tid/reply',
   midAuth.userRequired, 
   midLimit.peruserperday('create_reply', global.config.create_reply_per_day, {showJson: false}),
   async (ctx, next) => {
-  try {
     const content = ctx.request.body.r_content;
     const tid = ctx.params.tid;
     const rid = ctx.request.body.rid;
@@ -54,15 +53,12 @@ router.post('/:tid/reply',
     }
 
     return ctx.redirect(`/topic/${tid}#${reply._id}`);
-  } catch (err) {
-    return next(err);
   }
-});
+);
 
 router.post('/reply/:rid/delete', 
   midAuth.userRequired, 
   async (ctx, next) => {
-  try {
     const rid = ctx.params.rid;
     const reply = await proxyReply.getReplyById(rid);
 
@@ -90,71 +86,70 @@ router.post('/reply/:rid/delete',
     }
 
     proxyTopic.reduceCount(reply.topic_id, lodash.noop);
-  } catch (err) {
-    return next(err);
   }
-});
+);
 
 router.get('/reply/:rid/edit', 
   midAuth.userRequired, 
   async (ctx, next) => {
-  const rid = ctx.params.rid;
-  const reply = await proxyReply.getReplyById(rid);
+    const rid = ctx.params.rid;
+    const reply = await proxyReply.getReplyById(rid);
 
-  if (!reply) {
-    ctx.status = 404;
-    return ctx.render('notify/notify', { error: 'reply not exist or deleted' });
+    if (!reply) {
+      ctx.status = 404;
+      return ctx.render('notify/notify', { error: 'reply not exist or deleted' });
+    }
+
+    const isOwner = ctx.session.user._id.equals(reply.author_id);
+    const isAdmin = ctx.session.user.is_admin;
+
+    if (isOwner || isAdmin) {
+      return ctx.render('reply/edit', {
+        rid: reply._id,
+        content: reply.content
+      });
+    } else {
+      ctx.status = 403;
+      return ctx.render('notify/notify', { error: 'Can not edit this repy' });
+    }
   }
-
-  const isOwner = ctx.session.user._id.equals(reply.author_id);
-  const isAdmin = ctx.session.user.is_admin;
-
-  if (isOwner || isAdmin) {
-    return ctx.render('reply/edit', {
-      rid: reply._id,
-      content: reply.content
-    });
-  } else {
-    ctx.status = 403;
-    return ctx.render('notify/notify', { error: 'Can not edit this repy' });
-  }
-});
+);
 
 router.post('/reply/:rid/edit', 
   midAuth.userRequired, 
   async (ctx, next) => {
-  const rid = ctx.params.rid;
-  const content = ctx.request.body.t_content;
+    const rid = ctx.params.rid;
+    const content = ctx.request.body.t_content;
 
-  const reply = await proxyReply.getReplyById(rid);
-  if (!reply) {
-    ctx.status = 404;
-    return ctx.render('notify/notify', { error: 'reply not exist or deleted' });
-  }
-
-  const isOwner = String(reply.author_id) === ctx.session.user._id.toString();
-  const isAdmin = ctx.session.user.is_admin;
-
-  if (isOwner || isAdmin) {
-    if (content.trim().length > 0) {
-      reply.content = content;
-      reply.update_at = new Date();
-      await reply.save();
-      return ctx.redirect(`/topic/${reply.topic_id}#${reply._id}`);
-    } else {
-      ctx.status = 400;
-      return ctx.render('notify/notify', { error: 'reply is too short' });
+    const reply = await proxyReply.getReplyById(rid);
+    if (!reply) {
+      ctx.status = 404;
+      return ctx.render('notify/notify', { error: 'reply not exist or deleted' });
     }
-  } else {
-    ctx.status = 403;
-    return ctx.render('notify/notify', { error: 'Can not edit this repy' });
+
+    const isOwner = String(reply.author_id) === ctx.session.user._id.toString();
+    const isAdmin = ctx.session.user.is_admin;
+
+    if (isOwner || isAdmin) {
+      if (content.trim().length > 0) {
+        reply.content = content;
+        reply.update_at = new Date();
+        await reply.save();
+        return ctx.redirect(`/topic/${reply.topic_id}#${reply._id}`);
+      } else {
+        ctx.status = 400;
+        return ctx.render('notify/notify', { error: 'reply is too short' });
+      }
+    } else {
+      ctx.status = 403;
+      return ctx.render('notify/notify', { error: 'Can not edit this repy' });
+    }
   }
-});
+);
 
 router.post('/reply/:rid/up', 
   midAuth.userRequired, 
   async (ctx, next) => {
-  try {
     const rid = ctx.params.rid;
     const uid = ctx.session.user._id;
     const reply = await proxyReply.getReplyById(rid);
@@ -182,9 +177,7 @@ router.post('/reply/:rid/up',
       success: true,
       action: action
     };
-  } catch (err) {
-    return next(err);
   }
-});
+);
 
 module.exports = router;
