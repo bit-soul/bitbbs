@@ -123,7 +123,6 @@ const session_config = {
     rolling: false, /** Refresh session on every response (default: false) */
     renew: true, /** Renew session if it's about to expire (default: false) */
     store: koaredis(global.config.koaredis_cfg), /** Use Redis as session store */
-    secure: true, /** (boolean) secure cookie*/
     sameSite: 'lax', /** (string) session cookie sameSite options (default null, don't set it) */
 };
 app.use(koasession.createSession(session_config, app));
@@ -178,11 +177,13 @@ app.use(koabody.koaBody({
 }));
 
 //helmet
-app.use(
-  koahelmet({
-    contentSecurityPolicy: false,
-  }),
-);
+if (!global.config.debug) {
+  app.use(
+    koahelmet({
+      contentSecurityPolicy: false,
+    }),
+  );
+}
 
 //cors
 app.use(koacors({

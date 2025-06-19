@@ -30,7 +30,7 @@ router.get('/my/messages', async (ctx, next) => {
   proxyMessage.updateMessagesToRead(user_id, unread).catch(console.error);
 
   // 渲染视图（保持原res.render模式）
-  return ctx.render('message/index', {
+  return await ctx.render('message/index', {
     has_read_messages,
     hasnot_read_messages
   });

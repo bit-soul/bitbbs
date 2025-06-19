@@ -73,7 +73,7 @@ function truncateTextForTwitter(str, max_length) {
   if(!str) {
     return '';
   }
-  for (const ch of content) {
+  for (const ch of str) {
     const weight = ch.charCodeAt(0) <= 0x7f ? 1 : 2;
     if (count + weight > max_length) {
       truncatedContent += '...';

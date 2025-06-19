@@ -50,8 +50,8 @@ router.get('/auth/github/callback', passport.authenticate('github', { failureRed
 /**
  * 显示新建 OAuth 用户信息填写页
  */
-router.get('/auth/github/new', async (ctx) => {
-  await ctx.render('sign/new_oauth', {
+router.get('/auth/github/new', async (ctx, next) => {
+  return await ctx.render('sign/new_oauth', {
     actionPath: '/auth/github/create'
   });
 });

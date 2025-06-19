@@ -4,7 +4,7 @@ const router = new Router();
 
 // about page
 router.get('/about', async (ctx, next) => {
-  await ctx.render('static/about', {
+  return await ctx.render('static/about', {
     pageTitle: 'About'
   });
 });

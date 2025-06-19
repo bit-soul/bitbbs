@@ -23,7 +23,7 @@ router.post('/:tid/reply',
     const str = validator.trim(String(content));
     if (str === '') {
       ctx.status = 422;
-      return ctx.render('notify/notify', { error: 'Content can not be empty' });
+      return await ctx.render('notify/notify', { error: 'Content can not be empty' });
     }
 
     const topic = await proxyTopic.getTopic(tid);
@@ -97,20 +97,20 @@ router.get('/reply/:rid/edit',
 
     if (!reply) {
       ctx.status = 404;
-      return ctx.render('notify/notify', { error: 'reply not exist or deleted' });
+      return await ctx.render('notify/notify', { error: 'reply not exist or deleted' });
     }
 
     const isOwner = ctx.session.user._id.equals(reply.author_id);
     const isAdmin = ctx.session.user.is_admin;
 
     if (isOwner || isAdmin) {
-      return ctx.render('reply/edit', {
+      return await ctx.render('reply/edit', {
         rid: reply._id,
         content: reply.content
       });
     } else {
       ctx.status = 403;
-      return ctx.render('notify/notify', { error: 'Can not edit this repy' });
+      return await ctx.render('notify/notify', { error: 'Can not edit this repy' });
     }
   }
 );
@@ -124,7 +124,7 @@ router.post('/reply/:rid/edit',
     const reply = await proxyReply.getReplyById(rid);
     if (!reply) {
       ctx.status = 404;
-      return ctx.render('notify/notify', { error: 'reply not exist or deleted' });
+      return await ctx.render('notify/notify', { error: 'reply not exist or deleted' });
     }
 
     const isOwner = String(reply.author_id) === ctx.session.user._id.toString();
@@ -138,11 +138,11 @@ router.post('/reply/:rid/edit',
         return ctx.redirect(`/topic/${reply.topic_id}#${reply._id}`);
       } else {
         ctx.status = 400;
-        return ctx.render('notify/notify', { error: 'reply is too short' });
+        return await ctx.render('notify/notify', { error: 'reply is too short' });
       }
     } else {
       ctx.status = 403;
-      return ctx.render('notify/notify', { error: 'Can not edit this repy' });
+      return await ctx.render('notify/notify', { error: 'Can not edit this repy' });
     }
   }
 );

@@ -46,7 +46,7 @@ router.get('/user/:uid', async (ctx, next) => {
     token = tools.md5(user.email + user.pass + global.config.session_secret);
   }
 
-  ctx.render('user/index', {
+  return await ctx.render('user/index', {
     user: user,
     recent_topics: recent_topics,
     recent_replies: recent_replies,
@@ -57,7 +57,7 @@ router.get('/user/:uid', async (ctx, next) => {
 
 router.get('/advances', async (ctx, next) => {
   const advances = await proxyUser.getUsersByQuery({ is_advance: true }, {});
-  ctx.render('user/advances', { advances: advances });
+  return await ctx.render('user/advances', { advances: advances });
 });
 
 router.get('/setting', 
@@ -73,7 +73,7 @@ router.get('/setting',
     }
     user.error = null;
 
-    return ctx.render('user/setting', user);
+    return await ctx.render('user/setting', {user});
 });
 
 router.post('/setting', 
@@ -82,7 +82,7 @@ router.post('/setting',
     const reqBody = ctx.request.body;
     const sessionUser = ctx.session.user;
 
-    function showMessage(msg, data, isSuccess) {
+    async function showMessage(msg, data, isSuccess) {
       data = data || reqBody;
       const data2 = {
         name: data.name,
@@ -94,7 +94,7 @@ router.post('/setting',
       } else {
         data2.error = msg;
       }
-      return ctx.render('user/setting', data2);
+      return await ctx.render('user/setting', data2);
     }
 
     const action = reqBody.action;
@@ -123,14 +123,14 @@ router.post('/setting',
       const isMatch = await tools.bcompare(old_pass, user.pass);
 
       if (!isMatch) {
-        return showMessage('password error。', user);
+        return await showMessage('password error。', user);
       }
 
       const passhash = await tools.bhash(new_pass);
       user.pass = passhash;
       await user.save();
 
-      return showMessage('password changed', user, true);
+      return await showMessage('password changed', user, true);
     }
   }
 );
@@ -175,7 +175,7 @@ router.get('/user/:uid/markedtopics', async (ctx, next) => {
   let topics = await proxyTopic.getTopicsByQuery(query, {});
   topics = lodash.sortBy(topics, topic => ids.indexOf(String(topic._id)));
 
-  return ctx.render('user/marktopics', {
+  return await ctx.render('user/marktopics', {
     topics,
     current_page: page,
     pages,
@@ -187,7 +187,7 @@ router.get('/users/top100', async (ctx, next) => {
   const opt = { limit: 100, sort: '-score' };
   const tops = await proxyUser.getUsersByQuery({ is_block: false }, opt);
 
-  return ctx.render('user/top100', {
+  return await ctx.render('user/top100', {
     users: tops,
     pageTitle: 'top100',
   });
@@ -201,7 +201,7 @@ router.get('/user/:uid/topics', async (ctx, next) => {
   const user = await proxyUser.getUserById(uid);
   if (!user) {
     ctx.status = 404;
-    return ctx.render('notify/notify', { error: 'proxyUser not exist' });
+    return await ctx.render('notify/notify', { error: 'proxyUser not exist' });
   }
 
   const query = { author_id: user._id };
@@ -218,7 +218,7 @@ router.get('/user/:uid/topics', async (ctx, next) => {
 
   const pages = Math.ceil(total / limit);
 
-  return ctx.render('user/topics', {
+  return await ctx.render('user/topics', {
     user,
     topics,
     current_page: page,
@@ -234,7 +234,7 @@ router.get('/user/:uid/replies', async (ctx, next) => {
   const user = await proxyUser.getUserById(uid);
   if (!user) {
     ctx.status = 404;
-    return ctx.render('notify/notify', { error: 'proxyUser not exist' });
+    return await ctx.render('notify/notify', { error: 'proxyUser not exist' });
   }
 
   const opt = {
@@ -257,7 +257,7 @@ router.get('/user/:uid/replies', async (ctx, next) => {
 
   const pages = Math.ceil(total / limit);
 
-  return ctx.render('user/replies', {
+  return await ctx.render('user/replies', {
     user,
     topics,
     current_page: page,

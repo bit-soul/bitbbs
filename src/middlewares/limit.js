@@ -30,9 +30,9 @@ const makePerDayLimiter = (identityName, identityFn) => {
 
           const message = `limit: current action limited in ${limitCount} times every day`;
           if (options.showJson) {
-            ctx.body = { success: false, error_msg: message };
+            return ctx.body = { success: false, error_msg: message };
           } else {
-            await ctx.render('notify/notify', { error: message });
+            return await ctx.render('notify/notify', { error: message });
           }
         }
       } catch (err) {

@@ -111,7 +111,7 @@ router.post('/wallet_login', async (ctx, next) => {
 });
 
 
-router.post('/get_authkey', async (ctx) => {
+router.post('/get_authkey', async (ctx, next) => {
   const result = {};
   let maxage = parseInt(ctx.request.body.maxage);
 
@@ -143,7 +143,7 @@ router.post('/get_authkey', async (ctx) => {
 });
 
 
-router.post('/authkey_login', async (ctx) => {
+router.post('/authkey_login', async (ctx, next) => {
   const authkey = validator.trim(ctx.request.body.authkey).toUpperCase();
   const authitem = global.authkeys[authkey];
   const result = {};

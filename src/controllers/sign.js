@@ -19,8 +19,8 @@ var notJump = [
   '/search_pass'    //serch pass page
 ];
 
-router.get('/signup', async (ctx) => {
-  await ctx.render('sign/signup');
+router.get('/signup', async (ctx, next) => {
+  return await ctx.render('sign/signup');
 });
 
 router.post('/signup', async (ctx, next) => {
@@ -32,7 +32,7 @@ router.post('/signup', async (ctx, next) => {
   // 错误渲染方法
   const renderError = async (msg) => {
     ctx.status = 422;
-    await ctx.render('sign/signup', { error: msg, name, email });
+    return await ctx.render('sign/signup', { error: msg, name, email });
   };
 
   // 表单验证
@@ -65,14 +65,14 @@ router.post('/signup', async (ctx, next) => {
   const token = tools.md5(email + passhash + global.config.session_secret);
   await mail.sendActiveMail(email, name, token, user._id);
 
-  await ctx.render('sign/signup', {
+  return await ctx.render('sign/signup', {
     success: `欢迎加入 ${global.config.bbsname}！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。`
   });
 });
 
-router.get('/signin', async (ctx) => {
+router.get('/signin', async (ctx, next) => {
   ctx.session._loginReferer = ctx.headers.referer;
-  await ctx.render('sign/signin');
+  return await ctx.render('sign/signin');
 });
 
 router.post('/signin', async (ctx, next) => {
@@ -81,26 +81,26 @@ router.post('/signin', async (ctx, next) => {
 
   if (!email || !pass) {
     ctx.status = 422;
-    return ctx.render('sign/signin', { error: '信息不完整。' });
+    return await ctx.render('sign/signin', { error: '信息不完整。' });
   }
 
   const user = await proxyUser.getUserByMail(email);
   if (!user) {
     ctx.status = 403;
-    return ctx.render('sign/signin', { error: '用户名或密码错误' });
+    return await ctx.render('sign/signin', { error: '用户名或密码错误' });
   }
 
   const isMatch = await tools.bcompare(pass, user.pass);
   if (!isMatch) {
     ctx.status = 403;
-    return ctx.render('sign/signin', { error: '用户名或密码错误' });
+    return await ctx.render('sign/signin', { error: '用户名或密码错误' });
   }
 
   if (!user.active) {
     const token = tools.md5(user.email + user.pass + global.config.session_secret);
     await mail.sendActiveMail(user.email, user.name, token, user._id);
     ctx.status = 403;
-    return ctx.render('sign/signin', {
+    return await ctx.render('sign/signin', {
       error: `此帐号还没有被激活，激活链接已发送到 ${user.email} 邮箱，请查收。`
     });
   }
@@ -115,7 +115,7 @@ router.post('/signin', async (ctx, next) => {
   ctx.redirect(refer);
 });
 
-router.get('/signout', async (ctx) => {
+router.get('/signout', async (ctx, next) => {
   ctx.session = null;
   ctx.cookies.set(global.config.auth_cookie_name, '', { path: '/' });
   ctx.redirect('/');
@@ -130,25 +130,25 @@ router.get('/active_account', async (ctx, next) => {
 
   const validKey = tools.md5(user.email + user.pass + global.config.session_secret);
   if (key !== validKey) {
-    return ctx.render('notify/notify', { error: '信息有误，帐号无法被激活。' });
+    return await ctx.render('notify/notify', { error: '信息有误，帐号无法被激活。' });
   }
   if (user.active) {
-    return ctx.render('notify/notify', { error: '帐号已经是激活状态。' });
+    return await ctx.render('notify/notify', { error: '帐号已经是激活状态。' });
   }
 
   user.active = true;
   await user.save();
-  return ctx.render('notify/notify', { success: '帐号已被激活，请登录' });
+  return await ctx.render('notify/notify', { success: '帐号已被激活，请登录' });
 });
 
-router.get('/search_pass', async (ctx) => {
-  await ctx.render('sign/search_pass');
+router.get('/search_pass', async (ctx, next) => {
+  return await ctx.render('sign/search_pass');
 });
 
 router.post('/search_pass', async (ctx, next) => {
   const email = validator.trim(ctx.request.body.email).toLowerCase();
   if (!validator.isEmail(email)) {
-    return ctx.render('sign/search_pass', { error: '邮箱不合法', email });
+    return await ctx.render('sign/search_pass', { error: '邮箱不合法', email });
   }
 
   const retrieveKey = tools.uuid();
@@ -156,7 +156,7 @@ router.post('/search_pass', async (ctx, next) => {
 
   const user = await proxyUser.getUserByMail(email);
   if (!user) {
-    return ctx.render('sign/search_pass', { error: '没有这个电子邮箱。', email });
+    return await ctx.render('sign/search_pass', { error: '没有这个电子邮箱。', email });
   }
 
   user.retrieve_key = retrieveKey;
@@ -165,7 +165,7 @@ router.post('/search_pass', async (ctx, next) => {
 
   await mail.sendResetPassMail(email, retrieveKey, user._id);
 
-  return ctx.render('notify/notify', {
+  return await ctx.render('notify/notify', {
     success: '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。'
   });
 });
@@ -178,17 +178,17 @@ router.get('/reset_pass', async (ctx, next) => {
 
   if (!user || user.retrieve_key !== key) {
     ctx.status = 403;
-    return ctx.render('notify/notify', { error: '信息有误，密码无法重置。' });
+    return await ctx.render('notify/notify', { error: '信息有误，密码无法重置。' });
   }
 
   const now = Date.now();
   const oneDay = 1000 * 60 * 60 * 24;
   if (!user.retrieve_time || now - user.retrieve_time > oneDay) {
     ctx.status = 403;
-    return ctx.render('notify/notify', { error: '该链接已过期，请重新申请。' });
+    return await ctx.render('notify/notify', { error: '该链接已过期，请重新申请。' });
   }
 
-  return ctx.render('sign/reset', { uid, key });
+  return await ctx.render('sign/reset', { uid, key });
 });
 
 router.post('/reset_pass', async (ctx, next) => {
@@ -198,12 +198,12 @@ router.post('/reset_pass', async (ctx, next) => {
   const uid = validator.trim(ctx.request.body.uid || '');
 
   if (psw !== repsw) {
-    return ctx.render('sign/reset', { uid, key, error: '两次密码输入不一致。' });
+    return await ctx.render('sign/reset', { uid, key, error: '两次密码输入不一致。' });
   }
 
   const user = await proxyUser.getUserById(uid);
   if (user.retrieve_key !== key) {
-    return ctx.render('notify/notify', { error: '错误的激活链接' });
+    return await ctx.render('notify/notify', { error: '错误的激活链接' });
   }
 
   const passhash = await tools.bhash(psw);
@@ -213,7 +213,7 @@ router.post('/reset_pass', async (ctx, next) => {
   user.active = true;
 
   await user.save();
-  return ctx.render('notify/notify', { success: '你的密码已重置。' });
+  return await ctx.render('notify/notify', { success: '你的密码已重置。' });
 });
 
 module.exports = router;

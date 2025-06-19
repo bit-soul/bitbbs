@@ -193,6 +193,7 @@
 <%- include('../editor/editor') %>
 <script>
   $(document).ready(function () {
+    const lodash = _;
     // 获取所有回复者name和id
     var allUsers = $('.reply_author').map(function (idx, ele) {
       var name = $(ele).text().trim();

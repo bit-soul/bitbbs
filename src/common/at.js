@@ -7,7 +7,7 @@ const proxyUser  = require('../proxys/user');
  * @param {String} text 文本内容
  * @return {Array} 用户名数组
  */
-exports.fetchUserIds = function (text) {
+function fetchUserIds (text) {
   if (!text) {
     return [];
   }
