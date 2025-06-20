@@ -12,7 +12,7 @@ const validator = require('validator');
 
 const router = new Router();
 
-router.post('/:tid/reply', 
+router.post('/reply/to/:tid', 
   midAuth.userRequired, 
   midLimit.peruserperday('create_reply', global.config.create_reply_per_day, {showJson: false}),
   async (ctx, next) => {

@@ -6,11 +6,4 @@ router.get('/search', async (ctx, next) => {
   ctx.redirect('https://www.google.com.hk/search?q=site:bitbbs.bitsoul.xyz+' + q);
 });
 
-router.get('/test', async (ctx, next) => {
-  ctx.state.user ="abc";
-  //return await ctx.render('test', {layout:false});
- return ctx.body='abc';
-  
-});
-
 module.exports = router;

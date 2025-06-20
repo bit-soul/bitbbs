@@ -13,6 +13,129 @@ const lodash    = require('lodash');
 
 const router = new Router();
 
+router.post('/user/refresh_token', 
+  midAuth.userRequired,
+  async (ctx, next) => {
+    const user_id = ctx.session.user._id;
+
+    const user = await proxyUser.getUserById(user_id);
+    user.accessToken = tools.uuid();
+    await user.save();
+
+    ctx.body = {
+      status: 'success',
+      accessToken: user.accessToken,
+    };
+  }
+);
+
+router.get('/user/top100', async (ctx, next) => {
+  const opt = { limit: 100, sort: '-score' };
+  const tops = await proxyUser.getUsersByQuery({ is_block: false }, opt);
+
+  return await ctx.render('user/top100', {
+    users: tops,
+    pageTitle: 'top100',
+  });
+});
+
+router.get('/user/advances', async (ctx, next) => {
+  const advances = await proxyUser.getUsersByQuery({ is_advance: true }, {});
+  return await ctx.render('user/advances', { advances: advances });
+});
+
+//todo cancel_advance
+router.post('/user/set_advance', 
+  midAuth.adminRequired,
+  async (ctx, next) => {
+    const user_id = ctx.request.body.user_id;
+    const user = await proxyUser.getUserById(user_id);
+
+    if (!user) {
+      throw new Error('user is not exists');
+    }
+
+    user.is_advance = !user.is_advance;
+    await user.save();
+
+    ctx.body = { status: 'success' };
+});
+
+router.get('/user/setting', 
+  midAuth.userRequired,
+  async (ctx, next) => {
+    const user = await proxyUser.getUserById(ctx.session.user._id);
+    if (!user) {
+      return await next();
+    }
+
+    if (ctx.query.save === 'success') {
+      user.success = 'success';
+    }
+    user.error = null;
+
+    return await ctx.render('user/setting', {user});
+});
+
+router.post('/user/setting', 
+  midAuth.userRequired,
+  async (ctx, next) => {
+    const reqBody = ctx.request.body;
+    const sessionUser = ctx.session.user;
+
+    async function showMessage(msg, data, isSuccess) {
+      data = data || reqBody;
+      const data2 = {
+        name: data.name,
+        biog: data.biog,
+        accessToken: data.accessToken,
+      };
+      if (isSuccess) {
+        data2.success = msg;
+      } else {
+        data2.error = msg;
+      }
+      return await ctx.render('user/setting', data2);
+    }
+
+    const action = reqBody.action;
+
+    if (action === 'change_setting') {
+      const name = validator.trim(reqBody.name);
+      const biog = validator.trim(reqBody.biog);
+
+      const user = await proxyUser.getUserById(sessionUser._id);
+      user.name = name;
+      user.biog = biog;
+      await user.save();
+      ctx.session.user = user.toObject({ virtual: true });
+      return ctx.redirect('/user/setting?save=success');
+    }
+
+    if (action === 'change_password') {
+      const old_pass = validator.trim(reqBody.old_pass);
+      const new_pass = validator.trim(reqBody.new_pass);
+
+      if (!old_pass || !new_pass) {
+        return ctx.body = 'password can not be empty';
+      }
+
+      const user = await proxyUser.getUserById(sessionUser._id);
+      const isMatch = await tools.bcompare(old_pass, user.pass);
+
+      if (!isMatch) {
+        return await showMessage('password error。', user);
+      }
+
+      const passhash = await tools.bhash(new_pass);
+      user.pass = passhash;
+      await user.save();
+
+      return await showMessage('password changed', user, true);
+    }
+  }
+);
+
 router.get('/user/:uid', async (ctx, next) => {
   const uid = ctx.params.uid;
 
@@ -55,103 +178,6 @@ router.get('/user/:uid', async (ctx, next) => {
   });
 });
 
-router.get('/advances', async (ctx, next) => {
-  const advances = await proxyUser.getUsersByQuery({ is_advance: true }, {});
-  return await ctx.render('user/advances', { advances: advances });
-});
-
-router.get('/setting', 
-  midAuth.userRequired,
-  async (ctx, next) => {
-    const user = await proxyUser.getUserById(ctx.session.user._id);
-    if (!user) {
-      return await next();
-    }
-
-    if (ctx.query.save === 'success') {
-      user.success = 'success';
-    }
-    user.error = null;
-
-    return await ctx.render('user/setting', {user});
-});
-
-router.post('/setting', 
-  midAuth.userRequired,
-  async (ctx, next) => {
-    const reqBody = ctx.request.body;
-    const sessionUser = ctx.session.user;
-
-    async function showMessage(msg, data, isSuccess) {
-      data = data || reqBody;
-      const data2 = {
-        name: data.name,
-        biog: data.biog,
-        accessToken: data.accessToken,
-      };
-      if (isSuccess) {
-        data2.success = msg;
-      } else {
-        data2.error = msg;
-      }
-      return await ctx.render('user/setting', data2);
-    }
-
-    const action = reqBody.action;
-
-    if (action === 'change_setting') {
-      const name = validator.trim(reqBody.name);
-      const biog = validator.trim(reqBody.biog);
-
-      const user = await proxyUser.getUserById(sessionUser._id);
-      user.name = name;
-      user.biog = biog;
-      await user.save();
-      ctx.session.user = user.toObject({ virtual: true });
-      return ctx.redirect('/setting?save=success');
-    }
-
-    if (action === 'change_password') {
-      const old_pass = validator.trim(reqBody.old_pass);
-      const new_pass = validator.trim(reqBody.new_pass);
-
-      if (!old_pass || !new_pass) {
-        return ctx.body = 'password can not be empty';
-      }
-
-      const user = await proxyUser.getUserById(sessionUser._id);
-      const isMatch = await tools.bcompare(old_pass, user.pass);
-
-      if (!isMatch) {
-        return await showMessage('password error。', user);
-      }
-
-      const passhash = await tools.bhash(new_pass);
-      user.pass = passhash;
-      await user.save();
-
-      return await showMessage('password changed', user, true);
-    }
-  }
-);
-
-//todo cancel_advance
-router.post('/user/set_advance', 
-  midAuth.adminRequired,
-  async (ctx, next) => {
-    const user_id = ctx.request.body.user_id;
-    const user = await proxyUser.getUserById(user_id);
-
-    if (!user) {
-      throw new Error('user is not exists');
-    }
-
-    user.is_advance = !user.is_advance;
-    await user.save();
-
-    ctx.body = { status: 'success' };
-});
-
 router.get('/user/:uid/markedtopics', async (ctx, next) => {
   const uid = ctx.params.uid;
   const page = Number(ctx.query.page) || 1;
@@ -180,16 +206,6 @@ router.get('/user/:uid/markedtopics', async (ctx, next) => {
     current_page: page,
     pages,
     user
-  });
-});
-
-router.get('/users/top100', async (ctx, next) => {
-  const opt = { limit: 100, sort: '-score' };
-  const tops = await proxyUser.getUsersByQuery({ is_block: false }, opt);
-
-  return await ctx.render('user/top100', {
-    users: tops,
-    pageTitle: 'top100',
   });
 });
 
@@ -306,22 +322,6 @@ router.get('/user/:uid/delete_all',
     ]);
 
     ctx.body = { status: 'success' };
-  }
-);
-
-router.post('/user/refresh_token', 
-  midAuth.userRequired,
-  async (ctx, next) => {
-    const user_id = ctx.session.user._id;
-
-    const user = await proxyUser.getUserById(user_id);
-    user.accessToken = tools.uuid();
-    await user.save();
-
-    ctx.body = {
-      status: 'success',
-      accessToken: user.accessToken,
-    };
   }
 );
 

@@ -61,7 +61,7 @@ describe('test/controllers/user.test.js', function () {
 
   describe('#showSetting', function () {
     it('should show setting page', function (done) {
-      request.get('/setting')
+      request.get('/user/setting')
       .set('Cookie', support.normalUserCookie)
       .expect(200, function (err, res) {
         res.text.should.containEql('同时决定了 Gravatar 头像');
@@ -71,7 +71,7 @@ describe('test/controllers/user.test.js', function () {
     });
 
     it('should show success info', function (done) {
-      request.get('/setting')
+      request.get('/user/setting')
       .query({save: 'success'})
       .set('Cookie', support.normalUserCookie)
       .expect(200, function (err, res) {
@@ -97,11 +97,11 @@ describe('test/controllers/user.test.js', function () {
     it('should change user setting', function (done) {
       userInfo = _.cloneDeep(userInfo);
       userInfo.action = 'change_setting';
-      request.post('/setting')
+      request.post('/user/setting')
       .set('Cookie', support.normalUserCookie)
       .send(userInfo)
       .expect(302, function (err, res) {
-        res.headers.location.should.equal('/setting?save=success');
+        res.headers.location.should.equal('/user/setting?save=success');
         done(err);
       });
     });
@@ -111,7 +111,7 @@ describe('test/controllers/user.test.js', function () {
       userInfo.action = 'change_password';
       userInfo.old_pass = 'pass';
       userInfo.new_pass = 'passwordchanged';
-      request.post('/setting')
+      request.post('/user/setting')
       .set('Cookie', support.normalUserCookie)
       .send(userInfo)
       .expect(200, function (err, res) {
@@ -125,7 +125,7 @@ describe('test/controllers/user.test.js', function () {
       userInfo.action = 'change_password';
       userInfo.old_pass = 'wrong_old_pass';
       userInfo.new_pass = 'passwordchanged';
-      request.post('/setting')
+      request.post('/user/setting')
       .set('Cookie', support.normalUserCookie)
       .send(userInfo)
       .expect(200, function (err, res) {
@@ -189,8 +189,8 @@ describe('test/controllers/user.test.js', function () {
   });
 
   describe('#top100', function () {
-    it('should get /users/top100', function (done) {
-      request.get('/users/top100')
+    it('should get /user/top100', function (done) {
+      request.get('/user/top100')
       .expect(200, function (err, res) {
         res.text.should.containEql('Top100 积分榜');
         done(err);
