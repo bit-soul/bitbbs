@@ -45,7 +45,7 @@
   <div class='clearfix'>
     <div class='reply2_area'>
       <% if (current_user) { %>
-      <form class='reply2_form' action='/<%= topic._id %>/reply' method='post'>
+      <form class='reply2_form' action='/reply/to/<%= topic._id %>' method='post'>
         <input type='hidden' name='_csrf' value='<%= csrf %>'/>
         <input type='hidden' name='rid' value='<%= reply._id %>'/>
 
