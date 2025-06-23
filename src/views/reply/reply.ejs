@@ -14,27 +14,24 @@
       <% } %>
     </div>
     <div class='user_action'>
-      <span>
-        <i class="fa up_btn
-          <%= (current_user && is_uped(current_user, reply)) ? 'fa-thumbs-up uped' : 'fa-thumbs-o-up' %>
-          <%= (!reply.ups || !reply.ups.length) ? 'invisible' : '' %>" title="like"></i>
-        <span class="up-count">
-          <%= reply.ups && reply.ups.length ? reply.ups.length : '' %>
-        </span>
+      <span title="like">
+        <% const up_icon_name = (current_user && is_uped(current_user, reply)) ? 'thumbs-up-s' : 'thumbs-up-o'%>
+        <span class="up-count"><%= reply.ups && reply.ups.length ? reply.ups.length : '' %></span>
+        <svg class="up_btn" style="width: 15px; height: 15px; fill: gray;"><use xlink:href="/static/img/icons.svg#<%=up_icon_name%>" /></svg>
       </span>
       <% if (current_user && current_user.is_admin ||
       (current_user && current_user._id.toString() == reply.author._id.toString())
       ) { %>
-      <a href='/reply/<%= reply._id %>/edit' class='edit_reply_btn'>
-        <i class="fa fa-pencil-square-o" title='edit'></i>
+      <a href='/reply/<%= reply._id %>/edit' class='edit_reply_btn' title="edit">
+        <svg style="width: 14px; height: 14px; fill: gray;"><use xlink:href="/static/img/icons.svg#pen-to-square" /></svg>
       </a>
-      <a href='javascript:void(0);' class='delete_reply_btn'>
-        <i class="fa fa-trash" title='delete'></i>
+      <a href='javascript:void(0);' class='delete_reply_btn' title="delete">
+        <svg style="width: 14px; height: 14px; fill: gray;"><use xlink:href="/static/img/icons.svg#trash-can" /></svg>
       </a>
       <% } %>
-      <span>
+      <span title="reply">
         <% if (current_user){ %>
-          <i class="fa fa-reply reply2_btn" title="reply"></i>
+          <svg class="reply2_btn" style="width: 14px; height: 14px; fill: gray;"><use xlink:href="/static/img/icons.svg#reply" /></svg>
         <% } %>
       </span>
     </div>

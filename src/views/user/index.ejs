@@ -33,7 +33,7 @@
           <%}%>
           <% if (user.githubUsername) { %>
           <li>
-            <i class="fa fa-lg fa-fw fa-github"></i>
+            <svg style="width: 18px; height: 18px; vertical-align: middle; fill: gray;"><use xlink:href="/static/img/icons.svg#github" /></svg>
             <a class='dark' href="https://github.com/<%= user.githubUsername %>" target='_blank'>
               @<%= user.githubUsername %>
             </a>

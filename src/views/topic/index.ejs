@@ -51,11 +51,13 @@
           <%- include('./top_good', {topic: topic}) %>
           <%= topic.title %>
         </span>
-        <i class="fa fa-lg fa-twitter share_topic" title="share to twitter" 
-          <% const safeTitle = topic.title.replace(/'/g, "\\'").replace(/"/g, '\\"'); %>
+        <% const safeTitle = topic.title.replace(/'/g, "\\'").replace(/"/g, '\\"'); %>
+        <span class="share_topic" title="share to twitter" 
           onclick="share2twitter('<%=safeTitle%>', '<%=config.host%>/topic/<%=topic._id%>', '<%= helper.tabName(topic.tab)%>')">
-        </i>
+          <svg style="width: 22px; height: 22px; vertical-align: middle; fill: gray;"><use xlink:href="/static/img/icons.svg#twitter" /></svg>
+        </span>
       </div>
+
       <div class="changes">
         <span>
           Created at <%= topic.create_at_ago() %>
@@ -80,65 +82,80 @@
                  value="<%= is_mark ? 'unMark' : 'Mark' %>" action="<%= is_mark ? 'unmark' : 'mark' %>" 
           />
         <%}%>
-
       </div>
+
       <% if (current_user) { %>
       <div id="manage_topic">
         <% if (current_user.is_admin) { %>
           <a href='/topic/<%= topic._id %>/top' data-method="post">
             <% if (topic.top) { %>
-              <i class="fa fa-lg fa-star-o" title='cancel top'></i>
+              <span title='cancel top'>
+                <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#star-s" /></svg>
+              </span>
             <% } else { %>
-              <i class="fa fa-lg fa-star" title='Top'/></i>
+              <span title='top'>
+                <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#star-o" /></svg>
+              </span>
             <% } %>
           </a>
 
-
           <a href='/topic/<%= topic._id %>/good' data-method="post">
             <% if (topic.good) { %>
-              <i class="fa fa-lg fa-heart-o" title="cancel good"></i>
+              <span title='cancel good'>
+                <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#heart-s" /></svg>
+              </span>
             <% } else { %>
-              <i class="fa fa-lg fa-heart" title="good"></i>
+              <span title='good'>
+                <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#heart-o" /></svg>
+              </span>
             <% } %>
           </a>
 
           <a href='/topic/<%= topic._id %>/lock' data-method="post">
             <% if (topic.lock) { %>
-              <i class="fa fa-lg fa-unlock" title='cancel lock'></i>
+              <span title='cancel lock'>
+                <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#lock-s" /></svg>
+              </span>
             <% } else { %>
-              <i class="fa fa-lg fa-lock" title='lock'/></i>
+              <span title='lock'>
+                <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#lock-o" /></svg>
+              </span>
             <% } %>
           </a>
 
-
           <a href='/topic/<%= topic._id %>/edit'>
-            <i class="fa fa-lg fa-pencil-square-o" title='edit'></i></a>
-          <a href='javascript:;'
-             data-id="<%= topic._id %>"
-             class='delete_topic_btn'>
-             <i class="fa fa-lg fa-trash" title='delete'></i></a>
-          <% } else { %>
-          <% if (current_user._id.equals(topic.author_id)) { %>
+            <span title='edit'>
+              <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#pen-to-square" /></svg>
+            </span>
+          </a>
+          <a href='javascript:;' data-id="<%= topic._id %>" class='delete_topic_btn'>
+            <span title='delete'>
+              <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#trash-can" /></svg>
+            </span>
+          </a>
+        <% } else if(current_user._id.equals(topic.author_id)) { %>
           <a href='/topic/<%= topic._id %>/edit'>
-            <i class="fa fa-lg fa-pencil-square-o" title='edit'></i></a>
-          <a href='javascript:;'
-             data-id="<%= topic._id %>"
-             class='delete_topic_btn'>
-             <i class="fa fa-lg fa-trash" title='delete'></i></a>
-          <% } %>
+            <span title='edit'>
+              <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#pen-to-square" /></svg>
+            </span>
+          </a>
+          <a href='javascript:;' data-id="<%= topic._id %>" class='delete_topic_btn'>
+            <span title='delete'>
+              <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#trash-can" /></svg>
+            </span>
+          </a>
         <% } %>
-
-
       </div>
       <% } %>
     </div>
-    <div class='inner topic'>
 
+    <div class='inner topic'>
       <div class='topic_content'>
         <%- helper.markdown(topic.linkedContent) %>
       </div>
     </div>
   </div>
+
   <% if (topic.replies && topic.replies.length > 0) { %>
   <div class='panel'>
     <div class='header'>
@@ -362,16 +379,16 @@
     // END 删除话题
 
     // 用户 hover 在回复框时才显示点赞按钮
-    $('.reply_area').hover(
-      function () {
-        $(this).find('.up_btn').removeClass('invisible');
-      },
-      function () {
-        var $this = $(this);
-        if ($this.find('.up-count').text().trim() === '') {
-          $this.find('.up_btn').addClass('invisible');
-        }
-      });
+    //$('.reply_area').hover(
+    //  function () {
+    //    $(this).find('.up_btn').removeClass('invisible');
+    //  },
+    //  function () {
+    //    var $this = $(this);
+    //    if ($this.find('.up-count').text().trim() === '') {
+    //      $this.find('.up_btn').addClass('invisible');
+    //    }
+    //  });
     // END 用户 hover 在回复框时才显示点赞按钮
 
 
@@ -461,16 +478,15 @@
       method: 'POST',
     }).done(function (data) {
       if (data.success) {
-        $this.removeClass('invisible');
-        var currentCount = Number($this.next('.up-count').text().trim()) || 0;
+        var currentCount = Number($this.prev('.up-count').text().trim()) || 0;
         if (data.action === 'up') {
-          $this.next('.up-count').text(currentCount + 1);
-          $this.addClass('uped');
+          $this.prev('.up-count').text(currentCount + 1);
+          $this.html('<use xlink:href="/static/img/icons.svg#thumbs-up-s" />');
+        } else if (data.action === 'down') {
+          $this.prev('.up-count').text(currentCount - 1);
+          $this.html('<use xlink:href="/static/img/icons.svg#thumbs-up-o" />');
         } else {
-          if (data.action === 'down') {
-            $this.next('.up-count').text(currentCount - 1);
-            $this.removeClass('uped');
-          }
+          ;
         }
       } else {
         alert(data.message);
