@@ -20,8 +20,8 @@ var config = {
     ['others', 'Others'],
   ],
 
-  site_static_host: 'https://bitbbsres.bitsoul.xyz',
   host: 'https://bitbbs.bitsoul.xyz',
+  site_static_host: 'https://bitbbsres.bitsoul.xyz',
 
   session_secret: process.env.session_secret,
   session_max_age: 1000 * 60 * 60 * 24 * 30, // 30 days for production

@@ -15,7 +15,7 @@ var config = {
 
   // 右上角的导航区, 格式 [ path, title, [target=''] ]
   site_navs: [
-    [ '/about', 'About' ]
+    [ '/about', 'About' , '_self']
   ],
 
   // 版块
@@ -25,11 +25,10 @@ var config = {
     ['job', 'Job'],
   ],
 
-  site_static_host: '', // 静态文件存储域名
   host: 'http://localhost:3000', // 社区的域名
-  google_tracker_id: '', // 默认的Google tracker ID，自有站点请修改，申请地址：http://www.google.com/analytics/
-  cnzz_tracker_id: '', // 默认的cnzz tracker ID，自有站点请修改
+  site_static_host: '', // 静态文件存储域名
   oneapm_key: '', // oneapm 是个用来监控网站性能的服务
+  google_tracker_id: '', // 默认的Google tracker ID，自有站点请修改，申请地址：http://www.google.com/analytics/
 
   session_secret: 'bitbbs_secret', // !!!务必修改
   session_max_age: 1000 * 60 * 60 * 24 * 30,
