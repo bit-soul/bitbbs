@@ -14,14 +14,14 @@
         <strong><%= error %></strong>
       </div>
       <% } %>
+
       <% if(typeof(success) !== 'undefined' && success){ %>
       <div class="alert alert-success">
         <strong><%= success %></strong>
       </div>
       <% } %>
 
-        <a href="<%- typeof(referer) !== 'undefined' ? referer : '/' %>"><span class="span-common">Return</span></a>
-
+      <a href="<%- typeof(referer) !== 'undefined' ? referer : '/' %>"><span class="span-common">Return</span></a>
     </div>
   </div>
 </div>

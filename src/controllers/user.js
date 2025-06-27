@@ -217,7 +217,7 @@ router.get('/user/:uid/topics', async (ctx, next) => {
   const user = await proxyUser.getUserById(uid);
   if (!user) {
     ctx.status = 404;
-    return await ctx.render('notify/notify', { error: 'proxyUser not exist' });
+    return await ctx.render('misc/notify', { error: 'proxyUser not exist' });
   }
 
   const query = { author_id: user._id };
@@ -250,7 +250,7 @@ router.get('/user/:uid/replies', async (ctx, next) => {
   const user = await proxyUser.getUserById(uid);
   if (!user) {
     ctx.status = 404;
-    return await ctx.render('notify/notify', { error: 'proxyUser not exist' });
+    return await ctx.render('misc/notify', { error: 'proxyUser not exist' });
   }
 
   const opt = {

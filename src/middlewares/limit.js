@@ -32,7 +32,7 @@ const makePerDayLimiter = (identityName, identityFn) => {
           if (options.showJson) {
             return ctx.body = { success: false, error_msg: message };
           } else {
-            return await ctx.render('notify/notify', { error: message });
+            return await ctx.render('misc/notify', { error: message });
           }
         }
       } catch (err) {

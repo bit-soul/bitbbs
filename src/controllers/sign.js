@@ -130,15 +130,15 @@ router.get('/active_account', async (ctx, next) => {
 
   const validKey = tools.md5(user.email + user.pass + global.config.session_secret);
   if (key !== validKey) {
-    return await ctx.render('notify/notify', { error: '信息有误，帐号无法被激活。' });
+    return await ctx.render('misc/notify', { error: '信息有误，帐号无法被激活。' });
   }
   if (user.active) {
-    return await ctx.render('notify/notify', { error: '帐号已经是激活状态。' });
+    return await ctx.render('misc/notify', { error: '帐号已经是激活状态。' });
   }
 
   user.active = true;
   await user.save();
-  return await ctx.render('notify/notify', { success: '帐号已被激活，请登录' });
+  return await ctx.render('misc/notify', { success: '帐号已被激活，请登录' });
 });
 
 router.get('/search_pass', async (ctx, next) => {
@@ -165,7 +165,7 @@ router.post('/search_pass', async (ctx, next) => {
 
   await mail.sendResetPassMail(email, retrieveKey, user._id);
 
-  return await ctx.render('notify/notify', {
+  return await ctx.render('misc/notify', {
     success: '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。'
   });
 });
@@ -178,14 +178,14 @@ router.get('/reset_pass', async (ctx, next) => {
 
   if (!user || user.retrieve_key !== key) {
     ctx.status = 403;
-    return await ctx.render('notify/notify', { error: '信息有误，密码无法重置。' });
+    return await ctx.render('misc/notify', { error: '信息有误，密码无法重置。' });
   }
 
   const now = Date.now();
   const oneDay = 1000 * 60 * 60 * 24;
   if (!user.retrieve_time || now - user.retrieve_time > oneDay) {
     ctx.status = 403;
-    return await ctx.render('notify/notify', { error: '该链接已过期，请重新申请。' });
+    return await ctx.render('misc/notify', { error: '该链接已过期，请重新申请。' });
   }
 
   return await ctx.render('sign/reset', { uid, key });
@@ -203,7 +203,7 @@ router.post('/reset_pass', async (ctx, next) => {
 
   const user = await proxyUser.getUserById(uid);
   if (user.retrieve_key !== key) {
-    return await ctx.render('notify/notify', { error: '错误的激活链接' });
+    return await ctx.render('misc/notify', { error: '错误的激活链接' });
   }
 
   const passhash = await tools.bhash(psw);
@@ -213,7 +213,7 @@ router.post('/reset_pass', async (ctx, next) => {
   user.active = true;
 
   await user.save();
-  return await ctx.render('notify/notify', { success: '你的密码已重置。' });
+  return await ctx.render('misc/notify', { success: '你的密码已重置。' });
 });
 
 module.exports = router;

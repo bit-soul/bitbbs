@@ -146,14 +146,14 @@ router.get('/topic/:tid', async (ctx, next) => {
 
   if (topic_id.length !== 24) {
     ctx.status = 404;
-    return await ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
+    return await ctx.render('misc/notify', { error: 'proxyTopic not exist or deleted' });
   }
 
   const {message, topic, author, replies} = await proxyTopic.getFullTopic(topic_id);
 
   if (message) {
     ctx.status = 400;
-    return await ctx.render('notify/notify', { error: message });
+    return await ctx.render('misc/notify', { error: message });
   }
 
   topic.visit_count += 1;
@@ -210,7 +210,7 @@ router.get('/topic/:tid/edit',
 
     if (!topic) {
       ctx.status = 404;
-      return await ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
+      return await ctx.render('misc/notify', { error: 'proxyTopic not exist or deleted' });
     }
 
     const isOwner = String(topic.author_id) === String(ctx.session.user._id);
@@ -227,7 +227,7 @@ router.get('/topic/:tid/edit',
       });
     } else {
       ctx.status = 403;
-      return await ctx.render('notify/notify', { error: 'Can not edit this topic' });
+      return await ctx.render('misc/notify', { error: 'Can not edit this topic' });
     }
   }
 );
@@ -244,7 +244,7 @@ router.post('/topic/:tid/edit',
 
     if (!topic) {
       ctx.status = 404;
-      return await ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
+      return await ctx.render('misc/notify', { error: 'proxyTopic not exist or deleted' });
     }
 
     const isOwner = topic.author_id.equals(ctx.session.user._id);
@@ -252,7 +252,7 @@ router.post('/topic/:tid/edit',
 
     if (!(isOwner || isAdmin)) {
       ctx.status = 403;
-      return await ctx.render('notify/notify', { error: 'Can not edit this topic' });
+      return await ctx.render('misc/notify', { error: 'Can not edit this topic' });
     }
 
     title = validator.trim(title);
@@ -339,20 +339,20 @@ router.post('/topic/:tid/top',
 
     if (topic_id.length !== 24) {
       ctx.status = 404;
-      return await ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
+      return await ctx.render('misc/notify', { error: 'proxyTopic not exist or deleted' });
     }
 
     const topic = await proxyTopic.getTopic(topic_id);
     if (!topic) {
       ctx.status = 404;
-      return await ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
+      return await ctx.render('misc/notify', { error: 'proxyTopic not exist or deleted' });
     } 
 
     topic.top = !topic.top;
     await topic.save();
 
     const msg = topic.top ? 'Topped。' : 'Cancel Topped';
-    await await ctx.render('notify/notify', { success: msg, referer });
+    await await ctx.render('misc/notify', { success: msg, referer });
   }
 );
 
@@ -365,14 +365,14 @@ router.post('/topic/:tid/good',
     const topic = await proxyTopic.getTopic(topicId);
     if (!topic) {
       ctx.status = 404;
-      return await ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
+      return await ctx.render('misc/notify', { error: 'proxyTopic not exist or deleted' });
     } 
 
     topic.good = !topic.good;
     await topic.save();
 
     const msg = topic.good ? 'Gooded。' : 'Cancel Gooded';
-    return await ctx.render('notify/notify', { success: msg, referer });
+    return await ctx.render('misc/notify', { success: msg, referer });
   }
 );
 
@@ -385,14 +385,14 @@ router.post('/topic/:tid/lock',
     const topic = await proxyTopic.getTopic(topicId);
     if (!topic) {
       ctx.status = 404;
-      return await ctx.render('notify/notify', { error: 'proxyTopic not exist or deleted' });
+      return await ctx.render('misc/notify', { error: 'proxyTopic not exist or deleted' });
     } 
 
     topic.lock = !topic.lock;
     await topic.save();
 
     const msg = topic.lock ? 'Locked。' : 'Cancel Locked';
-    return await ctx.render('notify/notify', { success: msg, referer });
+    return await ctx.render('misc/notify', { success: msg, referer });
   }
 );
 

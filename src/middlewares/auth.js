@@ -5,11 +5,11 @@ const proxyMessage = require('../proxys/message');
 
 exports.adminRequired = async (ctx, next) => {
   if (!ctx.session.user) {
-    return await ctx.render('notify/notify', { error: 'Please Login' });
+    return await ctx.render('misc/notify', { error: 'Please Login' });
   }
 
   if (!ctx.session.user.is_admin) {
-    return await ctx.render('notify/notify', { error: 'Need Admin' });
+    return await ctx.render('misc/notify', { error: 'Need Admin' });
   }
 
   await next();
