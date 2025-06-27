@@ -3,7 +3,7 @@
 <div id="content">
   <div class="panel">
     <div class="header">
-      <% [['all', 'All'], ['good', 'Good']].concat(tabs).forEach(function (pair) {
+      <% [['all', 'All'], ['good', 'Good']].concat(tabs).forEach(pair => {
         var value = pair[0];
         var text = pair[1]; %>
         <a href="<%= value ? '/?tab=' + value : '/' %>"

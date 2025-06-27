@@ -19,7 +19,7 @@
           <th>Replys</th>
         </thead>
         <tbody>
-        <% users.forEach(function(user, index){ %>
+        <% users.forEach((user, index) => { %>
           <%- include('../user/top100_user',{user: user, index: index}) %>
         <% }); %>
         </tbody>

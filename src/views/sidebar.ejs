@@ -11,13 +11,6 @@
     <% } else { %>
     <div class='inner'>
       <p><%= config.description %></p>
-
-      <!--<div>
-        您可以
-        <a href='/signin'>登录</a>
-        或
-        <a href='/signup'>注册</a>
-      </div>-->
     </div>
     <% } %>
   </div>
@@ -40,7 +33,7 @@
     <div class='inner'>
       <% if (no_reply_topics.length > 0) { %>
       <ul class="unstyled">
-      <% no_reply_topics.forEach(function(topic){ %>
+      <% no_reply_topics.forEach(topic => { %>
         <%- include('topic/small', { topic: topic }) %>
       <% }); %>
       </ul>
@@ -61,7 +54,7 @@
     <div class='inner'>
       <% if (tops.length > 0) { %>
       <ol>
-      <% tops.forEach(function(user){ %>
+      <% tops.forEach(user => { %>
         <%- include('user/top', { user: user }) %>
       <% }); %>
       </ol>

@@ -15,7 +15,7 @@
     <div class='inner'>
       <% if (typeof(author_other_topics) === 'undefined' || author_other_topics.length > 0) { %>
       <ul class='unstyled'>
-      <% author_other_topics.forEach(function(topic){ %>
+      <% author_other_topics.forEach(topic => { %>
         <%- include('../topic/small', { topic: topic }) %>
       <% }); %>
       </ul>
@@ -32,7 +32,7 @@
     <div class='inner'>
       <% if (typeof(no_reply_topics) !== 'undefined' && no_reply_topics.length > 0) { %>
       <ul class='unstyled'>
-      <% no_reply_topics.forEach(function(topic){ %>
+      <% no_reply_topics.forEach(topic => { %>
         <%- include('../topic/small', { topic: topic }) %>
       <% }); %>
       </ul>
@@ -161,7 +161,7 @@
     <div class='header'>
       <span class='col_fade'><%= topic.replies.length %>reply</span>
     </div>
-    <% topic.replies.forEach(function(reply, index){ %>
+    <% topic.replies.forEach((reply, index) => { %>
       <%- include('../reply/reply', {reply: reply, index: index}) %>
     <% }); %>
   </div>
@@ -449,7 +449,7 @@
             chats.reverse();
 
             $repliesHistoryContent.append('<div class="title">Dialog</div>');
-            chats.forEach(function (pair, idx) {
+            chats.forEach((pair, idx) => {
               var $chat = $repliesHistoryContent.append('<div class="item"></div>');
               $chat.append(pair[0]); // 头像
               $chat.append($('<span>').text(pair[1])); // 内容

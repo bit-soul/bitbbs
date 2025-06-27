@@ -10,7 +10,7 @@
     </div>
     <div class='inner'>
       <% if(typeof(advances) !== 'undefined' && advances.length > 0){ %>
-      <% advances.forEach(function(user){ %>
+      <% advances.forEach(user => { %>
         <%- include('../user/user',{user: user}) %>
       <% }); %>
       <% }else{ %>

@@ -9,7 +9,7 @@
       </ul>
     </div>
     <% if (typeof(hasnot_read_messages) !== 'undefined' && hasnot_read_messages.length > 0) { %>
-    <% hasnot_read_messages.forEach(function(message){ %>
+    <% hasnot_read_messages.forEach(message => { %>
       <%- include('../message/message', { message: message }) %>
     <% }); %>
     <% } else { %>
@@ -23,7 +23,7 @@
       <span class='col_fade'>Old Message</span>
     </div>
     <% if (typeof(has_read_messages) !== 'undefined' && has_read_messages.length > 0) { %>
-    <% has_read_messages.forEach(function(message){ %>
+    <% has_read_messages.forEach(message => { %>
       <%- include('../message/message', { message: message }) %>
     <% }); %>
     <% } else { %>

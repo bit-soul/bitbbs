@@ -118,19 +118,16 @@
         </li>
         <% } %>
 
-        <% (config.site_navs || []).forEach(nav) { %>
+        <% (config.site_navs || []).forEach(nav => { %>
         <li><a href="<%- nav[0] %>" target="<%- nav[2] %>"><%- nav[1] %></a></li>
-        <% } %>
+        <% }) %>
 
         <% if (current_user) { %>
         <li><a href='/user/setting'>Setting</a></li>
-
         <li>
           <a href='javascript:void(0)' data-method="post" rel="nofollow" onclick="if(confirm('Are you sure you want to log out?')) {window.location.href='/signout'}">Logout</a>
         </li>
         <% } else { %>
-        <!--<li><a href='/signup'>注册</a></li>-->
-        <!--<li><a href='/wallet_signin'>登录</a></li>-->
         <li>
           <div id="connect-container">
             <span id="connect-wallet">
@@ -156,9 +153,6 @@
   <%- body %>
 </div>
 
-<!-- backtotop -->
-<div id='backtotop'>Back Top</div>
-
 <!-- footer -->
 <div id='footer'>
   <div id='footer_main'>
@@ -180,7 +174,7 @@
   </div>
 </div>
 
-<!-- sidebar-mask -->
+<div id='backtotop'>Back Top</div>
 <div id="sidebar-mask"></div>
 
 <% if (config.google_tracker_id) { %>

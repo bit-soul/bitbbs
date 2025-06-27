@@ -76,7 +76,7 @@
       <span class='col_fade'>latest topics</span>
     </div>
     <% if (typeof(recent_topics) !== 'undefined' && recent_topics.length > 0) { %>
-    <% recent_topics.forEach(function(topic){ %>
+    <% recent_topics.forEach(topic => { %>
       <%- include('../topic/abstract', { topic: topic }) %>
     <% }); %>
     <div class='cell more'>
@@ -94,7 +94,7 @@
       <span class='col_fade'>joined topics</span>
     </div>
     <% if (typeof(recent_replies) !== 'undefined' && recent_replies.length > 0) { %>
-    <% recent_replies.forEach(function(topic){ %>
+    <% recent_replies.forEach(topic => { %>
       <%- include('../topic/abstract', { topic: topic }) %>
     <% }); %>
     <div class='cell more'>
