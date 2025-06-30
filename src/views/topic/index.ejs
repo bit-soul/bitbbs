@@ -212,7 +212,6 @@
 $(document).ready(function () {
   $('textarea.editor').each(initEditor);
   $('#content').on('click', '.reply2_btn', e => commentReply(e));
-  $('#content').on('click', '.reply2_at_btn', e => commentReply2(e));
   $('#content').on('click', '.delete_reply_btn, .delete_reply2_btn', e => deleteReply(e, '<%= csrf %>'));
   $('.up_btn').click(upReply);
   $('.mark_btn').click(e => markTopic(e, '<%= topic._id %>', '<%= csrf %>'));

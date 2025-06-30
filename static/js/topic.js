@@ -56,35 +56,22 @@ function commentReply(event) {
   var $btn = $(event.currentTarget);
   var parent = $btn.closest('.reply_area');
   var editorWrap = parent.find('.reply2_form');
-  parent.find('.reply2_area').prepend(editorWrap);
-  var textarea = editorWrap.find('textarea.editor');
-  var name = $btn.closest('.author_content').find('.reply_author').text().trim();
-  var userId = $btn.closest('.author_content').find('.reply_author').attr('href').split('/user/')[1];
-  var editor = textarea.data('editor');
-  editorWrap.show('fast', function () {
-    var cm = editor.codemirror;
-    cm.focus();
-    if(cm.getValue().indexOf(generateAtString(name, userId)) < 0) {
-      editor.push(generateAtString(name, userId)+' ');
-    }
-  });
-}
-
-function commentReply2(event) {
-  var $btn = $(event.currentTarget);
-  var editorWrap = $btn.closest('.reply2_area').find('.reply2_form');
-  $btn.closest('.reply2_item').after(editorWrap);
-  var textarea = editorWrap.find('textarea.editor');
-  var name = $btn.closest('.reply2_item').find('.reply_author').text().trim();
-  var userId = $btn.closest('.reply2_item').find('.reply_author').attr('href').split('/user/')[1];
-  var editor = textarea.data('editor');
-  editorWrap.show('fast', function () {
-    var cm = editor.codemirror;
-    cm.focus();
-    if(cm.getValue().indexOf(generateAtString(name, userId)) < 0) {
-      editor.push(generateAtString(name, userId)+' ');
-    }
-  });
+  if (editorWrap.is(':visible')) {
+    editorWrap.hide('fast');
+  } else {
+    parent.find('.reply2_area').prepend(editorWrap);
+    var textarea = editorWrap.find('textarea.editor');
+    var name = $btn.closest('.author_content').find('.reply_author').text().trim();
+    var userId = $btn.closest('.author_content').find('.reply_author').attr('href').split('/user/')[1];
+    var editor = textarea.data('editor');
+    editorWrap.show('fast', function () {
+      var cm = editor.codemirror;
+      cm.focus();
+      if(cm.getValue().indexOf(generateAtString(name, userId)) < 0) {
+        editor.push(generateAtString(name, userId)+' ');
+      }
+    });
+  }
 }
 
 function deleteReply(event, csrf) {
