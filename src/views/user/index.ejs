@@ -77,7 +77,7 @@
     </div>
     <% if (typeof(recent_topics) !== 'undefined' && recent_topics.length > 0) { %>
     <% recent_topics.forEach(topic => { %>
-      <%- include('../topic/abstract', { topic: topic }) %>
+      <%- include('../topic/summary', { topic: topic }) %>
     <% }); %>
     <div class='cell more'>
       <a class='dark' href="/user/<%= user._id %>/topics">more»</a>
@@ -95,7 +95,7 @@
     </div>
     <% if (typeof(recent_replies) !== 'undefined' && recent_replies.length > 0) { %>
     <% recent_replies.forEach(topic => { %>
-      <%- include('../topic/abstract', { topic: topic }) %>
+      <%- include('../topic/summary', { topic: topic }) %>
     <% }); %>
     <div class='cell more'>
       <a class='dark' href="/user/<%= user._id %>/replies">more»</a>

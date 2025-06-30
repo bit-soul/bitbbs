@@ -54,9 +54,12 @@
     <div class='inner'>
       <% if (tops.length > 0) { %>
       <ol>
-      <% tops.forEach(user => { %>
-        <%- include('user/top', { user: user }) %>
-      <% }); %>
+        <% tops.forEach(user => { %>
+        <li>
+          <span class='top_score'><%= user.score %></span>
+          <span class="user_name"><a href="/user/<%= user._id %>"><%= user.name %></a></span>
+        </li>
+        <% }); %>
       </ol>
       <% } else { %>
       <p>None</p>
