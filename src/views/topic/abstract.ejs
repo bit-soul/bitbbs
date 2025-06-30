@@ -1,9 +1,7 @@
 <div class='cell'>
 
   <a class="user_avatar pull-left" href="/user/<%= topic.author._id %>">
-    <img src="<%= helper.proxy(topic.author.avatar_url) %>"
-         title="<%= topic.author.name %>"
-            />
+    <img src="<%= helper.proxy(topic.author.avatar_url) %>" title="<%= topic.author.name %>" />
   </a>
 
   <span class="reply_count pull-left">
@@ -22,6 +20,7 @@
     <span class="last_active_time"><%= topic.reply.create_at_ago() %></span>
   </a>
   <% } %>
+
   <% if (!topic.reply) {%>
     <span class='last_time pull-right'>
       <span class="last_active_time"><%= topic.create_at_ago() %></span>
@@ -30,7 +29,13 @@
 
   <div class="topic_title_wrapper">
     <a class='topic_title' href='/topic/<%= topic._id %>' title='<%= topic.title %>'>
-      <%- include('./top_good', {topic: topic}) %>
+      <% if (topic.top) { %>
+      <span class='put_top'>Top</span>
+      <% } else if (topic.good) { %>
+      <span class='put_good'>Good</span>
+      <% } else if (typeof(tab) !== 'undefined' &&  tab === 'all' && topic.tabName) { %>
+      <span class="topiclist-tab"><%= topic.tabName %></span>
+      <% } %>
       <%= topic.title %>
     </a>
   </div>

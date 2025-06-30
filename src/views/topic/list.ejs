@@ -3,6 +3,7 @@
   <%- include('../topic/abstract', {topic:topic}) %>
 <% }); %>
 </div>
+
 <div class='pagination' current_page='<%= current_page %>'>
   <ul>
     <% var base_url = base + (base.indexOf('?') < 0 ? '?' : '&')
@@ -41,6 +42,7 @@
     <% } %>
   </ul>
 </div>
+
 <script>
   $(document).ready(function () {
     var $nav = $('.pagination');

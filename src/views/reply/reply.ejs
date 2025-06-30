@@ -1,64 +1,58 @@
-<div class='cell reply_area reply_item
-  <%- reply.ups && reply.ups.length >= topic.reply_up_threshold ? 'reply_highlight' : '' %>'
-    reply_id="<%= reply._id %>" reply_to_id="<%= reply.reply_id || '' %>" id="<%= reply._id %>">
+<div class="cell reply_area reply_item <%- reply.ups && reply.ups.length>=topic.reply_up_threshold ? 'reply_highlight' : '' %>"
+  reply_id="<%= reply._id %>" reply_to_id="<%= reply.reply_id || '' %>" id="<%= reply._id %>">
   <div class='author_content'>
     <a href="/user/<%= reply.author._id %>" class="user_avatar">
-      <img src="<%= helper.proxy(reply.author.avatar_url) %>" title="<%= reply.author.name %>"/></a>
+      <img src="<%= helper.proxy(reply.author.avatar_url) %>" title="<%= reply.author.name %>"/>
+    </a>
 
     <div class='user_info'>
       <a class='dark reply_author' href="/user/<%= reply.author._id %>"><%= reply.author.name %></a>
-      <a class="reply_time" href="#<%= reply._id %>"><%= index + 1 %>-Floor•<%= reply.create_at_ago()
-        %></a>
+      <a class="reply_time" href="#<%= reply._id %>"><%= index + 1 %>-Floor•<%= reply.create_at_ago() %></a>
       <% if(reply.author._id == topic.author._id){ %>
         <span class="reply_by_author">Author</span>
       <% } %>
     </div>
+
     <div class='user_action'>
       <span title="like">
         <% const up_icon_name = (current_user && is_uped(current_user, reply)) ? 'thumbs-up-s' : 'thumbs-up-o'%>
         <span class="up-count"><%= reply.ups && reply.ups.length ? reply.ups.length : '' %></span>
         <svg class="up_btn" style="width: 15px; height: 15px; fill: gray;"><use xlink:href="/static/img/icons.svg#<%=up_icon_name%>" /></svg>
       </span>
-      <% if (current_user && current_user.is_admin ||
-      (current_user && current_user._id.toString() == reply.author._id.toString())
-      ) { %>
-      <a href='/reply/<%= reply._id %>/edit' class='edit_reply_btn' title="edit">
-        <svg style="width: 14px; height: 14px; fill: gray;"><use xlink:href="/static/img/icons.svg#pen-to-square" /></svg>
-      </a>
-      <a href='javascript:void(0);' class='delete_reply_btn' title="delete">
-        <svg style="width: 14px; height: 14px; fill: gray;"><use xlink:href="/static/img/icons.svg#trash-can" /></svg>
-      </a>
-      <% } %>
-      <span title="reply">
-        <% if (current_user){ %>
-          <svg class="reply2_btn" style="width: 14px; height: 14px; fill: gray;"><use xlink:href="/static/img/icons.svg#reply" /></svg>
+      <% if (current_user){ %>
+        <% if (current_user.is_admin || current_user._id.toString() == reply.author._id.toString()) { %>
+        <a href='/reply/<%= reply._id %>/edit' class='edit_reply_btn' title="edit">
+          <svg style="width: 14px; height: 14px; fill: gray;"><use xlink:href="/static/img/icons.svg#pen-to-square" /></svg>
+        </a>
+        <a href='javascript:void(0);' class='delete_reply_btn' title="delete">
+          <svg style="width: 14px; height: 14px; fill: gray;"><use xlink:href="/static/img/icons.svg#trash-can" /></svg>
+        </a>
         <% } %>
-      </span>
+        <span title="reply">
+          <svg class="reply2_btn" style="width: 14px; height: 14px; fill: gray;"><use xlink:href="/static/img/icons.svg#reply" /></svg>
+        </span>
+      <% } %>
     </div>
   </div>
+
   <div class='reply_content from-<%= reply.author.name %>'>
     <%- helper.markdown(reply.content) %>
   </div>
+
   <div class='clearfix'>
     <div class='reply2_area'>
       <% if (current_user) { %>
       <form class='reply2_form' action='/reply/to/<%= topic._id %>' method='post'>
         <input type='hidden' name='_csrf' value='<%= csrf %>'/>
         <input type='hidden' name='rid' value='<%= reply._id %>'/>
-
         <div class='markdown_editor in_editor'>
           <div class='markdown_in_editor'>
-            <textarea class='span8 editor reply_editor'
-                      id="reply2_editor_<%= reply._id %>" name='r_content' rows='4'></textarea>
-
+            <textarea class='span8 editor reply_editor' id="reply2_editor_<%= reply._id %>" name='r_content' rows='4'></textarea>
             <div class='editor_buttons'>
-              <input class='span-primary reply2_submit_btn submit_btn'
-                     type="submit" data-id='<%= reply._id %>' data-loading-text="replying.." value="reply">
+              <input class='span-primary reply2_submit_btn submit_btn' type="submit" data-id='<%= reply._id %>' data-loading-text="replying.." value="reply">
             </div>
           </div>
-
         </div>
-
       </form>
       <% } %>
     </div>
