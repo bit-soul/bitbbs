@@ -40,8 +40,6 @@ router.post('/topic/create',
       editError = 'Title is too short';
     } else if (!tab || allTabs.indexOf(tab) === -1) {
       editError = 'Must select category';
-    } else if (content === '') {
-      editError = 'Content can not be empty';
     }
 
     if (editError) {
