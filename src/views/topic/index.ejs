@@ -208,7 +208,7 @@
 </div>
 
 <%- include('../editor/editor') %>
-<script type="text/javascript">
+<script>
 $(document).ready(function () {
   $('textarea.editor').each(initEditor);
   $('#content').on('click', '.reply2_btn', e => commentReply(e));

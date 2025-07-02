@@ -41,7 +41,9 @@
           <% } %>
         </ul>
       </div>
+
       <p class='col_fade'>come at <%= user.create_at_ago() %></p>
+
       <% if (current_user && current_user.is_admin) { %>
       <% if (!user.is_advance) { %>
       <span class='span-common' id='set_advance_btn' action='set_advance'>set as advance</span>
@@ -111,63 +113,9 @@
 <% if (current_user) { %>
 <script>
   $(document).ready(function () {
-    $('#set_advance_btn').click(function () {
-      var $me = $(this);
-      var action = $me.attr('action');
-      var params = {
-        user_id: '<%= user._id %>',
-        _csrf: '<%- csrf %>'
-      };
-      $.post('/user/' + action, params, function (data) {
-        if (data.status === 'success') {
-          if (action === 'set_advance') {
-            $me.html('cancel advance');
-            $me.attr('action', 'cancel_advance');
-          } else {
-            $me.html('set as advance');
-            $me.attr('action', 'set_advance');
-          }
-        }
-      }, 'json');
-    });
-
-    $('#set_block_btn').click(function () {
-      var $me = $(this);
-      var action = $me.attr('action');
-      var params = {
-        _csrf: '<%- csrf %>',
-        action: action
-      };
-      if (action === 'set_block' && !confirm('sure to block this user')) {
-        return;
-      }
-      $.post('/user/<%- user._id %>/block', params, function (data) {
-        if (data.status === 'success') {
-          if (action === 'set_block') {
-            $me.html('cancel block');
-            $me.attr('action', 'cancel_block');
-          } else if (action === 'cancel_block') {
-            $me.html('block user');
-            $me.attr('action', 'set_block');
-          }
-        }
-      }, 'json');
-    })
-
-    $('#delete_all').click(function () {
-      var $me = $(this);
-      var params = {
-        _csrf: '<%- csrf %>',
-      };
-      if (!confirm('sure to delete?')) {
-        return;
-      }
-      $.post('/user/<%- user._id %>/delete_all', params, function (data) {
-        if (data.status === 'success') {
-          alert('success');
-        }
-      }, 'json');
-    })
+    $('#set_advance_btn').click(initAdvanceBtn);
+    $('#set_block_btn').click(initBlockBtn);
+    $('#delete_all').click(initDeleteAllBtn)
   });
 </script>
 <% } %>

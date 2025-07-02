@@ -25,6 +25,8 @@ gulp.task('compress-js', function(){
         './static/js/wallet/xverse.js',
         './static/js/wallet/wallet.js',
         './static/js/main.js',
+        './static/js/topic.js',
+        './static/js/user.js',
         './static/js/wallet.js',
         './static/js/responsive.js',
         ])
