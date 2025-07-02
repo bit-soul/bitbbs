@@ -1,0 +1,50 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2021": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "globals": {
+    "phantom": "readonly",
+    "module": "readonly",
+    "require": "readonly",
+    "__dirname": "readonly",
+    "process": "readonly",
+    "console": "readonly",
+    "it": "readonly",
+    "describe": "readonly",
+    "before": "readonly",
+    "beforeEach": "readonly",
+    "after": "readonly",
+    "afterEach": "readonly",
+    "ace": "readonly",
+    "$": "readonly"
+  },
+  "rules": {
+    "indent": ["error", 2],
+    "curly": "error",
+    "eqeqeq": "error",
+    "no-plusplus": "off",
+    "one-var": "off",
+    "no-trailing-spaces": "warn",
+    "nonblock-statement-body-position": "off",
+    "no-bitwise": "error",
+    "no-use-before-define": ["error", { "functions": true, "classes": true }],
+    "new-cap": "error",
+    "no-caller": "error",
+    "no-empty": "error",
+    "no-new": "error",
+    "no-undef": "error",
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-unused-vars": ["warn", { "vars": "all", "args": "none" }],
+    "strict": "off",
+    "no-multi-str": "warn",
+    "no-warning-comments": "off"
+  }
+}
