@@ -1,14 +1,14 @@
 <%- include('../sidebar') %>
 
-<div id='content'>
-  <div class='panel'>
-    <div class='header'>
-      <ul class='breadcrumb'>
-        <li><a href='/'>Home</a><span class='divider'>/</span></li>
-        <li class='active'>Notice</li>
+<div id="content">
+  <div class="panel">
+    <div class="header">
+      <ul class="breadcrumb">
+        <li><a href="/">Home</a><span class="divider">/</span></li>
+        <li class="active">Notice</li>
       </ul>
     </div>
-    <div class='inner'>
+    <div class="inner">
       <% if(typeof(error) !== 'undefined' && error){ %>
       <div class="alert alert-error">
         <strong><%= error %></strong>

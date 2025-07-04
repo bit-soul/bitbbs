@@ -52,10 +52,14 @@
     <link rel="stylesheet" href="/static/libs/jquery/jquery.atwho.css">
     <link rel="stylesheet" href="/static/libs/editor/editor.css">
     <link rel="stylesheet" href="/static/libs/code-prettify/prettify.css">
-    <link rel="stylesheet/less" href="/static/css/common.less">
     <link rel="stylesheet/less" href="/static/css/style.less">
+    <link rel="stylesheet/less" href="/static/css/layout.less">
+    <link rel="stylesheet/less" href="/static/css/sidebar.less">
+    <link rel="stylesheet/less" href="/static/css/topic.less">
+    <link rel="stylesheet/less" href="/static/css/reply.less">
+    <link rel="stylesheet/less" href="/static/css/user.less">
     <link rel="stylesheet/less" href="/static/css/responsive.less">
-    <script src="/static/libs/less.min.js"></script>
+    <script src="/static/libs/less.min.js" data-env="development"></script>
   <% } %>
   
   <!-- JS -->
@@ -92,26 +96,26 @@
 
 <body>
 <!-- navbar -->
-<div class='navbar'>
-  <div class='navbar-inner'>
-    <div class='container'>
-      <a class='brand' href='/'>
+<div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="/">
         <img src="<%- helper.staticFile(config.bbslogo) %>" style="width: 45px; height:45px; margin-top: -5px;"/>
       </a>
 
-      <form id='search_form' class='navbar-search' action="/search">
-        <input type='text' id='q' name='q' class='search-query span3' value=''/>
+      <form id="search_form" class="navbar-search" action="/search">
+        <input type="text" id="q" name="q" class="search-query span3" value=""/>
         <svg style="width: 16px; height: 16px; fill: #444444;"><use xlink:href="/static/img/icons.svg#search" /></svg>
       </form>
 
-      <ul class='nav pull-right'>
-        <li><a href='/'>Home</a></li>
+      <ul class="nav pull-right">
+        <li><a href="/">Home</a></li>
 
         <% if (current_user){ %>
         <li>
-            <a href='/my/messages'>
+            <a href="/my/messages">
               <% if (current_user.messages_count) { %>
-                <span class='big messages_count'><%= current_user.messages_count %></span>
+                <span class="big messages_count"><%= current_user.messages_count %></span>
               <% } %>
               Message 
             </a>
@@ -154,22 +158,22 @@
 </div>
 
 <!-- footer -->
-<div id='footer'>
-  <div id='footer_main'>
+<div id="footer">
+  <div id="footer_main">
     <div class="links">
-      <a class='dark' target='_blank' href='/rss'>RSS</a>
+      <a class="dark" target="_blank" href="/rss">RSS</a>
       |
-      <a class='dark' target='_blank' href='https://github.com/bit-soul/bitbbs'>Github</a>
+      <a class="dark" target="_blank" href="https://github.com/bit-soul/bitbbs">Github</a>
       |
-      <a class='dark' target='_blank' href='https://dapp.bitsoul.xyz'>BitSoul</a>
+      <a class="dark" target="_blank" href="https://dapp.bitsoul.xyz">BitSoul</a>
       |
-      <a class='dark' target='_blank' href='https://twitter.com/bitsoul_xyz'>Twitter</a>
+      <a class="dark" target="_blank" href="https://twitter.com/bitsoul_xyz">Twitter</a>
       |
-      <a class='dark' target='_blank' href='https://discord.gg/3MjNRBhuRv'>Discord</a>
+      <a class="dark" target="_blank" href="https://discord.gg/3MjNRBhuRv">Discord</a>
       |
-      <a class='dark' target='_blank' href='https://t.me/bitsoul_xyz'>Telegram</a>
+      <a class="dark" target="_blank" href="https://t.me/bitsoul_xyz">Telegram</a>
       |
-      <a class='dark' target='_blank' href='https://bitsoul.medium.com'>Medium</a>
+      <a class="dark" target="_blank" href="https://bitsoul.medium.com">Medium</a>
     </div>
   </div>
 </div>

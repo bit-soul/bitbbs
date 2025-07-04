@@ -26,7 +26,7 @@
           </li>
           <% if (user.mark_topic_count) {%>
           <li>
-            <a class='dark' href="/user/<%= user._id %>/markedtopics" target='_blank'>
+            <a class='dark' href="/user/<%= user._id %>/markedtopics" target="_blank">
               <span class='big topic-mark-count'><%= user.mark_topic_count %></span> Marked Topic
             </a>
           </li>
@@ -34,7 +34,7 @@
           <% if (user.githubUsername) { %>
           <li>
             <svg style="width: 18px; height: 18px; vertical-align: middle; fill: gray;"><use xlink:href="/static/img/icons.svg#github" /></svg>
-            <a class='dark' href="https://github.com/<%= user.githubUsername %>" target='_blank'>
+            <a class='dark' href="https://github.com/<%= user.githubUsername %>" target="_blank">
               @<%= user.githubUsername %>
             </a>
           </li>

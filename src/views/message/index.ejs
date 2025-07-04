@@ -1,11 +1,11 @@
-<%- include('../sidebar') %>
+<%- include("../sidebar") %>
 
-<div id='content'>
-  <div class='panel'>
-    <div class='header'>
-      <ul class='breadcrumb'>
-        <li><a href='/'>Home</a><span class='divider'>/</span></li>
-        <li class='active'>Message</li>
+<div id="content">
+  <div class="panel">
+    <div class="header">
+      <ul class="breadcrumb">
+        <li><a href="/">Home</a><span class="divider">/</span></li>
+        <li class="active">Message</li>
       </ul>
     </div>
     <% if (typeof(hasnot_read_messages) !== 'undefined' && hasnot_read_messages.length > 0) { %>
@@ -13,21 +13,21 @@
       <%- include('../message/message', { message: message }) %>
     <% }); %>
     <% } else { %>
-    <div class='inner'>
+    <div class="inner">
       <p>No Message</p>
     </div>
     <% } %>
   </div>
-  <div class='panel'>
-    <div class='header'>
-      <span class='col_fade'>Old Message</span>
+  <div class="panel">
+    <div class="header">
+      <span class="col_fade">Old Message</span>
     </div>
     <% if (typeof(has_read_messages) !== 'undefined' && has_read_messages.length > 0) { %>
     <% has_read_messages.forEach(message => { %>
       <%- include('../message/message', { message: message }) %>
     <% }); %>
     <% } else { %>
-    <div class='inner'>
+    <div class="inner">
       <p>No Message</p>
     </div>
     <% } %>

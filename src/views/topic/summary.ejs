@@ -9,32 +9,32 @@
       <%= topic.reply_count %>
     </span>
     <span class="count_seperator">/</span>
-    <span class="count_of_visits" title='views'>
+    <span class="count_of_visits" title="views">
       <%= topic.visit_count %>
     </span>
   </span>
 
   <% if (topic.reply && topic.reply.author) {%>
-  <a class='last_time pull-right' href="/topic/<%= topic._id %><%- '#' + topic.reply._id %>">
+  <a class="last_time pull-right" href="/topic/<%= topic._id %><%- '#' + topic.reply._id %>">
     <img class="user_small_avatar" src="<%= helper.proxy(topic.reply.author.avatar_url) %>">
     <span class="last_active_time"><%= topic.reply.create_at_ago() %></span>
   </a>
   <% } %>
 
   <% if (!topic.reply) {%>
-    <span class='last_time pull-right'>
+    <span class="last_time pull-right">
       <span class="last_active_time"><%= topic.create_at_ago() %></span>
     </span>
   <% } %>
 
   <div class="topic_title_wrapper">
-    <a class='topic_title' href='/topic/<%= topic._id %>' title='<%= topic.title %>'>
+    <a class="topic_title" href="/topic/<%= topic._id %>" title="<%= topic.title %>">
       <% if (topic.top) { %>
-      <span class='put_top'>Top</span>
+      <span class="put_top">Top</span>
       <% } else if (topic.good) { %>
-      <span class='put_good'>Good</span>
+      <span class="put_good">Good</span>
       <% } else if (typeof(tab) !== 'undefined' &&  tab === 'all' && topic.tabName) { %>
-      <span class="topiclist-tab"><%= topic.tabName %></span>
+      <span class="topic-tab"><%= topic.tabName %></span>
       <% } %>
       <%= topic.title %>
     </a>

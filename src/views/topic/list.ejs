@@ -4,12 +4,12 @@
 <% }); %>
 </div>
 
-<div class='pagination' current_page='<%= current_page %>'>
+<div class="pagination" current_page="<%= current_page %>">
   <ul>
     <% var base_url = base + (base.indexOf('?') < 0 ? '?' : '&')
       + 'tab=' + (typeof tab !== 'undefined' ? tab : '') + '&page='; %>
     <% if (current_page == 1) { %>
-    <li class='disabled'><a>«</a></li>
+    <li class="disabled"><a>«</a></li>
     <% } else { %>
     <li><a href="<%= base_url %>1">«</a></li>
     <% } %>
@@ -25,9 +25,9 @@
 
     <% for(var i = page_start; i <= page_end; i++) { %>
     <% if (i === current_page) { %>
-    <li class='disabled'><a><%= i %></a></li>
+    <li class="disabled"><a><%= i %></a></li>
     <% } else { %>
-    <li><a href='<%= base_url + i %>'><%= i %></a></li>
+    <li><a href="<%= base_url + i %>"><%= i %></a></li>
     <% } %>
     <% } %>
 
@@ -36,9 +36,9 @@
     <% } %>
 
     <% if (current_page == pages) { %>
-    <li class='disabled'><a>»</a></li>
+    <li class="disabled"><a>»</a></li>
     <% } else { %>
-    <li><a href='<%= base_url + pages %>'>»</a></li>
+    <li><a href="<%= base_url + pages %>">»</a></li>
     <% } %>
   </ul>
 </div>

@@ -1,22 +1,22 @@
-<div id='sidebar'>
-  <div class='panel'>
-    <div class='header'>
-      <span class='col_fade'>Author</span>
+<div id="sidebar">
+  <div class="panel">
+    <div class="header">
+      <span class="col_fade">Author</span>
     </div>
-    <div class='inner'>
-      <%- include('../user/card', { user: topic.author }) %>
+    <div class="inner">
+      <%- include("../user/card", { user: topic.author }) %>
     </div>
   </div>
 
-  <div class='panel'>
-    <div class='header'>
-      <span class='col_fade'>Author Topics</span>
+  <div class="panel">
+    <div class="header">
+      <span class="col_fade">Author Topics</span>
     </div>
-    <div class='inner'>
+    <div class="inner">
       <% if (typeof(author_other_topics) === 'undefined' || author_other_topics.length > 0) { %>
-      <ul class='unstyled'>
+      <ul class="unstyled">
         <% author_other_topics.forEach(topic => { %>
-        <%- include('./small', { topic: topic }) %>
+        <%- include("./small", { topic: topic }) %>
         <% }); %>
       </ul>
       <% } else { %>
@@ -25,15 +25,15 @@
     </div>
   </div>
 
-  <div class='panel'>
-    <div class='header'>
-      <span class='col_fade'>No reply topics</span>
+  <div class="panel">
+    <div class="header">
+      <span class="col_fade">No reply topics</span>
     </div>
-    <div class='inner'>
+    <div class="inner">
       <% if (typeof(no_reply_topics) !== 'undefined' && no_reply_topics.length > 0) { %>
-      <ul class='unstyled'>
+      <ul class="unstyled">
         <% no_reply_topics.forEach(topic => { %>
-        <%- include('./small', { topic: topic }) %>
+        <%- include("./small", { topic: topic }) %>
         <% }); %>
       </ul>
       <% } else { %>
@@ -43,17 +43,17 @@
   </div>
 </div>
 
-<div id='content'>
-  <div class='panel'>
-    <div class='header topic_header'>
+<div id="content">
+  <div class="panel">
+    <div class="header topic_header">
       <div>
         <span class="topic_full_title">
           <% if (topic.top) { %>
-          <span class='put_top'>Top</span>
+          <span class="put_top">Top</span>
           <% } else if (topic.good) { %>
-          <span class='put_good'>Good</span>
+          <span class="put_good">Good</span>
           <% } else if (typeof(tab) !== 'undefined' &&  tab === 'all' && topic.tabName) { %>
-          <span class="topiclist-tab"><%= topic.tabName %></span>
+          <span class="topic-tab"><%= topic.tabName %></span>
           <% } %>
           <%= topic.title %>
         </span>
@@ -94,60 +94,60 @@
       <% if (current_user) { %>
       <div id="manage_topic">
         <% if (current_user.is_admin) { %>
-          <a href='/topic/<%= topic._id %>/top' data-method="post">
+          <a href="/topic/<%= topic._id %>/top" data-method="post">
             <% if (topic.top) { %>
-              <span title='cancel top'>
+              <span title="cancel top">
                 <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#star-s" /></svg>
               </span>
             <% } else { %>
-              <span title='top'>
+              <span title="top">
                 <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#star-o" /></svg>
               </span>
             <% } %>
           </a>
 
-          <a href='/topic/<%= topic._id %>/good' data-method="post">
+          <a href="/topic/<%= topic._id %>/good" data-method="post">
             <% if (topic.good) { %>
-              <span title='cancel good'>
+              <span title="cancel good">
                 <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#heart-s" /></svg>
               </span>
             <% } else { %>
-              <span title='good'>
+              <span title="good">
                 <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#heart-o" /></svg>
               </span>
             <% } %>
           </a>
 
-          <a href='/topic/<%= topic._id %>/lock' data-method="post">
+          <a href="/topic/<%= topic._id %>/lock" data-method="post">
             <% if (topic.lock) { %>
-              <span title='cancel lock'>
+              <span title="cancel lock">
                 <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#lock-s" /></svg>
               </span>
             <% } else { %>
-              <span title='lock'>
+              <span title="lock">
                 <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#lock-o" /></svg>
               </span>
             <% } %>
           </a>
 
-          <a href='/topic/<%= topic._id %>/edit'>
-            <span title='edit'>
+          <a href="/topic/<%= topic._id %>/edit">
+            <span title="edit">
               <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#pen-to-square" /></svg>
             </span>
           </a>
-          <a href='javascript:;' data-id="<%= topic._id %>" class='delete_topic_btn'>
-            <span title='delete'>
+          <a href="javascript:;" data-id="<%= topic._id %>" class="delete_topic_btn">
+            <span title="delete">
               <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#trash-can" /></svg>
             </span>
           </a>
         <% } else if(current_user._id.equals(topic.author_id)) { %>
-          <a href='/topic/<%= topic._id %>/edit'>
-            <span title='edit'>
+          <a href="/topic/<%= topic._id %>/edit">
+            <span title="edit">
               <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#pen-to-square" /></svg>
             </span>
           </a>
-          <a href='javascript:;' data-id="<%= topic._id %>" class='delete_topic_btn'>
-            <span title='delete'>
+          <a href="javascript:;" data-id="<%= topic._id %>" class="delete_topic_btn">
+            <span title="delete">
               <svg style="width: 18px; height: 18px; fill: gray;"><use xlink:href="/static/img/icons.svg#trash-can" /></svg>
             </span>
           </a>
@@ -156,40 +156,40 @@
       <% } %>
     </div>
 
-    <div class='inner topic'>
-      <div class='topic_content'>
+    <div class="inner topic">
+      <div class="topic_content">
         <%- helper.markdown(topic.linkedContent) %>
       </div>
     </div>
   </div>
 
   <% if (topic.replies && topic.replies.length > 0) { %>
-  <div class='panel'>
-    <div class='header'>
-      <span class='col_fade'><%= topic.replies.length %>-reply</span>
+  <div class="panel">
+    <div class="header">
+      <span class="col_fade"><%= topic.replies.length %>-reply</span>
     </div>
     <% topic.replies.forEach((reply, index) => { %>
-      <%- include('../reply/reply', {reply: reply, index: index}) %>
+      <%- include("../reply/reply", {reply: reply, index: index}) %>
     <% }); %>
   </div>
   <% } %>
 
   <% if (current_user && typeof(topic) !== 'undefined') { %>
-  <div class='panel'>
-    <div class='header'>
-      <span class='col_fade'>reply</span>
+  <div class="panel">
+    <div class="header">
+      <span class="col_fade">reply</span>
     </div>
-    <div class='inner reply'>
-      <form id='reply_form' action='/reply/to/<%= topic._id %>' method='post'>
-        <div class='markdown_editor in_editor'>
-          <div class='markdown_in_editor'>
-            <textarea class='editor' name='r_content' rows='8'></textarea>
-            <div class='editor_buttons'>
-              <input class='span-primary submit_btn' type="submit" data-loading-text="replying.." value="reply<%= topic.lock ? '(locked)' : ''%>" <%= topic.lock ? 'disabled="disabled"' : ''%>>
+    <div class="inner reply">
+      <form id="reply_form" action="/reply/to/<%= topic._id %>" method="post">
+        <div class="markdown_editor in_editor">
+          <div class="markdown_in_editor">
+            <textarea class="editor" name="r_content" rows="8"></textarea>
+            <div class="editor_buttons">
+              <input class="span-primary submit_btn" type="submit" data-loading-text="replying.." value="reply<%= topic.lock ? '(locked)' : ''%>" <%= topic.lock ? 'disabled="disabled"' : ''%>>
             </div>
           </div>
         </div>
-        <input type='hidden' name='_csrf' id="_csrf" value='<%= csrf %>'/>
+        <input type="hidden" name="_csrf" id="_csrf" value="<%= csrf %>"/>
       </form>
     </div>
   </div>

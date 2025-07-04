@@ -1,0 +1,141 @@
+@import "config.less";
+
+#topic_list {
+  margin: 0;
+  .cell:hover {
+    background: #f5f5f5;
+  }
+}
+
+.topic_header {
+  .topic_full_title {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 8px 0;
+    display: inline-block;
+    vertical-align: bottom;
+    width: 75%;
+    line-height: 130%;
+    .topic-tab {
+      background-color: #e5e5e5;
+      color: #999;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+  }
+  .share_topic {
+    float: right;
+    padding: 8px 8px;
+    cursor: pointer;
+  }
+  .changes {
+    font-size: 12px;
+    color: #838383;
+    overflow: hidden;
+    span:before {
+      content: "•"
+    }
+    a {
+      color: inherit;
+    }
+  }
+  #manage_topic {
+    a {
+      text-decoration: none;
+      margin-right: 0.5em;
+    }
+  }
+}
+
+
+#preview-modal {
+  width: 98%;
+  margin-left: -49%;
+  top: 2%;
+  max-height: 96%;
+  text-align: center;
+  overflow-y: scroll;
+  display: none;
+  img {
+    box-shadow: 0 0 10px 5px grey;
+    cursor: pointer;
+  }
+}
+
+.topic-tab {
+  margin: 0 10px;
+  color: @node_black2;
+  &.current-tab {
+    background-color: @node_black1;
+    color: white;
+    padding: 3px 4px;
+    border-radius: 3px;
+  }
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.last_time {
+  font-size: 11px;
+  display: inline-block;
+  margin-left: 20px;
+  color: #777;
+}
+
+.last_time .last_active_time {
+  text-align: right;
+  min-width: 50px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+a.last_time {
+  text-decoration: none;
+}
+
+.last_time .user_small_avatar {
+  height: 18px;
+  width: 18px;
+  vertical-align: middle;
+  margin-right: 0.5em;
+  border-radius: 3px;
+}
+
+
+a.topic_title {
+  max-width: 70%;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 16px;
+  line-height: 30px;
+}
+
+#topic_list a.topic_title {
+  color: #333;
+}
+
+#topic_list a.topic_title:visited {
+  color: #888;
+}
+
+.topic_title_wrapper {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  a.topic_title {
+    width: 100%;
+  }
+}
+
+.put_top, .put_good {
+  background: @node_black1;
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: white;
+  font-size: 12px;
+}

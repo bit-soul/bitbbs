@@ -1,14 +1,14 @@
 <%- include('../sidebar') %>
 
-<div id='content'>
-  <div class='panel'>
-    <div class='header'>
-      <ul class='breadcrumb'>
-        <li><a href='/'>Home</a><span class='divider'>/</span></li>
-        <li class='active'><%= user.name %> Following</li>
+<div id="content">
+  <div class="panel">
+    <div class="header">
+      <ul class="breadcrumb">
+        <li><a href="/">Home</a><span class="divider">/</span></li>
+        <li class="active"><%= user.name %> Following</li>
       </ul>
     </div>
-    <div class='inner'>
+    <div class="inner">
       <% if (users.length > 0) { %>
       <% users.forEach(user => { %>
         <%- include('../user/user', { user: user }) %>

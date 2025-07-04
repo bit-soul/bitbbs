@@ -1,14 +1,14 @@
 <%- include('../sidebar') %>
 
-<div id='content'>
-  <div class='panel'>
-    <div class='header'>
-      <ul class='breadcrumb'>
-        <li><a href='/'>Home</a><span class='divider'>/</span></li>
-        <li class='active'>Advance user</li>
+<div id="content">
+  <div class="panel">
+    <div class="header">
+      <ul class="breadcrumb">
+        <li><a href="/">Home</a><span class="divider">/</span></li>
+        <li class="active">Advance user</li>
       </ul>
     </div>
-    <div class='inner'>
+    <div class="inner">
       <% if(typeof(advances) !== 'undefined' && advances.length > 0){ %>
       <% advances.forEach(user => { %>
         <%- include('../user/user',{user: user}) %>

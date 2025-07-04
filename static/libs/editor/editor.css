@@ -420,3 +420,57 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 .editor-preview > p {
   margin-top: 0;
 }
+
+.markdown-text p, .preview p {
+  white-space: pre-wrap; /* CSS3 */
+  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
+  line-height: 2em;
+  margin: 1em 0;
+}
+.markdown-text > *:first-child, .preview > *:first-child {
+  margin-top: 0;
+}
+.markdown-text > *:last-child, .preview > *:last-child {
+  margin-bottom: 1em;
+}
+.markdown-text li, .preview li {
+  font-size: 14px;
+  line-height: 2em;
+}
+.markdown-text p code, .preview p code,
+.markdown-text li code, .preview li code {
+  color: black;
+  background-color: #fcfafa;
+  padding: 4px 6px;
+}
+.markdown-text h1 code, .markdown-text h2 code, 
+.markdown-text h3 code, .markdown-text h4 code, 
+.markdown-text h5 code, .markdown-text h6 code {
+  font-size: inherit;
+  color: inherit;
+}
+.markdown-text img {
+  cursor: pointer;
+}
+.markdown-text a {
+  color: #08c;
+}
+
+.preview {
+  padding: 0.5em;
+  font-size: 15px;
+  min-height: 200px;
+  word-break: break-all;
+}
+.preview p > img {
+  display: block;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.6);
+}
+
+.modal-footer button {
+  background-color: #666666;
+  color: #fff;
+}

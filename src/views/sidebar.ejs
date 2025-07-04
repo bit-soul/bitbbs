@@ -1,15 +1,15 @@
 <div id='sidebar'>
 
-  <div class='panel'>
+  <div class="panel">
     <% if (typeof(user) !== 'undefined' || current_user) { %>
-    <div class='header'>
-      <span class='col_fade'>Profile</span>
+    <div class="header">
+      <span class="col_fade">Profile</span>
     </div>
-    <div class='inner'>
+    <div class="inner">
       <%- include('user/card',{ user: typeof(user) === 'undefined' ? current_user : user}) %>
     </div>
     <% } else { %>
-    <div class='inner'>
+    <div class="inner">
       <p><%= config.description %></p>
     </div>
     <% } %>
@@ -17,20 +17,20 @@
 
   <% if (current_user) { %>
   <div class="panel">
-    <div class='inner'>
-      <a href='/topic/create' id='create_topic_btn'>
-        <span class='span-success'>New Topic</span>
+    <div class="inner">
+      <a href="/topic/create" id="create_topic_btn">
+        <span class="span-success">New Topic</span>
       </a>
     </div>
   </div>
   <% } %>
 
   <% if (typeof(no_reply_topics) !== 'undefined') { %>
-  <div class='panel'>
-    <div class='header'>
-      <span class='col_fade'>No reply topics</span>
+  <div class="panel">
+    <div class="header">
+      <span class="col_fade">No reply topics</span>
     </div>
-    <div class='inner'>
+    <div class="inner">
       <% if (no_reply_topics.length > 0) { %>
       <ul class="unstyled">
       <% no_reply_topics.forEach(topic => { %>
@@ -45,18 +45,18 @@
   <% } %>
 
   <% if (typeof(tops) !== 'undefined') { %>
-  <div class='panel'>
-    <div class='header'>
-      <span class='col_fade'>Score Rankings</span>
+  <div class="panel">
+    <div class="header">
+      <span class="col_fade">Score Rankings</span>
       &nbsp;
-      <a class='dark' href='/user/top100'>TOP 100 &gt;&gt;</a>
+      <a class="dark" href="/user/top100">TOP 100 &gt;&gt;</a>
     </div>
-    <div class='inner'>
+    <div class="inner">
       <% if (tops.length > 0) { %>
       <ol>
         <% tops.forEach(user => { %>
         <li>
-          <span class='top_score'><%= user.score %></span>
+          <span class="top_score"><%= user.score %></span>
           <span class="user_name"><a href="/user/<%= user._id %>"><%= user.name %></a></span>
         </li>
         <% }); %>

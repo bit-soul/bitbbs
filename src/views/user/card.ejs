@@ -1,13 +1,13 @@
-<div class='user_card'>
+<div class="user_card">
   <div>
-    <a class='user_avatar' href="/user/<%= user._id %>">
+    <a class="user_avatar" href="/user/<%= user._id %>">
       <img src="<%= helper.proxy(user.avatar_url) %>" title="<%= user.name %>"/>
     </a>
-    <a class='user_name dark' href="/user/<%= user._id %>"><%= user.name %></a>
+    <a class="user_name dark" href="/user/<%= user._id %>"><%= user.name %></a>
 
-    <div class='board clearfix'>
-      <div class='floor'>
-        <span class='big'>Score: <%= user.score %> </span>
+    <div class="board clearfix">
+      <div class="floor">
+        <span class="big">Score: <%= user.score %> </span>
       </div>
     </div>
     <div class="space clearfix"></div>

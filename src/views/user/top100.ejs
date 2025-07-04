@@ -1,16 +1,16 @@
 <%- include('../sidebar') %>
 
-<div id='content'>
-  <div class='panel'>
-    <div class='header'>
-      <ul class='breadcrumb'>
-        <li><a href='/'>Home</a><span class='divider'>/</span></li>
-        <li class='active'>Top100 Score Rankings</li>
+<div id="content">
+  <div class="panel">
+    <div class="header">
+      <ul class="breadcrumb">
+        <li><a href="/">Home</a><span class="divider">/</span></li>
+        <li class="active">Top100 Score Rankings</li>
       </ul>
     </div>
-    <div class='inner'>
+    <div class="inner">
       <% if(typeof(users) !== 'undefined' && users.length > 0){ %>
-      <table class='table table-condensed table-striped'>
+      <table class="table table-condensed table-striped">
         <thead>
           <th>#</th>
           <th>Name</th>
@@ -23,11 +23,11 @@
           <tr>
             <td><b><%= index+1 %></b></td>
             <td>
-              <a class='user_avatar' href="/user/<%= user._id %>">
+              <a class="user_avatar" href="/user/<%= user._id %>">
                 <img src="<%= helper.proxy(user.avatar_url) %>" title="<%= user.name %>"/>
               </a>
-              <span class='sp10'></span>
-              <a href='/user/<%= user._id %>'><%= user.name %></a>
+              <span class="sp10"></span>
+              <a href="/user/<%= user._id %>"><%= user.name %></a>
             </td>
             <td><%= user.score %></td>
             <td><%= user.topic_count %></td>

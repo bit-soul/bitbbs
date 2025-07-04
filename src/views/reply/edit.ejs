@@ -1,14 +1,14 @@
 <%- include('../editor/sidebar') %>
 
-<div id='content'>
-  <div class='panel'>
-    <div class='header'>
-      <ol class='breadcrumb'>
-        <li><a href='/'>Home</a><span class='divider'>/</span></li>
-        <li class='active'>Edit Reply</li>
+<div id="content">
+  <div class="panel">
+    <div class="header">
+      <ol class="breadcrumb">
+        <li><a href="/">Home</a><span class="divider">/</span></li>
+        <li class="active">Edit Reply</li>
       </ol>
     </div>
-    <div class='inner post'>
+    <div class="inner post">
       <% if(typeof(edit_error) !== 'undefined' && edit_error){ %>
       <div class="alert alert-error">
         <a class="close" data-dismiss="alert" href="#">&times;</a>
@@ -20,24 +20,24 @@
         <strong><%= error %></strong>
       </div>
       <% }else{ %>
-      <form id='edit_reply_form' action='/reply/<%= rid %>/edit' method='post'>
+      <form id="edit_reply_form" action="/reply/<%= rid %>/edit" method="post">
         <fieldset>
-          <div class='markdown_editor in_editor'>
-            <div class='markdown_in_editor'>
-              <textarea class='editor' name='t_content' rows='20'
-                        placeholder='Markdown Supported'
+          <div class="markdown_editor in_editor">
+            <div class="markdown_in_editor">
+              <textarea class="editor" name="t_content" rows="20"
+                        placeholder="Markdown Supported"
                         autofocus
                       ><%= typeof(content) !== 'undefined' && content || '' %></textarea>
 
-              <div class='editor_buttons'>
-                <input type="submit" class='span-primary submit_btn' data-loading-text="submitting.."
+              <div class="editor_buttons">
+                <input type="submit" class="span-primary submit_btn" data-loading-text="submitting.."
                        value="submit">
               </div>
             </div>
 
           </div>
 
-          <input type='hidden' name='_csrf' value='<%= csrf %>'/>
+          <input type="hidden" name="_csrf" value="<%= csrf %>"/>
         </fieldset>
       </form>
     </div>
@@ -50,6 +50,6 @@
 <script>
   (function () {
     var editor = new Editor();
-    editor.render($('.editor')[0]);
+    editor.render($(".editor")[0]);
   })();
 </script>

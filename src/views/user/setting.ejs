@@ -1,14 +1,14 @@
 <%- include('../sidebar') %>
 
-<div id='content'>
-  <div class='panel'>
-    <div class='header'>
-      <ul class='breadcrumb'>
-        <li><a href='/'>Home</a><span class='divider'>/</span></li>
-        <li class='active'>Setting</li>
+<div id="content">
+  <div class="panel">
+    <div class="header">
+      <ul class="breadcrumb">
+        <li><a href="/">Home</a><span class="divider">/</span></li>
+        <li class="active">Setting</li>
       </ul>
     </div>
-    <div class='inner'>
+    <div class="inner">
       <% if(typeof(error) !== 'undefined' && error){ %>
       <div class="alert alert-error">
         <a class="close" data-dismiss="alert" href="#">&times;</a>
@@ -21,35 +21,35 @@
       </div>
       <% } %>
 
-      <form id='setting_form' class='form-horizontal' action='/user/setting' method='post'>
-        <div class='control-group'>
-          <label class='control-label' for='name'>Name</label>
+      <form id="setting_form" class="form-horizontal" action="/user/setting" method="post">
+        <div class="control-group">
+          <label class="control-label" for="name">Name</label>
 
-          <div class='controls'>
-            <input class='input-xlarge readonly' id='name' name='name' size='30' type='text' value="<%= user.name %>" readonly="readonly"/>
+          <div class="controls">
+            <input class="input-xlarge readonly" id="name" name="name" size="30" type="text" value="<%= user.name %>" readonly="readonly"/>
           </div>
         </div>
 
-        <div class='control-group'>
-          <label class='control-label' for='biog'>Biog</label>
+        <div class="control-group">
+          <label class="control-label" for="biog">Biog</label>
 
-          <div class='controls'>
-            <textarea class='input-xlarge readonly' id='biog' name='biog' size='30' readonly="readonly"><%= typeof(user.biog) !== 'undefined' ? user.biog : "" %></textarea>
+          <div class="controls">
+            <textarea class="input-xlarge readonly" id="biog" name="biog" size="30" readonly="readonly"><%= typeof(user.biog) !== "undefined" ? user.biog : "" %></textarea>
           </div>
         </div>
 
-        <input type='hidden' id='action' name='action' value='change_setting'/>
-        <input type='hidden' name='_csrf' value='<%= csrf %>'/>
+        <input type="hidden" id="action" name="action" value="change_setting"/>
+        <input type="hidden" name="_csrf" value="<%= csrf %>"/>
 
-        <div class='form-actions'>
-          <input type='submit' class='span-primary submit_btn' data-loading-text="Saving.." value='Save' disabled />
+        <div class="form-actions">
+          <input type="submit" class="span-primary submit_btn" data-loading-text="Saving.." value="Save" disabled />
           &nbsp;
           <a href="https://dapp.bitsoul.xyz" target="_blank" style="text-decoration: underline;">Not supported to change it here now, Please click to go to bitsoul to edit.</a>
         </div>
       </form>
 
-      <div style='padding-left: 180px'>
-        <button class='span-primary' onclick='get_authkey()'>get login authkey</button>
+      <div style="padding-left: 180px">
+        <button class="span-primary" onclick="get_authkey()">get login authkey</button>
       </div>
     </div>
   </div>

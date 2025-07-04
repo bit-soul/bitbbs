@@ -1,0 +1,36 @@
+@import "config.less";
+
+#sidebar {
+  width: 290px;
+  font-size: 14px;
+  float: right;
+  margin-bottom: 20px;
+
+  .panel {
+    font-size: 13px;
+    .header {
+      color: hsl(202, 6%, 34%);
+      border-radius: 3px 3px 0 0;
+    }
+  }
+
+  .inner {
+    ol {
+      margin: 4px 0px;
+      list-style: none;
+    }
+    .top_score {
+      color: gray;
+      padding: 2px;
+      margin-right: 10px;
+    }
+    .user_name {
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+}
