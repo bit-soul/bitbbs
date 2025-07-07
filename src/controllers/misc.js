@@ -77,10 +77,9 @@ router.post('/upload',
 
 router.get('/test', async (ctx, next) => {
   ctx.state.user ="abc";
-  return await ctx.render('test');
+  return await ctx.render('misc/test');
   //return await ctx.render('test', {layout:false});
   //return ctx.body='abc';
-  
 });
 
 module.exports = router;

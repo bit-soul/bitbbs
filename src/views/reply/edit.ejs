@@ -48,8 +48,10 @@
 <!-- markdown editor -->
 <%- include('../editor/editor') %>
 <script>
+document.addEventListener('DOMContentLoaded', function () {
   (function () {
     var editor = new Editor();
     editor.render($(".editor")[0]);
   })();
+});
 </script>

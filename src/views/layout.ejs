@@ -61,37 +61,6 @@
     <link rel="stylesheet/less" href="/static/css/responsive.less">
     <script src="/static/libs/less.min.js" data-env="development"></script>
   <% } %>
-  
-  <!-- JS -->
-  <% if (config.diststatic) { %>
-    <script src="<%= config.site_static_host %>/static/libs/jquery/jquery-2.1.0.js"></script>
-    <script src="<%= config.site_static_host %>/static/libs/jquery/jquery-ujs.js"></script>
-    <script src="<%= config.site_static_host %>/static/libs/jquery/jquery.caret.js"></script>
-    <script src="<%= config.site_static_host %>/static/libs/jquery/jquery.atwho.js"></script>
-    <script src="<%= config.site_static_host %>/static/libs/lodash.compat.js"></script>
-    <script src="<%= config.site_static_host %>/static/libs/markdownit.js"></script>
-    <script src="<%= config.site_static_host %>/static/libs/code-prettify/prettify.js"></script>
-    <script src="<%= config.site_static_host %>/static/libs/bootstrap/js/bootstrap.js"></script>
-    <script src="<%= config.site_static_host %>/static/js/js.js"></script>
-  <% } else { %>
-    <script src="/static/libs/jquery/jquery-2.1.0.js"></script>
-    <script src="/static/libs/jquery/jquery-ujs.js"></script>
-    <script src="/static/libs/jquery/jquery.caret.js"></script>
-    <script src="/static/libs/jquery/jquery.atwho.js"></script>
-    <script src="/static/libs/lodash.compat.js"></script>
-    <script src="/static/libs/markdownit.js"></script>
-    <script src="/static/libs/code-prettify/prettify.js"></script>
-    <script src="/static/libs/bootstrap/js/bootstrap.js"></script>
-    <script src="/static/js/wallet/okx.js"></script>
-    <script src="/static/js/wallet/unisat.js"></script>
-    <script src="/static/js/wallet/xverse.js"></script>
-    <script src="/static/js/wallet/wallet.js"></script>
-    <script src="/static/js/main.js"></script>
-    <script src="/static/js/topic.js"></script>
-    <script src="/static/js/user.js"></script>
-    <script src="/static/js/wallet.js"></script>
-    <script src="/static/js/responsive.js"></script>
-  <% } %>
 </head>
 
 <body>
@@ -181,6 +150,38 @@
 <div id='backtotop'>Back Top</div>
 <div id="sidebar-mask"></div>
 
+<!-- JS -->
+<% if (config.diststatic) { %>
+  <script src="<%= config.site_static_host %>/static/libs/jquery/jquery-2.1.0.js"></script>
+  <script src="<%= config.site_static_host %>/static/libs/jquery/jquery-ujs.js"></script>
+  <script src="<%= config.site_static_host %>/static/libs/jquery/jquery.caret.js"></script>
+  <script src="<%= config.site_static_host %>/static/libs/jquery/jquery.atwho.js"></script>
+  <script src="<%= config.site_static_host %>/static/libs/lodash.compat.js"></script>
+  <script src="<%= config.site_static_host %>/static/libs/markdownit.js"></script>
+  <script src="<%= config.site_static_host %>/static/libs/code-prettify/prettify.js"></script>
+  <script src="<%= config.site_static_host %>/static/libs/bootstrap/js/bootstrap.js"></script>
+  <script src="<%= config.site_static_host %>/static/js/js.js"></script>
+<% } else { %>
+  <script src="/static/libs/jquery/jquery-2.1.0.js"></script>
+  <script src="/static/libs/jquery/jquery-ujs.js"></script>
+  <script src="/static/libs/jquery/jquery.caret.js"></script>
+  <script src="/static/libs/jquery/jquery.atwho.js"></script>
+  <script src="/static/libs/lodash.compat.js"></script>
+  <script src="/static/libs/markdownit.js"></script>
+  <script src="/static/libs/code-prettify/prettify.js"></script>
+  <script src="/static/libs/bootstrap/js/bootstrap.js"></script>
+  <script src="/static/js/wallet/okx.js"></script>
+  <script src="/static/js/wallet/unisat.js"></script>
+  <script src="/static/js/wallet/xverse.js"></script>
+  <script src="/static/js/wallet/wallet.js"></script>
+  <script src="/static/js/main.js"></script>
+  <script src="/static/js/topic.js"></script>
+  <script src="/static/js/user.js"></script>
+  <script src="/static/js/wallet.js"></script>
+  <script src="/static/js/responsive.js"></script>
+<% } %>
+
+<!-- track -->
 <% if (config.google_tracker_id) { %>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

@@ -1,4 +1,5 @@
-$(document).ready(function () {
+//$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', function () {
   var windowHeight = $(window).height();
   var $backtotop = $('#backtotop');
   var top = windowHeight - $backtotop.height() - 200;
@@ -39,12 +40,12 @@ $(document).ready(function () {
   // pretty code
   prettyPrint();
 
-  // data-loading-text="提交中"
+  // data-loading-text="submitting..."
   $('.submit_btn').click(function () {
     $(this).button('loading');
   });
 
-  // 广告的统计信息
+  // ads data
   $('.sponsor_outlink').click(function () {
     var $this = $(this);
     var label = $this.data('label');

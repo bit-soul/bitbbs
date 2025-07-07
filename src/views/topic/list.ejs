@@ -44,18 +44,18 @@
 </div>
 
 <script>
-  $(document).ready(function () {
-    var $nav = $('.pagination');
-    var current_page = $nav.attr('current_page');
-    if (current_page) {
-      $nav.find('li').each(function () {
-        var $li = $(this);
-        var $a = $li.find('a');
-        if ($a.html() == current_page) {
-          $li.addClass('active');
-          $a.removeAttr('href');
-        }
-      });
-    }
-  });
+document.addEventListener('DOMContentLoaded', function () {
+  var $nav = $('.pagination');
+  var current_page = $nav.attr('current_page');
+  if (current_page) {
+    $nav.find('li').each(function () {
+      var $li = $(this);
+      var $a = $li.find('a');
+      if ($a.html() == current_page) {
+        $li.addClass('active');
+        $a.removeAttr('href');
+      }
+    });
+  }
+});
 </script>

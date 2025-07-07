@@ -59,6 +59,35 @@ textarea.editor {
   min-height: 400px;
 }
 
+.markdown_editor .markdown_in_preview,
+.markdown_editor .markdown_in_editor {
+  display: none;
+}
+
+.markdown_editor.in_preview .markdown_in_preview {
+  display: block;
+}
+
+.markdown_editor.in_editor .markdown_in_editor {
+  display: block;
+}
+
+textarea#title {
+  width: 98%;
+  border: none;
+  margin-bottom: 1em;
+  resize: none;
+  height: 20px;
+}
+
+.editor_buttons {
+  margin-top: 10px;
+}
+
+.editor_buttons > button {
+  vertical-align: baseline;
+}
+
 /******************************************
  *  code common
  ******************************************/

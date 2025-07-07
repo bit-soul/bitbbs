@@ -112,10 +112,10 @@
 
 <% if (current_user) { %>
 <script>
-  $(document).ready(function () {
-    $('#set_advance_btn').click(initAdvanceBtn);
-    $('#set_block_btn').click(initBlockBtn);
-    $('#delete_all').click(initDeleteAllBtn)
-  });
+document.addEventListener('DOMContentLoaded', function () {
+  $('#set_advance_btn').click(initAdvanceBtn);
+  $('#set_block_btn').click(initBlockBtn);
+  $('#delete_all').click(initDeleteAllBtn)
+});
 </script>
 <% } %>

@@ -106,7 +106,12 @@
 #footer {
   clear: both;
   position: relative;
+  width: 100%;
   background: white;
+  &.fix-bottom{
+      position: fixed;
+      bottom: 0;
+  }
   #footer_main {
     width: 90%;
     max-width: 1400px;
@@ -121,7 +126,7 @@
 
 
 #backtotop {
-  width: 24px;
+  width: 32px;
   color: gray;
   padding: 12px 0px 12px 5px;
   display: none;

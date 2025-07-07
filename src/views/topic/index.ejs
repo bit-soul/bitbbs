@@ -53,13 +53,13 @@
           <% } else if (topic.good) { %>
           <span class="put_good">Good</span>
           <% } else if (typeof(tab) !== 'undefined' &&  tab === 'all' && topic.tabName) { %>
-          <span class="topic-tab"><%= topic.tabName %></span>
+          <span class="topiclist-tab"><%= topic.tabName %></span>
           <% } %>
           <%= topic.title %>
         </span>
         <% const safeTitle = topic.title.replace(/'/g, "\\'").replace(/"/g, '\\"'); %>
         <span class="share_topic" title="share to twitter" 
-          onclick="share2twitter('<%=safeTitle%>', '<%=config.host%>/topic/<%=topic._id%>', '<%= helper.tabName(topic.tab)%>')">
+          onclick="share2twitter('<%=safeTitle%>', '', '<%=config.host%>/topic/<%=topic._id%>', '<%= helper.tabName(topic.tab)%>')">
           <svg style="width: 22px; height: 22px; vertical-align: middle; fill: gray;"><use xlink:href="/static/img/icons.svg#twitter" /></svg>
         </span>
       </div>
@@ -209,7 +209,7 @@
 
 <%- include('../editor/editor') %>
 <script>
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', function () {
   $('textarea.editor').each(initEditor);
   $('#content').on('click', '.reply2_btn', e => commentReply(e));
   $('#content').on('click', '.delete_reply_btn, .delete_reply2_btn', e => deleteReply(e, '<%= csrf %>'));
