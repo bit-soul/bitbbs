@@ -13,7 +13,7 @@ const lodash    = require('lodash');
 
 const router = new Router();
 
-router.get('/topic/create', 
+router.get('/topic/create',
   midAuth.userRequired,
   async (ctx, next) => {
     return await ctx.render('topic/edit', {
@@ -22,8 +22,8 @@ router.get('/topic/create',
   }
 );
 
-router.post('/topic/create', 
-  midAuth.userRequired, 
+router.post('/topic/create',
+  midAuth.userRequired,
   midLimit.peruserperday('create_topic', global.config.create_post_per_day, {showJson: false}),
   async (ctx, next) => {
     const title = validator.trim(ctx.request.body.title || '');
@@ -68,8 +68,8 @@ router.post('/topic/create',
   }
 );
 
-router.post('/topic/mark', 
-  midAuth.userRequired, 
+router.post('/topic/mark',
+  midAuth.userRequired,
   async (ctx, next) => {
     const topic_id = ctx.request.body.topic_id;
     const user_id = ctx.session.user._id;
@@ -100,8 +100,8 @@ router.post('/topic/mark',
   }
 );
 
-router.post('/topic/unmark', 
-  midAuth.userRequired, 
+router.post('/topic/unmark',
+  midAuth.userRequired,
   async (ctx, next) => {
     const topic_id = ctx.request.body.topic_id;
     const user_id = ctx.session.user._id;
@@ -164,7 +164,7 @@ router.get('/topic/:tid', async (ctx, next) => {
     const allUpCount = replies.map(reply => (reply.ups ? reply.ups.length : 0));
     const sorted = lodash.sortBy(allUpCount).reverse();
     let threshold = sorted[2] || 0;
-    if (threshold < 3) threshold = 3;
+    if (threshold < 3) {threshold = 3;}
     return threshold;
   })();
 
@@ -177,7 +177,7 @@ router.get('/topic/:tid', async (ctx, next) => {
   // get no_reply_topics
   const no_reply_topics = await (async () => {
     let cached = await cache.get('no_reply_topics');
-    if (cached) return cached;
+    if (cached) {return cached;}
     const fresh = await proxyTopic.getTopicsByQuery(
       { reply_count: 0, tab: { $nin: ['job', 'dev'] } },
       { midLimit: 5, sort: '-create_at' }
@@ -199,8 +199,8 @@ router.get('/topic/:tid', async (ctx, next) => {
   });
 });
 
-router.get('/topic/:tid/edit', 
-  midAuth.userRequired, 
+router.get('/topic/:tid/edit',
+  midAuth.userRequired,
   async (ctx, next) => {
     const topic_id = ctx.params.tid;
 
@@ -230,8 +230,8 @@ router.get('/topic/:tid/edit',
   }
 );
 
-router.post('/topic/:tid/edit', 
-  midAuth.userRequired, 
+router.post('/topic/:tid/edit',
+  midAuth.userRequired,
   async (ctx, next) => {
     const topic_id = ctx.params.tid;
     let { title, tab, t_content: content } = ctx.request.body;
@@ -288,8 +288,8 @@ router.post('/topic/:tid/edit',
   }
 );
 
-router.post('/topic/:tid/delete', 
-  midAuth.userRequired, 
+router.post('/topic/:tid/delete',
+  midAuth.userRequired,
   async (ctx, next) => {
     //删除话题, 话题作者topic_count减1
     //删除回复，回复作者reply_count减1
@@ -329,8 +329,8 @@ router.post('/topic/:tid/delete',
   }
 );
 
-router.post('/topic/:tid/top', 
-  midAuth.userRequired, 
+router.post('/topic/:tid/top',
+  midAuth.userRequired,
   async (ctx, next) => {
     const topic_id = ctx.params.tid;
     const referer = ctx.get('referer');
@@ -344,7 +344,7 @@ router.post('/topic/:tid/top',
     if (!topic) {
       ctx.status = 404;
       return await ctx.render('misc/notify', { error: 'proxyTopic not exist or deleted' });
-    } 
+    }
 
     topic.top = !topic.top;
     await topic.save();
@@ -354,8 +354,8 @@ router.post('/topic/:tid/top',
   }
 );
 
-router.post('/topic/:tid/good', 
-  midAuth.userRequired, 
+router.post('/topic/:tid/good',
+  midAuth.userRequired,
   async (ctx, next) => {
     const topicId = ctx.params.tid;
     const referer = ctx.get('referer');
@@ -364,7 +364,7 @@ router.post('/topic/:tid/good',
     if (!topic) {
       ctx.status = 404;
       return await ctx.render('misc/notify', { error: 'proxyTopic not exist or deleted' });
-    } 
+    }
 
     topic.good = !topic.good;
     await topic.save();
@@ -374,8 +374,8 @@ router.post('/topic/:tid/good',
   }
 );
 
-router.post('/topic/:tid/lock', 
-  midAuth.userRequired, 
+router.post('/topic/:tid/lock',
+  midAuth.userRequired,
   async (ctx, next) => {
     const topicId = ctx.params.tid;
     const referer = ctx.get('referer');
@@ -384,7 +384,7 @@ router.post('/topic/:tid/lock',
     if (!topic) {
       ctx.status = 404;
       return await ctx.render('misc/notify', { error: 'proxyTopic not exist or deleted' });
-    } 
+    }
 
     topic.lock = !topic.lock;
     await topic.save();

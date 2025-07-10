@@ -74,7 +74,7 @@ exports.getUnreadMessageByUserId = async function (userId) {
  * 批量将消息设为已读
  */
 exports.updateMessagesToRead = async function (userId, messages) {
-  if (!messages.length) return;
+  if (!messages.length) {return;}
 
   const ids = messages.map(m => m.id);
   const query = { master_id: userId, _id: { $in: ids } };
@@ -86,7 +86,7 @@ exports.updateMessagesToRead = async function (userId, messages) {
  * 设置单个消息为已读
  */
 exports.updateOneMessageToRead = async function (msg_id) {
-  if (!msg_id) return;
+  if (!msg_id) {return;}
 
   const query = { _id: msg_id };
   await modelMessage.updateMany(query, { $set: { has_read: true } });

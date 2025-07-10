@@ -3,16 +3,12 @@ const logger = require('./logger');
 
 exports.get = async function (key) {
   const t = new Date();
-  try {
-    const data = await redis.get(key);
-    const duration = (new Date() - t);
-    logger.debug('Cache', 'get', key, (duration + 'ms'));
+  const data = await redis.get(key);
+  const duration = (new Date() - t);
+  logger.debug('Cache', 'get', key, (duration + 'ms'));
 
-    if (!data) return null;
-    return JSON.parse(data);
-  } catch (err) {
-    throw err;
-  }
+  if (!data) {return null;}
+  return JSON.parse(data);
 };
 
 exports.set = async function (key, value, time = null) {

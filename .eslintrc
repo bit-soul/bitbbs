@@ -1,50 +1,43 @@
 {
   "root": true,
+  "plugins": ["node"],
+  "extends": ["eslint:recommended", "plugin:node/recommended"],
+  "ignorePatterns": ["node_modules", "dist", "jest.config.js", "main.js", "vsjest.js", "typings"],
   "env": {
-    "browser": true,
-    "node": true,
-    "es2021": true
+    "node": true
   },
   "parserOptions": {
-    "ecmaVersion": 12,
-    "sourceType": "module"
+    "ecmaVersion": "latest",
+    "sourceType": "script"
   },
   "globals": {
-    "phantom": "readonly",
-    "module": "readonly",
-    "require": "readonly",
-    "__dirname": "readonly",
-    "process": "readonly",
-    "console": "readonly",
-    "it": "readonly",
-    "describe": "readonly",
-    "before": "readonly",
-    "beforeEach": "readonly",
+    "$": "readonly",
+    "Buffer": "readonly",
+    "ace": "readonly",
     "after": "readonly",
     "afterEach": "readonly",
-    "ace": "readonly",
-    "$": "readonly"
+    "before": "readonly",
+    "beforeEach": "readonly",
+    "clearImmediate": "readonly",
+    "console": "readonly",
+    "describe": "readonly",
+    "exports": "readonly",
+    "global": "readonly",
+    "it": "readonly",
+    "module": "readonly",
+    "phantom": "readonly",
+    "process": "readonly",
+    "queueMicrotask": "readonly",
+    "require": "readonly",
+    "setImmediate": "readonly",
+    "__dirname": "readonly",
+    "__filename": "readonly"
   },
   "rules": {
-    "indent": ["error", 2],
-    "curly": "error",
     "eqeqeq": "error",
-    "no-plusplus": "off",
-    "one-var": "off",
-    "no-trailing-spaces": "warn",
-    "nonblock-statement-body-position": "off",
-    "no-bitwise": "error",
-    "no-use-before-define": ["error", { "functions": true, "classes": true }],
-    "new-cap": "error",
-    "no-caller": "error",
-    "no-empty": "error",
-    "no-new": "error",
     "no-undef": "error",
-    "no-eval": "error",
-    "no-implied-eval": "error",
-    "no-unused-vars": ["warn", { "vars": "all", "args": "none" }],
-    "strict": "off",
-    "no-multi-str": "warn",
-    "no-warning-comments": "off"
+    "no-unused-vars": "off",
+    "no-process-exit": "off",
+    "node/no-missing-require": "off"
   }
 }

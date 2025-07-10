@@ -12,8 +12,8 @@ const validator = require('validator');
 
 const router = new Router();
 
-router.post('/reply/to/:tid', 
-  midAuth.userRequired, 
+router.post('/reply/to/:tid',
+  midAuth.userRequired,
   midLimit.peruserperday('create_reply', global.config.create_reply_per_day, {showJson: false}),
   async (ctx, next) => {
     const content = ctx.request.body.r_content;
@@ -27,7 +27,7 @@ router.post('/reply/to/:tid',
     }
 
     const topic = await proxyTopic.getTopic(tid);
-    if (!topic) return next(); // 404
+    if (!topic) {return next();} // 404
     if (topic.lock) {
       ctx.status = 403;
       return ctx.body = 'proxyTopic is locked';
@@ -56,8 +56,8 @@ router.post('/reply/to/:tid',
   }
 );
 
-router.post('/reply/:rid/delete', 
-  midAuth.userRequired, 
+router.post('/reply/:rid/delete',
+  midAuth.userRequired,
   async (ctx, next) => {
     const rid = ctx.params.rid;
     const reply = await proxyReply.getReplyById(rid);
@@ -89,8 +89,8 @@ router.post('/reply/:rid/delete',
   }
 );
 
-router.get('/reply/:rid/edit', 
-  midAuth.userRequired, 
+router.get('/reply/:rid/edit',
+  midAuth.userRequired,
   async (ctx, next) => {
     const rid = ctx.params.rid;
     const reply = await proxyReply.getReplyById(rid);
@@ -115,8 +115,8 @@ router.get('/reply/:rid/edit',
   }
 );
 
-router.post('/reply/:rid/edit', 
-  midAuth.userRequired, 
+router.post('/reply/:rid/edit',
+  midAuth.userRequired,
   async (ctx, next) => {
     const rid = ctx.params.rid;
     const content = ctx.request.body.t_content;
@@ -147,8 +147,8 @@ router.post('/reply/:rid/edit',
   }
 );
 
-router.post('/reply/:rid/up', 
-  midAuth.userRequired, 
+router.post('/reply/:rid/up',
+  midAuth.userRequired,
   async (ctx, next) => {
     const rid = ctx.params.rid;
     const uid = ctx.session.user._id;

@@ -6,7 +6,7 @@ const at         = require('../common/at');
 
 exports.getTopicById = async function (id) {
   const topic = await modelTopic.findOne({ _id: id });
-  if (!topic) return { topic: null, author: null, lastReply: null };
+  if (!topic) {return { topic: null, author: null, lastReply: null };}
 
   const [author, lastReply] = await Promise.all([
     proxyUser.getUserById(topic.author_id),
@@ -23,7 +23,7 @@ exports.getCountByQuery = async function (query) {
 exports.getTopicsByQuery = async function (query, opt = {}) {
   query.deleted = false;
   const topics = await modelTopic.find(query, {}, opt);
-  if (!topics || topics.length === 0) return [];
+  if (!topics || topics.length === 0) {return [];}
 
   const enrichedTopics = await Promise.all(
     topics.map(async (topic) => {
@@ -32,7 +32,7 @@ exports.getTopicsByQuery = async function (query, opt = {}) {
         proxyReply.getReplyById(topic.last_reply),
       ]);
 
-      if (!author) return null;
+      if (!author) {return null;}
 
       topic.author = author;
       topic.reply = reply;
@@ -72,7 +72,7 @@ exports.getFullTopic = async function (id) {
 
 exports.updateLastReply = async function (topicId, replyId) {
   const topic = await modelTopic.findOne({ _id: topicId });
-  if (!topic) throw new Error('modelTopic not exist');
+  if (!topic) {throw new Error('modelTopic not exist');}
 
   topic.last_reply = replyId;
   topic.last_reply_at = new Date();
@@ -88,7 +88,7 @@ exports.getTopic = async function (id) {
 
 exports.reduceCount = async function (id) {
   const topic = await modelTopic.findOne({ _id: id });
-  if (!topic) throw new Error('modelTopic not exist or deleted');
+  if (!topic) {throw new Error('modelTopic not exist or deleted');}
 
   topic.reply_count -= 1;
 

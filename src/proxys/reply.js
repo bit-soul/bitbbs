@@ -11,63 +11,51 @@ exports.getReplyById = async function (id) {
     return null;
   }
 
-  try {
-    const reply = await modelReply.findOne({ _id: id });
-    if (!reply) return null;
+  const reply = await modelReply.findOne({ _id: id });
+  if (!reply) {return null;}
 
-    const author = await proxyUser.getUserById(reply.author_id);
-    reply.author = author;
+  const author = await proxyUser.getUserById(reply.author_id);
+  reply.author = author;
 
-    if (reply.is_html) {
-      return reply;
-    }
-
-    const str = await at.textShowProcess(reply.content);
-    reply.content = str;
-
+  if (reply.is_html) {
     return reply;
-  } catch (err) {
-    throw err;
   }
+
+  const str = await at.textShowProcess(reply.content);
+  reply.content = str;
+
+  return reply;
 };
 
 exports.getRepliesByTopicId = async function (id) {
-  try {
-    const replies = await modelReply.find({ topic_id: id, deleted: false }, '', { sort: 'create_at' });
-    if (replies.length === 0) {
-      return [];
-    }
-
-    await Promise.all(replies.map(async (reply) => {
-      const author = await proxyUser.getUserById(reply.author_id);
-      reply.author = author || { _id: '' };
-
-      if (!reply.is_html) {
-        const str = await at.textShowProcess(reply.content);
-        reply.content = str;
-      }
-    }));
-
-    return replies;
-  } catch (err) {
-    throw err;
+  const replies = await modelReply.find({ topic_id: id, deleted: false }, '', { sort: 'create_at' });
+  if (replies.length === 0) {
+    return [];
   }
+
+  await Promise.all(replies.map(async (reply) => {
+    const author = await proxyUser.getUserById(reply.author_id);
+    reply.author = author || { _id: '' };
+
+    if (!reply.is_html) {
+      const str = await at.textShowProcess(reply.content);
+      reply.content = str;
+    }
+  }));
+
+  return replies;
 };
 
 exports.newAndSave = async function (content, topicId, authorId, replyId = null) {
-  try {
-    const reply = new modelReply({
-      content,
-      topic_id: topicId,
-      author_id: authorId,
-      reply_id: replyId || undefined
-    });
+  const reply = new modelReply({
+    content,
+    topic_id: topicId,
+    author_id: authorId,
+    reply_id: replyId || undefined
+  });
 
-    await reply.save();
-    return reply;
-  } catch (err) {
-    throw err;
-  }
+  await reply.save();
+  return reply;
 };
 
 exports.getLastReplyByTopId = async function (topicId) {

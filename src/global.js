@@ -19,7 +19,7 @@ var mongoose = require('mongoose');
 
 mongoose.set('strictQuery', true);
 mongoose.connect(global.config.mongodb_cfg.db, {
-  maxPoolSize: 10,  
+  maxPoolSize: 10,
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 10000,

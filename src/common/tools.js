@@ -16,17 +16,17 @@ exports.formatDate = function (date, friendly) {
 };
 
 exports.getFormattedDate = function() {
-    const date = new Date();
-    return date.getFullYear() + 
-           String(date.getMonth() + 1).padStart(2, '0') + 
-           String(date.getDate()).padStart(2, '0');
+  const date = new Date();
+  return date.getFullYear() +
+         String(date.getMonth() + 1).padStart(2, '0') +
+         String(date.getDate()).padStart(2, '0');
 }
 
 exports.getFormattedTime = function() {
-    const date = new Date();
-    return String(date.getHours()).padStart(2, '0') +
-           String(date.getMinutes()).padStart(2, '0') +
-           String(date.getSeconds()).padStart(2, '0');
+  const date = new Date();
+  return String(date.getHours()).padStart(2, '0') +
+         String(date.getMinutes()).padStart(2, '0') +
+         String(date.getSeconds()).padStart(2, '0');
 }
 
 exports.validateId = function (str) {
@@ -76,7 +76,7 @@ exports.retryTimes = async (fun, times, interval) => {
     try {
       return await fun();
     } catch (error) {
-      await sleep(interval);
+      await exports.sleep(interval);
       last_error = error;
     }
   }
@@ -85,5 +85,6 @@ exports.retryTimes = async (fun, times, interval) => {
 }
 
 exports.utf8ForXml= function (inputStr) {
+  // eslint-disable-next-line no-control-regex
   return inputStr.replace(/[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm, '');
 }

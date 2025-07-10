@@ -13,7 +13,7 @@ const lodash    = require('lodash');
 
 const router = new Router();
 
-router.post('/user/refresh_token', 
+router.post('/user/refresh_token',
   midAuth.userRequired,
   async (ctx, next) => {
     const user_id = ctx.session.user._id;
@@ -45,7 +45,7 @@ router.get('/user/advances', async (ctx, next) => {
 });
 
 //todo cancel_advance
-router.post('/user/set_advance', 
+router.post('/user/set_advance',
   midAuth.adminRequired,
   async (ctx, next) => {
     const user_id = ctx.request.body.user_id;
@@ -59,9 +59,10 @@ router.post('/user/set_advance',
     await user.save();
 
     ctx.body = { status: 'success' };
-});
+  }
+);
 
-router.get('/user/setting', 
+router.get('/user/setting',
   midAuth.userRequired,
   async (ctx, next) => {
     const user = await proxyUser.getUserById(ctx.session.user._id);
@@ -75,9 +76,10 @@ router.get('/user/setting',
     user.error = null;
 
     return await ctx.render('user/setting', {user});
-});
+  }
+);
 
-router.post('/user/setting', 
+router.post('/user/setting',
   midAuth.userRequired,
   async (ctx, next) => {
     const reqBody = ctx.request.body;
@@ -281,7 +283,7 @@ router.get('/user/:uid/replies', async (ctx, next) => {
   });
 });
 
-router.post('/user/:uid/block', 
+router.post('/user/:uid/block',
   midAuth.adminRequired,
   async (ctx, next) => {
     const uid = ctx.params.uid;
@@ -304,7 +306,7 @@ router.post('/user/:uid/block',
   }
 );
 
-router.get('/user/:uid/delete_all', 
+router.get('/user/:uid/delete_all',
   midAuth.adminRequired,
   async (ctx, next) => {
     const uid = ctx.params.uid;

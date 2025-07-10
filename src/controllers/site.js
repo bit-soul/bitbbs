@@ -42,7 +42,7 @@ router.get('/', async (ctx, next) => {
     // 取排行榜上的用户
     (async () => {
       let tops = await cache.get('tops');
-      if (tops) return tops;
+      if (tops) {return tops;}
       tops = await proxyUser.getUsersByQuery({ is_block: false }, { limit: 10, sort: '-score' });
       await cache.set('tops', tops, 60);
       return tops;
@@ -51,7 +51,7 @@ router.get('/', async (ctx, next) => {
     // 取0回复的主题
     (async () => {
       let noReply = await cache.get('no_reply_topics');
-      if (noReply) return noReply;
+      if (noReply) {return noReply;}
       noReply = await proxyTopic.getTopicsByQuery({ reply_count: 0, tab: { $nin: ['job', 'dev'] } }, { limit: 5, sort: '-create_at' });
       await cache.set('no_reply_topics', noReply, 60);
       return noReply;
@@ -61,7 +61,7 @@ router.get('/', async (ctx, next) => {
     (async () => {
       const key = JSON.stringify(query) + 'pages';
       let pages = await cache.get(key);
-      if (pages) return pages;
+      if (pages) {return pages;}
       const count = await proxyTopic.getCountByQuery(query);
       pages = Math.ceil(count / limit);
       await cache.set(key, pages, 60);
@@ -87,6 +87,7 @@ router.get('/sitemap.xml', async (ctx, next) => {
   let sitemapData = await cache.get('sitemap');
 
   if (!sitemapData) {
+    const topics = await proxyTopic.getLimit5w();
     const urlset = {
       _attr: {
         xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9'

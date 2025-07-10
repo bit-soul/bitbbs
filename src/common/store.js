@@ -20,16 +20,16 @@ if (global.config.s3_client && global.config.s3_client.secretAccessKey) {
 }
 
 async function createPresignedUrl(fileName, fileType, fileSize) {
-    return await s3presigner.getSignedUrl(s3_client, 
-        new s3sdk.PutObjectCommand({
-            Bucket: global.config.s3_client.bucket,
-            Key: fileName,
-            ACL: 'public-read',
-            ContentType: fileType,
-            ContentLength: fileSize,
-        }),
-        { expiresIn: 600, signableHeaders: new Set(['content-type', 'content-length']) });
-};
+  return await s3presigner.getSignedUrl(s3_client,
+    new s3sdk.PutObjectCommand({
+      Bucket: global.config.s3_client.bucket,
+      Key: fileName,
+      ACL: 'public-read',
+      ContentType: fileType,
+      ContentLength: fileSize,
+    }),
+    { expiresIn: 600, signableHeaders: new Set(['content-type', 'content-length']) });
+}
 
 var s3cloud = {
   presignedUrl: createPresignedUrl,
@@ -61,5 +61,5 @@ var local = {
 if (s3_client) {
   module.exports = s3cloud;
 } else {
-  module.exports = local; 
+  module.exports = local;
 }

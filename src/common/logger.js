@@ -2,7 +2,7 @@ const path = require('path')
 const log4js = require('log4js');
 
 const env = process.env.NODE_ENV || "development"
-const level = config.debug && env !== 'test' ? 'debug' : 'error';
+const level = global.config.debug && env !== 'test' ? 'debug' : 'error';
 
 log4js.configure({
   appenders: {

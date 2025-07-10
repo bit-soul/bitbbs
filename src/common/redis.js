@@ -10,4 +10,4 @@ client.on('error', function (err) {
   }
 })
 
-exports = module.exports = client;
+module.exports = client;

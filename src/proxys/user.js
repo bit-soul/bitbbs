@@ -2,7 +2,7 @@ const modelUser = require('../models/user');
 const tools     = require('../common/tools');
 
 exports.getUserById = async function (id) {
-  if (!id) return null;
+  if (!id) {return null;}
   return await modelUser.findOne({ _id: id });
 };
 

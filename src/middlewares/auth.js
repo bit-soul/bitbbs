@@ -89,6 +89,7 @@ exports.authUser = async (ctx, next) => {
 
     user = ctx.state.current_user = ctx.session.user = new modelUser(user);
 
+    // eslint-disable-next-line no-prototype-builtins
     if (global.config.admins.hasOwnProperty(user._id)) {
       user.is_admin = true;
     }

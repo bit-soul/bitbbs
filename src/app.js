@@ -2,30 +2,30 @@
 // choose config file
 //*****************************************************************************
 switch (process.env.APP_ENV) {
-  case 'dev':
-    global.env = 'dev';
-    global.config = require('./config/dev');
-    break;
-  case 'local':
-    global.env = 'local';
-    global.config = require('./config/local');
-    break;
-  case 'pre':
-    global.env = 'pre';
-    global.config = require('./config/pre');
-    break;
-  case 'prod':
-    global.env = 'prod';
-    global.config = require('./config/prod');
-    break;
-  case 'unittest':
-    global.env = 'unittest';
-    global.config = require('./config/unittest');
-    break;
-  default:
-    global.env = 'local';
-    global.config = require('./config/local');
-    break;
+case 'dev':
+  global.env = 'dev';
+  global.config = require('./config/dev');
+  break;
+case 'local':
+  global.env = 'local';
+  global.config = require('./config/local');
+  break;
+case 'pre':
+  global.env = 'pre';
+  global.config = require('./config/pre');
+  break;
+case 'prod':
+  global.env = 'prod';
+  global.config = require('./config/prod');
+  break;
+case 'unittest':
+  global.env = 'unittest';
+  global.config = require('./config/unittest');
+  break;
+default:
+  global.env = 'local';
+  global.config = require('./config/local');
+  break;
 }
 if(process.env.admins) {
   const items = process.env.admins.split(';');
@@ -91,7 +91,7 @@ koaonerror.onerror(app);
 
 //logger
 if (!fs.existsSync(global.config.log_dir)) {
-    fs.mkdirSync(global.config.log_dir, { recursive: true });
+  fs.mkdirSync(global.config.log_dir, { recursive: true });
 }
 if(global.config.debug) {
   app.use(midReqlog);
@@ -100,30 +100,30 @@ if(global.config.debug) {
 
 //staticfile
 var staticDir = path.join(__dirname, '../static');
-if(config.diststatic){
+if(global.config.diststatic){
   staticDir = path.join(__dirname, '../dist/static');
 }
 app.use(koamount('/static', koastatic(staticDir)));
 
 var uploadDir = path.join(__dirname, '../upload');
 if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+  fs.mkdirSync(uploadDir, { recursive: true });
 }
 app.use(koamount('/upload', koastatic(uploadDir)));
 
 // session
 app.keys = [global.config.session_secret];
 const session_config = {
-    key: global.config.session_cookie_key, /** Cookie key (default is koa:sess) */
-    maxAge: global.config.session_max_age, /** Session expiration time in milliseconds */
-    autoCommit: true, /** Automatically add session to response header (default: true) */
-    overwrite: true, /** Allow overwriting session cookie (default: true) */
-    httpOnly: true, /** HTTPOnly to prevent JS access and reduce XSS risk (default: true) */
-    signed: true, /** Sign the cookie (default: true) */
-    rolling: false, /** Refresh session on every response (default: false) */
-    renew: true, /** Renew session if it's about to expire (default: false) */
-    store: koaredis(global.config.koaredis_cfg), /** Use Redis as session store */
-    sameSite: 'lax', /** (string) session cookie sameSite options (default null, don't set it) */
+  key: global.config.session_cookie_key, /** Cookie key (default is koa:sess) */
+  maxAge: global.config.session_max_age, /** Session expiration time in milliseconds */
+  autoCommit: true, /** Automatically add session to response header (default: true) */
+  overwrite: true, /** Allow overwriting session cookie (default: true) */
+  httpOnly: true, /** HTTPOnly to prevent JS access and reduce XSS risk (default: true) */
+  signed: true, /** Sign the cookie (default: true) */
+  rolling: false, /** Refresh session on every response (default: false) */
+  renew: true, /** Renew session if it's about to expire (default: false) */
+  store: koaredis(global.config.koaredis_cfg), /** Use Redis as session store */
+  sameSite: 'lax', /** (string) session cookie sameSite options (default null, don't set it) */
 };
 app.use(koasession.createSession(session_config, app));
 
@@ -205,37 +205,37 @@ router.all('/agent/(.*)', midProxy.proxy);
 //load routers recursively
 (function(){
 
-   loadRouters(path.join(__dirname, './controllers'));
+  loadRouters(path.join(__dirname, './controllers'));
 
-   function loadRouters(router_path)
-   {
-      //if router_path is a directory, then call loadRouters for each of it's items
-      if(fs.lstatSync(router_path).isDirectory())
-      {  
-         var items=fs.readdirSync(router_path); 
-         items.forEach(function(item, index, array){
-            loadRouters(router_path + '/' + item);
-         });
+  function loadRouters(router_path)
+  {
+    //if router_path is a directory, then call loadRouters for each of it's items
+    if(fs.lstatSync(router_path).isDirectory())
+    {
+      var items=fs.readdirSync(router_path);
+      items.forEach(function(item, index, array){
+        loadRouters(router_path + '/' + item);
+      });
+    }
+    //if router_path is js file, then load it as router
+    else if(router_path.slice(-3) === '.js')
+    {
+      var router_handler = require(router_path);
+      if(router_handler.routes !== undefined)
+      {
+        app.use(router_handler.routes(), router_handler.allowedMethods());
       }
-      //if router_path is js file, then load it as router
-      else if(router_path.slice(-3) == '.js')
-      {  
-         var router_handler = require(router_path); 
-         if(router_handler.routes != undefined)
-         {
-            app.use(router_handler.routes(), router_handler.allowedMethods());
-         }
-         else
-         {
-            logger.error(`cann\'t load router ${router_path}`);
-         }
-      }
-      //it's neither a directory or js file
       else
-      {  
-          logger.info(`cann\'t load router ${router_path}`);
+      {
+        logger.error(`cann't load router ${router_path}`);
       }
-   }
+    }
+    //it's neither a directory or js file
+    else
+    {
+      logger.info(`cann't load router ${router_path}`);
+    }
+  }
 })();
 
 

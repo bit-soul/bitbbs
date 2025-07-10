@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 const midAuth = require('../middlewares/auth');
 const tools   = require('../common/tools');
 const store   = require('../common/store');
@@ -9,8 +11,8 @@ const lodash    = require('lodash');
 
 const router = new Router();
 
-router.get('/presignedurl', 
-  midAuth.userRequired, 
+router.get('/presignedurl',
+  midAuth.userRequired,
   async (ctx, next) => {
     const fileName = ctx.query.filename;
     const fileType = ctx.query.filetype;
@@ -44,8 +46,8 @@ router.get('/presignedurl',
 );
 
 //todo 参考bootkoa
-router.post('/upload', 
-  midAuth.userRequired, 
+router.post('/upload',
+  midAuth.userRequired,
   async (ctx, next) => {
     const file = ctx.request.files.file; // "file" 是上传字段名
     if (!file) {

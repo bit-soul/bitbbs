@@ -126,7 +126,7 @@ router.get('/active_account', async (ctx, next) => {
   const uid = validator.trim(ctx.query.uid);
 
   const user = await proxyUser.getUserById(uid);
-  if (!user) throw new Error('[ACTIVE_ACCOUNT] no such user: ' + uid);
+  if (!user) {throw new Error('[ACTIVE_ACCOUNT] no such user: ' + uid);}
 
   const validKey = tools.md5(user.email + user.pass + global.config.session_secret);
   if (key !== validKey) {
