@@ -2,7 +2,7 @@
   "root": true,
   "plugins": ["node"],
   "extends": ["eslint:recommended", "plugin:node/recommended"],
-  "ignorePatterns": ["node_modules", "dist", "jest.config.js", "main.js", "vsjest.js", "typings"],
+  "ignorePatterns": ["node_modules", "dist", "static", "gulpfile.js", "main.js", "vsdebug.js"],
   "env": {
     "node": true
   },
