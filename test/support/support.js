@@ -46,6 +46,14 @@ function mockUser(user) {
   return 'mock_user=' + JSON.stringify(user) + ';';
 }
 
+function findRouterHandler(router, method, path) {
+  const route = router.stack.find(r => r.path === path && r.methods.includes(method));
+  if (!route || router.stack.length !== 1) {
+    return null;
+  }
+  return route.stack[0].handle;
+}
+
 ready(exports);
 
 var ep = new eventproxy();
