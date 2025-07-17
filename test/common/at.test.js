@@ -1,7 +1,7 @@
 
 var should = require('should');
 var mm = require('mm');
-var support = require('../support/support');
+var support = require('../support');
 var eventproxy = require('eventproxy');
 var _ = require('lodash');
 

@@ -1,6 +1,6 @@
 var proxyMiddleware = require('../../middlewares/proxy');
 var app = require('../../app');
-var support = require('../support/support');
+var support = require('../support');
 var supertest = require('supertest')(app);
 var mm = require('mm');
 var nock = require('nock');

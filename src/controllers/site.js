@@ -1,7 +1,7 @@
 const proxyUser   = require('../proxys/user');
 const proxyTopic  = require('../proxys/topic');
 const cache       = require('../common/cache');
-const renders     = require('../common/renders');
+const helper     = require('../common/helper');
 const tools       = require('../common/tools');
 
 const Router      = require('@koa/router');
@@ -69,7 +69,7 @@ router.get('/', async (ctx, next) => {
     })()
   ]);
 
-  const tabName = renders.tabName(tab);
+  const tabName = helper.tabName(tab);
   return await ctx.render('index', {
     topics,
     current_page: page,

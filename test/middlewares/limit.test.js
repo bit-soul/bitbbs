@@ -1,7 +1,7 @@
 var limitMiddleware = require('../../middlewares/limit');
 var app = require('../../app');
 var supertest;
-var support = require('../support/support');
+var support = require('../support');
 var pedding = require('pedding');
 var visitor = 'visit' + Date.now();
 

@@ -5,7 +5,7 @@ var github = require('../../controllers/github');
 var Models = require('../../models');
 var User = Models.User;
 var config = require('../../config');
-var support = require('../support/support');
+var support = require('../support');
 
 describe('test/controllers/github.test.js', function () {
   before(function (done) {

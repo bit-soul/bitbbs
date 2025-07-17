@@ -1,6 +1,6 @@
 var app = require('../../app');
 var request = require('supertest')(app);
-var support = require('../support/support');
+var support = require('../support');
 var ReplyProxy = require('../../proxy/reply');
 
 describe('test/controllers/reply.test.js', function () {

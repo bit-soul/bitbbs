@@ -1,6 +1,6 @@
 const proxyTopic  = require('../proxys/topic');
 const cache       = require('../common/cache');
-const renders     = require('../common/renders');
+const helper     = require('../common/helper');
 const tools       = require('../common/tools');
 
 const Router   = require('@koa/router');
@@ -47,7 +47,7 @@ router.get('/rss', async (ctx, next) => {
       title: topic.title,
       link: global.config.rss.link + '/topic/' + topic._id,
       guid: global.config.rss.link + '/topic/' + topic._id,
-      description: renders.markdown(topic.content),
+      description: helper.markdown(topic.content),
       author: topic.author.name,
       pubDate: topic.create_at.toUTCString()
     });
