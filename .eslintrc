@@ -4,7 +4,7 @@
   "extends": ["eslint:recommended", "plugin:node/recommended"],
   "ignorePatterns": ["node_modules", "dist", "static", "gulpfile.js", "jest.config.js", "main.js", "vsdebug.js"],
   "env": {
-    "jest": true
+    "node": true
   },
   "parserOptions": {
     "ecmaVersion": "latest",
@@ -20,6 +20,11 @@
   "overrides": [
     {
       "files": ["test/**/*.js"],
+      "plugins": ["jest"],
+      "extends": ["plugin:jest/recommended"]
+      "env": {
+        "jest": true
+      },
       "rules": {
         "node/no-unpublished-require": "off"
       }

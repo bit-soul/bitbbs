@@ -46,7 +46,7 @@ exports.createSingleUp = async function(replyId, userId) {
   return reply;
 };
 
-(async function () {
+exports.initSupport = async function () {
   try {
     const [user, user2, admin] = await Promise.all([
       exports.createUser(),
@@ -75,4 +75,4 @@ exports.createSingleUp = async function(replyId, userId) {
     console.error('Init test data error: ', err);
     throw err;
   }
-})();
+};
