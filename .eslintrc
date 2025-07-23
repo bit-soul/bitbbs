@@ -2,36 +2,13 @@
   "root": true,
   "plugins": ["node"],
   "extends": ["eslint:recommended", "plugin:node/recommended"],
-  "ignorePatterns": ["node_modules", "dist", "static", "gulpfile.js", "main.js", "vsdebug.js"],
+  "ignorePatterns": ["node_modules", "dist", "static", "gulpfile.js", "jest.config.js", "main.js", "vsdebug.js"],
   "env": {
-    "node": true
+    "jest": true
   },
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "script"
-  },
-  "globals": {
-    "$": "readonly",
-    "Buffer": "readonly",
-    "ace": "readonly",
-    "after": "readonly",
-    "afterEach": "readonly",
-    "before": "readonly",
-    "beforeEach": "readonly",
-    "clearImmediate": "readonly",
-    "console": "readonly",
-    "describe": "readonly",
-    "exports": "readonly",
-    "global": "readonly",
-    "it": "readonly",
-    "module": "readonly",
-    "phantom": "readonly",
-    "process": "readonly",
-    "queueMicrotask": "readonly",
-    "require": "readonly",
-    "setImmediate": "readonly",
-    "__dirname": "readonly",
-    "__filename": "readonly"
   },
   "rules": {
     "eqeqeq": "error",

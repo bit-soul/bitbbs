@@ -77,7 +77,7 @@ const logger = require('./common/logger');
 require("./global.js");
 
 if (!global.config.debug && global.config.oneapm_key) {
-  require('oneapm');
+  // require('oneapm');
 }
 
 
