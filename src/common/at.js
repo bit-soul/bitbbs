@@ -2,12 +2,7 @@ const lodash     = require('lodash');
 const Message    = require('./message');
 const proxyUser  = require('../proxys/user');
 
-/**
- * 从文本中提取出@username 标记的用户名数组
- * @param {String} text 文本内容
- * @return {Array} 用户名数组
- */
-function fetchUserIds (text) {
+exports.fetchUserIds = async function(text) {
   if (!text) {
     return [];
   }
@@ -38,15 +33,9 @@ function fetchUserIds (text) {
   return uids;
 }
 
-/**
- * 根据文本内容中读取用户，并发送消息给提到的用户
- * @param {String} text 文本内容
- * @param {String} topicId 主题ID
- * @param {String} authorId 作者ID
- * @param {String|null} replyId 回复ID（可选）
- */
-exports.sendMessageToMentionUsers = async function (text, topicId, authorId, replyId = null) {
-  const userIds = fetchUserIds(text);
+
+exports.sendMessageToMentionUsers = async function(text, topicId, authorId, replyId = null) {
+  const userIds = exports.fetchUserIds(text);
   const users = await proxyUser.getUsersByIds(userIds);
 
   if (!users) {
@@ -62,12 +51,8 @@ exports.sendMessageToMentionUsers = async function (text, topicId, authorId, rep
   );
 };
 
-/**
- * 根据文本内容，替换为数据库中的数据
- * @param {String} text 文本内容
- * @returns {String} 替换后的文本内容（当前为原样返回）
- */
-exports.textShowProcess = async function (text) {
+
+exports.textShowProcess = async function(text) {
   // 如果将来要替换为数据库处理，可在这里扩展
   return text;
 };
