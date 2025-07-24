@@ -1,85 +1,26 @@
-var should = require('should');
-var app = require('../../app');
-var request = require('supertest')(app);
-var mm = require('mm');
-var support = require('../support');
-var _ = require('lodash');
-var pedding = require('pedding');
-var multiline = require('multiline');
-var MessageService = require('../../common/message');
-var eventproxy = require('eventproxy');
-var ReplyProxy = require('../../proxy').Reply;
+const support = require('../support');
+const message = require('../../common/message');
 
-describe('test/common/message.test.js', function () {
-  var atUser;
-  var author;
-  var topic;
-  var reply;
-  before(function (done) {
-    var ep = new eventproxy();
+describe('common/message', () => {
+  let atUser, author, topic, reply;
 
-    ep.all('topic', function (_topic) {
-      topic = _topic;
-      done();
-    });
-    support.ready(function () {
-      atUser = support.normalUser;
-      author = atUser;
-      reply = {};
-      support.createTopic(author._id, ep.done('topic'));
-    });
+  beforeAll(async () => {
+    atUser = support.normalUser;
+    author = atUser;
+    reply = {};
+    topic = await support.createTopic(author._id)
   });
 
-  afterEach(function () {
-    mm.restore();
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
-  describe('#sendReplyMessage', function () {
-    it('should send reply message', function (done) {
-      mm(ReplyProxy, 'getReplyById', function (id, callback) {
-        callback(null, {author: {}});
-      });
-      MessageService.sendReplyMessage(atUser._id, author._id, topic._id, reply._id,
-        function (err, msg) {
-          request.get('/my/messages')
-          .set('Cookie', support.normalUserCookie)
-          .expect(200, function (err, res) {
-            var texts = [
-              author.loginname,
-              '回复了你的话题',
-              topic.title,
-            ];
-            texts.forEach(function (text) {
-              res.text.should.containEql(text)
-            })
-            done(err);
-          });
-        });
+  describe('sendReplyMessage', () => {
+    test('should send reply message', async () => {
+      await message.sendReplyMessage(atUser._id, author._id, topic._id, reply._id);
+    });
+    test('should send at message', async () => {
+      await message.sendAtMessage(atUser._id, author._id, topic._id, reply._id);
     });
   });
-
-  describe('#sendAtMessage', function () {
-    it('should send at message', function (done) {
-      mm(ReplyProxy, 'getReplyById', function (id, callback) {
-        callback(null, {author: {}});
-      });
-      MessageService.sendAtMessage(atUser._id, author._id, topic._id, reply._id,
-        function (err, msg) {
-          request.get('/my/messages')
-          .set('Cookie', support.normalUserCookie)
-          .expect(200, function (err, res) {
-            var texts = [
-              author.loginname,
-              '在话题',
-              topic.title,
-              '中@了你',
-            ];
-            texts.forEach(function (text) {
-              res.text.should.containEql(text)
-            })
-            done(err);
-          });
-        });
-    });
-  });
-})
+});

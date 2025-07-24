@@ -1,6 +1,5 @@
-var at        = require('../../common/at');
-var message   = require('../../common/message');
-var multiline = require('multiline');
+var at      = require('../../common/at');
+var message = require('../../common/message');
 
 var matched_users = ['A-aZ-z0-9_', 'begin_with_spaces',
   'multi_in_oneline', 'around_text', 'end_with_no_space',
@@ -64,7 +63,8 @@ var text =
   @liveinjs 没事儿，能力和热情更重要，北京北京，想的就邮件给我i5ting@126.com
 `.trim().replace(/^ {2}/gm, '');
 
-describe('common_at', function () {
+
+describe('common/at', function () {
   describe('fetchUserIds', () => {
     test('should find users', () => {
       const users = at.fetchUsers(text);

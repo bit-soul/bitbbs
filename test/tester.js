@@ -1,7 +1,6 @@
 var nock = require('nock');
 var support = require('./support');
 
-// eslint-disable-next-line no-undef
 beforeAll(async () => {
   global.env = 'local';
   global.config = require('../src/config/local');
@@ -11,7 +10,5 @@ beforeAll(async () => {
   await support.initSupport();
 });
 
-// eslint-disable-next-line no-undef
 afterAll(async () => {
-
 });
