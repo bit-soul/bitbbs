@@ -11,6 +11,8 @@ function mockUser(user) {
   return 'mock_user=' + JSON.stringify(user) + ';';
 }
 
+exports.emptyFunction = jest.fn();
+
 exports.findRouterHandler = function(router, method, path) {
   const route = router.stack.find(r => r.path === path && r.methods.includes(method));
   if (!route || router.stack.length !== 1) {

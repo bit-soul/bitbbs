@@ -1,42 +1,23 @@
-var limitMiddleware = require('../../middlewares/limit');
-var app = require('../../app');
-var supertest;
-var support = require('../support');
-var pedding = require('pedding');
-var visitor = 'visit' + Date.now();
+const support = require('../support');
+const midLimit = require('../../middlewares/limit');
 
-describe('test/middlewares/limit.test.js', function () {
-  before(function (done) {
-    support.ready(done);
-  });
+describe('middlewares/limit', () => {
+  describe('peripperday', () => {
+    test('should visit', async () => {
+      let ctx = {
+        get: () => { return '127.0.0.1' },
+        set: () => {},
+        throw: () => {},
+        render: () => {},
+      };
+      const midPerIPPerday = midLimit.peripperday('testapi', 3, { showJson: true });
 
-  before(function () {
-    app.get('/test_peripperday',
-      limitMiddleware.peripperday(visitor, 3, {showJson: true}), function (req, res) {
-        res.send('hello');
-      });
-
-    supertest = require('supertest')(app);
-  });
-  describe('#peripperday', function () {
-    it('should visit', function (done) {
-      supertest.get('/test_peripperday').set('x-real-ip', '127.0.0.1').end(function () {
-        supertest.get('/test_peripperday').set('x-real-ip', '127.0.0.1').end(function () {
-          supertest.get('/test_peripperday').set('x-real-ip', '127.0.0.1').end(function (err, res) {
-            res.text.should.eql('hello');
-            done();
-          });
-        });
-      });
-    });
-    it('should not visit', function (done) {
-      supertest.get('/test_peripperday')
-        .set('x-real-ip', '127.0.0.1')
-        .end(function (err, res) {
-          res.status.should.equal(403);
-          res.body.success.should.false();
-          done(err);
-        });
+      midPerIPPerday(ctx, support.emptyFunction);
+      midPerIPPerday(ctx, support.emptyFunction);
+      midPerIPPerday(ctx, support.emptyFunction);
+      expect(ctx.status).toBeUndefined();
+      midPerIPPerday(ctx, support.emptyFunction);
+      expect(ctx.status).toequal(403);
     });
   });
 });
