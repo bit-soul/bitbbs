@@ -1,7 +1,7 @@
 const app = require('../../app');
 const request = require('supertest');
 
-describe('test/controllers/static.test.js', () => {
+describe('controllers/static', () => {
   test('should get /about', async () => {
     const res = await request(app).get('/about').expect(200);
     expect(res.text).toContain('CNode 社区由一批热爱 Node.js 技术的工程师发起');

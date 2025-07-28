@@ -3,10 +3,10 @@ const request = require('supertest');
 const support = require('../support');
 const store = require('../../common/store');
 
-describe('test/controllers/topic.test.js', () => {
+describe('controllers/topic', () => {
 
   describe('#index', () => {
-    it('should get /topic/:tid 200', (done) => {
+    test('should get /topic/:tid 200', (done) => {
       request(app)
         .get('/topic/' + support.testTopic._id)
         .expect(200)
@@ -17,7 +17,7 @@ describe('test/controllers/topic.test.js', () => {
         });
     });
 
-    it('should get /topic/:tid 200 when login in', (done) => {
+    test('should get /topic/:tid 200 when login in', (done) => {
       request(app)
         .get('/topic/' + support.testTopic._id)
         .set('Cookie', support.normalUser2Cookie)
@@ -31,7 +31,7 @@ describe('test/controllers/topic.test.js', () => {
   });
 
   describe('#create', () => {
-    it('should show a create page', (done) => {
+    test('should show a create page', (done) => {
       request(app)
         .get('/topic/create')
         .set('Cookie', support.normalUserCookie)
@@ -44,7 +44,7 @@ describe('test/controllers/topic.test.js', () => {
   });
 
   describe('#put', () => {
-    it('should not create a topic when no title', (done) => {
+    test('should not create a topic when no title', (done) => {
       request(app)
         .post('/topic/create')
         .send({
@@ -60,7 +60,7 @@ describe('test/controllers/topic.test.js', () => {
         });
     });
 
-    it('should not create a topic when no tab', (done) => {
+    test('should not create a topic when no tab', (done) => {
       request(app)
         .post('/topic/create')
         .send({
@@ -76,7 +76,7 @@ describe('test/controllers/topic.test.js', () => {
         });
     });
 
-    it('should not create a topic when no content', (done) => {
+    test('should not create a topic when no content', (done) => {
       request(app)
         .post('/topic/create')
         .send({
@@ -92,7 +92,7 @@ describe('test/controllers/topic.test.js', () => {
         });
     });
 
-    it('should create a topic', (done) => {
+    test('should create a topic', (done) => {
       request(app)
         .post('/topic/create')
         .send({
@@ -110,7 +110,7 @@ describe('test/controllers/topic.test.js', () => {
   });
 
   describe('#showEdit', () => {
-    it('should show an edit page', (done) => {
+    test('should show an edit page', (done) => {
       request(app)
         .get(`/topic/${support.testTopic._id}/edit`)
         .set('Cookie', support.normalUserCookie)
@@ -123,7 +123,7 @@ describe('test/controllers/topic.test.js', () => {
   });
 
   describe('#update', () => {
-    it('should update a topic', (done) => {
+    test('should update a topic', (done) => {
       request(app)
         .post(`/topic/${support.testTopic._id}/edit`)
         .send({
@@ -147,7 +147,7 @@ describe('test/controllers/topic.test.js', () => {
       topicToDelete = await support.createTopic(support.normalUser._id);
     });
 
-    it('should not delete a topic when not author', (done) => {
+    test('should not delete a topic when not author', (done) => {
       request(app)
         .post(`/topic/${topicToDelete._id}/delete`)
         .set('Cookie', support.normalUser2Cookie)
@@ -158,7 +158,7 @@ describe('test/controllers/topic.test.js', () => {
         });
     });
 
-    it('should delete a topic', (done) => {
+    test('should delete a topic', (done) => {
       request(app)
         .post(`/topic/${topicToDelete._id}/delete`)
         .set('Cookie', support.normalUserCookie)
@@ -171,7 +171,7 @@ describe('test/controllers/topic.test.js', () => {
   });
 
   describe('#top', () => {
-    it('should top a topic', (done) => {
+    test('should top a topic', (done) => {
       request(app)
         .post(`/topic/${support.testTopic._id}/top`)
         .set('Cookie', support.adminUserCookie)
@@ -182,7 +182,7 @@ describe('test/controllers/topic.test.js', () => {
         });
     });
 
-    it('should untop a topic', (done) => {
+    test('should untop a topic', (done) => {
       request(app)
         .post(`/topic/${support.testTopic._id}/top`)
         .set('Cookie', support.adminUserCookie)
@@ -195,7 +195,7 @@ describe('test/controllers/topic.test.js', () => {
   });
 
   describe('#good', () => {
-    it('should good a topic', (done) => {
+    test('should good a topic', (done) => {
       request(app)
         .post(`/topic/${support.testTopic._id}/good`)
         .set('Cookie', support.adminUserCookie)
@@ -206,7 +206,7 @@ describe('test/controllers/topic.test.js', () => {
         });
     });
 
-    it('should ungood a topic', (done) => {
+    test('should ungood a topic', (done) => {
       request(app)
         .post(`/topic/${support.testTopic._id}/good`)
         .set('Cookie', support.adminUserCookie)
@@ -219,7 +219,7 @@ describe('test/controllers/topic.test.js', () => {
   });
 
   describe('#collect', () => {
-    it('should collect a topic', (done) => {
+    test('should collect a topic', (done) => {
       request(app)
         .post('/topic/collect')
         .send({ topic_id: support.testTopic._id })
@@ -231,7 +231,7 @@ describe('test/controllers/topic.test.js', () => {
         });
     });
 
-    it('should not collect a topic twice', (done) => {
+    test('should not collect a topic twice', (done) => {
       request(app)
         .post('/topic/collect')
         .send({ topic_id: support.testTopic._id })
@@ -245,7 +245,7 @@ describe('test/controllers/topic.test.js', () => {
   });
 
   describe('#de_collect', () => {
-    it('should decollect a topic', (done) => {
+    test('should decollect a topic', (done) => {
       request(app)
         .post('/topic/de_collect')
         .send({ topic_id: support.testTopic._id })
@@ -257,7 +257,7 @@ describe('test/controllers/topic.test.js', () => {
         });
     });
 
-    it('should not decollect a non-exist topic_collect', (done) => {
+    test('should not decollect a non-exist topic_collect', (done) => {
       request(app)
         .post('/topic/de_collect')
         .send({ topic_id: support.testTopic._id })
@@ -284,7 +284,7 @@ describe('test/controllers/topic.test.js', () => {
       store.upload = originalUpload;
     });
 
-    it('should upload a file', (done) => {
+    test('should upload a file', (done) => {
       request(app)
         .post('/upload')
         .attach('selffile', __filename)
@@ -297,7 +297,7 @@ describe('test/controllers/topic.test.js', () => {
   });
 
   describe('#lock', () => {
-    it('should lock a topic', (done) => {
+    test('should lock a topic', (done) => {
       request(app)
         .post(`/topic/${support.testTopic._id}/lock`)
         .set('Cookie', support.adminUserCookie)
@@ -308,7 +308,7 @@ describe('test/controllers/topic.test.js', () => {
         });
     });
 
-    it('should not reply to a locked topic', (done) => {
+    test('should not reply to a locked topic', (done) => {
       request(app)
         .post(`/${support.testTopic._id}/reply`)
         .set('Cookie', support.normalUserCookie)
@@ -320,7 +320,7 @@ describe('test/controllers/topic.test.js', () => {
         });
     });
 
-    it('should unlock a topic', (done) => {
+    test('should unlock a topic', (done) => {
       request(app)
         .post(`/topic/${support.testTopic._id}/lock`)
         .set('Cookie', support.adminUserCookie)
@@ -331,7 +331,7 @@ describe('test/controllers/topic.test.js', () => {
         });
     });
 
-    it('should reply to an unlocked topic', (done) => {
+    test('should reply to an unlocked topic', (done) => {
       request(app)
         .post(`/${support.testTopic._id}/reply`)
         .set('Cookie', support.normalUserCookie)
