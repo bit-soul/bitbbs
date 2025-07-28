@@ -1,51 +1,31 @@
-/*!
- * nodeclub - site controller test
- * Copyright(c) 2012 fengmk2 <fengmk2@gmail.com>
- * MIT Licensed
- */
+const app = require('../../app');
+const request = require('supertest');
 
-/**
- * Module dependencies.
- */
+describe('controllers/site', () => {
 
-var should = require('should');
-var config = require('../../config');
-var app = require('../../app');
-var request = require('supertest')(app);
-
-
-describe('test/controllers/site.test.js', function () {
-
-  it('should / 200', function (done) {
-    request.get('/').end(function (err, res) {
-      res.status.should.equal(200);
-      res.text.should.containEql('积分榜');
-      res.text.should.containEql('友情社区');
-      done(err);
-    });
+  test('should / 200', async () => {
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('积分榜');
+    expect(res.text).toContain('友情社区');
   });
 
-  it('should /?page=-1 200', function (done) {
-    request.get('/?page=-1').end(function (err, res) {
-      res.status.should.equal(200);
-      res.text.should.containEql('积分榜');
-      res.text.should.containEql('友情社区');
-      done(err);
-    });
+  test('should /?page=-1 200', async () => {
+    const res = await request(app).get('/?page=-1');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('积分榜');
+    expect(res.text).toContain('友情社区');
   });
 
-  it('should /sitemap.xml 200', function (done) {
-    request.get('/sitemap.xml')
-    .expect(200, function (err, res) {
-      res.text.should.containEql('<url>');
-      done(err);
-    });
+  test('should /sitemap.xml 200', async () => {
+    const res = await request(app).get('/sitemap.xml');
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('<url>');
   });
 
-  it('should /app/download', function (done) {
-    request.get('/app/download')
-      .expect(302, function (err, res) {
-        done(err);
-      });
+  test('should /app/download 302', async () => {
+    const res = await request(app).get('/app/download');
+    expect(res.status).toBe(302);
   });
+
 });

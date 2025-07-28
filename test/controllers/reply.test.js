@@ -1,150 +1,123 @@
-var app = require('../../app');
-var request = require('supertest')(app);
-var support = require('../support');
-var ReplyProxy = require('../../proxy/reply');
+const app = require('../../app');
+const request = require('supertest');
+const support = require('../support');
+const proxyReply = require('../../proxy/reply');
 
-describe('test/controllers/reply.test.js', function () {
-  before(function (done) {
-    support.ready(done);
-  });
+describe('controllers/reply', () => {
+  let reply1Id;
 
-  var reply1Id;
+  describe('reply1', () => {
+    test('should add a reply1', async () => {
+      const topic = support.testTopic;
 
-  describe('reply1', function () {
-    it('should add a reply1', function (done) {
-      var topic = support.testTopic;
-      request.post('/' + topic._id + '/reply')
-      .set('Cookie', support.normalUserCookie)
-      .send({
-        r_content: 'test reply 1'
-      })
-      .expect(302)
-      .end(function (err, res) {
-        res.headers['location'].should.match(new RegExp('/topic/' + topic.id + '#\\w+'));
+      const res = await request(app)
+        .post(`/${topic._id}/reply`)
+        .set('Cookie', support.normalUserCookie)
+        .send({ r_content: 'test reply 1' })
+        .expect(302);
 
-        // 记录下这个 reply1 的 id
-        reply1Id = res.headers['location'].match(/#(\w+)/)[1];
-
-        done(err);
-      });
+      expect(res.headers.location).toMatch(new RegExp(`/topic/${topic.id}#\\w+`));
+      reply1Id = res.headers.location.match(/#(\w+)/)[1];
     });
 
-    it('should 422 when add a empty reply1', function (done) {
-      var topic = support.testTopic;
-      request.post('/' + topic._id + '/reply')
-      .set('Cookie', support.normalUserCookie)
-      .send({
-        r_content: ''
-      })
-      .expect(422)
-      .end(done);
+    test('should 422 when add an empty reply1', async () => {
+      const topic = support.testTopic;
+
+      await request(app)
+        .post(`/${topic._id}/reply`)
+        .set('Cookie', support.normalUserCookie)
+        .send({ r_content: '' })
+        .expect(422);
     });
 
-    it('should not add a reply1 when not login', function (done) {
-      request.post('/' + support.testTopic._id + '/reply')
-      .send({
-        r_content: 'test reply 1'
-      })
-      .expect(403)
-      .end(done);
+    test('should not add a reply1 when not logged in', async () => {
+      await request(app)
+        .post(`/${support.testTopic._id}/reply`)
+        .send({ r_content: 'test reply 1' })
+        .expect(403);
     });
   });
 
-  describe('edit reply', function () {
-    it('should not show edit page when not author', function (done) {
-      request.get('/reply/' + reply1Id + '/edit')
-      .set('Cookie', support.normalUser2Cookie)
-      .expect(403)
-      .end(done);
+  describe('edit reply', () => {
+    test('should not show edit page when not author', async () => {
+      await request(app)
+        .get(`/reply/${reply1Id}/edit`)
+        .set('Cookie', support.normalUser2Cookie)
+        .expect(403);
     });
 
-    it('should show edit page when is author', function (done) {
-      request.get('/reply/' + reply1Id + '/edit')
-      .set('Cookie', support.normalUserCookie)
-      .expect(200)
-      .end(function (err, res) {
-        res.text.should.containEql('test reply 1');
-        done(err);
+    test('should show edit page when is author', async () => {
+      const res = await request(app)
+        .get(`/reply/${reply1Id}/edit`)
+        .set('Cookie', support.normalUserCookie)
+        .expect(200);
+
+      expect(res.text).toContain('test reply 1');
+    });
+
+    test('should update edit', async () => {
+      const topic = support.testTopic;
+
+      const res = await request(app)
+        .post(`/reply/${reply1Id}/edit`)
+        .send({ t_content: 'been update' })
+        .set('Cookie', support.normalUserCookie);
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toMatch(new RegExp(`/topic/${topic.id}#\\w+`));
+    });
+  });
+
+  describe('upvote reply', () => {
+    let reply1;
+
+    beforeAll(async () => {
+      reply1 = await proxyReply.getReply(reply1Id);
+    });
+
+    test('should increase', async () => {
+      const res = await request(app)
+        .post(`/reply/${reply1Id}/up`)
+        .send({ replyId: reply1Id })
+        .set('Cookie', support.normalUser2Cookie);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({
+        success: true,
+        action: 'up',
       });
     });
 
-    it('should update edit', function (done) {
-      var topic = support.testTopic;
-      request.post('/reply/' + reply1Id + '/edit')
-      .send({
-        t_content: 'been update',
-      })
-      .set('Cookie', support.normalUserCookie)
-      .end(function (err, res) {
-        res.status.should.equal(302);
-        res.headers['location'].should.match(new RegExp('/topic/' + topic.id + '#\\w+'));
-        done(err);
+    test('should decrease', async () => {
+      const res = await request(app)
+        .post(`/reply/${reply1Id}/up`)
+        .send({ replyId: reply1Id })
+        .set('Cookie', support.normalUser2Cookie);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({
+        success: true,
+        action: 'down',
       });
     });
   });
 
-  describe('upvote reply', function () {
-    var reply1, reply1UpCount;
-    before(function (done) {
-      ReplyProxy.getReply(reply1Id, function (err, reply) {
-        reply1 = reply;
-        reply1UpCount = reply1.ups.length;
-        done(err);
-      });
+  describe('delete reply', () => {
+    test('should not delete when not author', async () => {
+      await request(app)
+        .post(`/reply/${reply1Id}/delete`)
+        .send({ reply_id: reply1Id })
+        .expect(403);
     });
 
-    it('should increase', function (done) {
-      request.post('/reply/' + reply1Id + '/up')
-      .send({replyId: reply1Id})
-      .set('Cookie', support.normalUser2Cookie)
-      .end(function (err, res) {
-        res.status.should.equal(200);
-        res.body.should.eql({
-          success: true,
-          action: 'up',
-        });
-        done(err);
-      });
-    });
+    test('should delete reply when author', async () => {
+      const res = await request(app)
+        .post(`/reply/${reply1Id}/delete`)
+        .send({ reply_id: reply1Id })
+        .set('Cookie', support.normalUserCookie)
+        .expect(200);
 
-    it('should decrease', function (done) {
-      request.post('/reply/' + reply1Id + '/up')
-      .send({replyId: reply1Id})
-      .set('Cookie', support.normalUser2Cookie)
-      .end(function (err, res) {
-        res.status.should.equal(200);
-        res.body.should.eql({
-          success: true,
-          action: 'down',
-        });
-        done(err);
-      });
-    });
-
-  });
-
-  describe('delete reply', function () {
-    it('should should not delete when not author', function (done) {
-      request.post('/reply/' + reply1Id + '/delete')
-      .send({
-        reply_id: reply1Id
-      })
-      .expect(403)
-      .end(done);
-    });
-
-    it('should delete reply when author', function (done) {
-      request.post('/reply/' + reply1Id + '/delete')
-      .send({
-        reply_id: reply1Id
-      })
-      .set('Cookie', support.normalUserCookie)
-      .expect(200)
-      .end(function (err, res) {
-        res.body.should.eql({status: 'success'});
-        done(err);
-      });
+      expect(res.body).toEqual({ status: 'success' });
     });
   });
 });
-

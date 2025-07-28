@@ -1,36 +1,24 @@
-var app = require('../../app');
-var request = require('supertest')(app);
+const app = require('../../app');
+const request = require('supertest');
 
-describe('test/controllers/static.test.js', function () {
-  it('should get /about', function (done) {
-    request.get('/about').expect(200)
-      .end(function (err, res) {
-        res.text.should.containEql('CNode 社区由一批热爱 Node.js 技术的工程师发起');
-        done(err);
-      });
+describe('test/controllers/static.test.js', () => {
+  test('should get /about', async () => {
+    const res = await request(app).get('/about').expect(200);
+    expect(res.text).toContain('CNode 社区由一批热爱 Node.js 技术的工程师发起');
   });
 
-  it('should get /faq', function (done) {
-    request.get('/faq').expect(200)
-      .end(function (err, res) {
-        res.text.should.containEql('CNode 社区和 Node Club 是什么关系？');
-        done(err);
-      });
+  test('should get /faq', async () => {
+    const res = await request(app).get('/faq').expect(200);
+    expect(res.text).toContain('CNode 社区和 Node Club 是什么关系？');
   });
 
-  it('should get /getstart', function (done) {
-    request.get('/getstart').expect(200)
-    .end(function (err, res) {
-      res.text.should.containEql('Node.js 新手入门');
-      done(err);
-    });
+  test('should get /getstart', async () => {
+    const res = await request(app).get('/getstart').expect(200);
+    expect(res.text).toContain('Node.js 新手入门');
   });
 
-  it('should get /robots.txt', function (done) {
-    request.get('/robots.txt').expect(200)
-      .end(function (err, res) {
-        res.text.should.containEql('User-Agent');
-        done(err);
-      });
+  test('should get /robots.txt', async () => {
+    const res = await request(app).get('/robots.txt').expect(200);
+    expect(res.text).toContain('User-Agent');
   });
 });

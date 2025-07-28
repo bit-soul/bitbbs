@@ -1,70 +1,48 @@
-/*!
- * nodeclub - rss controller test
- * Copyright(c) 2012 fengmk2 <fengmk2@gmail.com>
- * MIT Licensed
- */
+const app = require('../../app');
+const request = require('supertest');
+const proxyTopic = require('../../proxy/topic');
 
-/**
- * Module dependencies.
- */
+describe('controllers/rss', () => {
+  describe('/rss', () => {
+    test('should return `application/xml` Content-Type', async () => {
+      const res = await request(app).get('/rss');
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toBe('application/xml; charset=utf-8');
+      expect(res.text.startsWith('<?xml version="1.0" encoding="utf-8"?>')).toBe(true);
+      expect(res.text).toContain('<rss version="2.0">');
+      expect(res.text).toContain(`<channel><title>${global.config.rss.title}</title>`);
+    });
 
-var request = require('supertest');
-var app = require('../../app');
-var config = require('../../config');
-
-describe('test/controllers/rss.test.js', function () {
-
-  describe('/rss', function () {
-    it('should return `application/xml` Content-Type', function (done) {
-      request(app).get('/rss').end(function (err, res) {
-        res.status.should.equal(200);
-        res.headers.should.property('content-type', 'application/xml; charset=utf-8');
-        res.text.indexOf('<?xml version="1.0" encoding="utf-8"?>').should.equal(0);
-        res.text.should.containEql('<rss version="2.0">');
-        res.text.should.containEql('<channel><title>' + config.rss.title + '</title>');
-        done(err);
+    describe('mock `config.rss` not set', () => {
+      const originalRss = global.config.rss;
+      beforeAll(() => {
+        global.config.rss = null;
+      });
+      afterAll(() => {
+        global.config.rss = originalRss;
+      });
+      test('should return warning message', async () => {
+        const res = await request(app).get('/rss');
+        expect(res.status).toBe(404);
+        expect(res.text).toBe('Please set `rss` in config.js');
       });
     });
 
-    describe('mock `config.rss` not set', function () {
-      var rss = config.rss;
-      before(function () {
-        config.rss = null;
-      });
-      after(function () {
-        config.rss = rss;
-      });
-
-      it('should return waring message', function (done) {
-        request(app).get('/rss').end(function (err, res) {
-          res.status.should.equal(404);
-          res.text.should.equal('Please set `rss` in config.js');
-          done(err);
-        });
-      });
-    });
-
-    describe('mock `topic.getTopicsByQuery()` error', function () {
-      var topic = require('../../proxy').Topic;
-      var getTopicsByQuery = topic.getTopicsByQuery;
-      before(function () {
-        topic.getTopicsByQuery = function () {
-          var callback = arguments[arguments.length - 1];
-          process.nextTick(function () {
-            callback(new Error('mock getTopicsByQuery() error'));
-          });
+    describe('mock `topic.getTopicsByQuery()` error', () => {
+      const originalFn = proxyTopic.getTopicsByQuery;
+      beforeAll(() => {
+        proxyTopic.getTopicsByQuery = function (...args) {
+          const callback = args[args.length - 1];
+          process.nextTick(() => callback(new Error('mock getTopicsByQuery() error')));
         };
       });
-      after(function () {
-        topic.getTopicsByQuery = getTopicsByQuery;
+      afterAll(() => {
+        proxyTopic.getTopicsByQuery = originalFn;
       });
-
-      it('should return error', function (done) {
-        request(app).get('/rss').end(function (err, res) {
-          res.status.should.equal(500);
-          res.text.should.containEql('mock getTopicsByQuery() error');
-          done(err);
-        });
+      test('should return error', async () => {
+        const res = await request(app).get('/rss');
+        expect(res.status).toBe(500);
+        expect(res.text).toContain('mock getTopicsByQuery() error');
       });
     });
   });

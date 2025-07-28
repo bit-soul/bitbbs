@@ -1,7 +1,7 @@
-const User = require('../proxy/user');
-const Topic = require('../proxy/topic');
-const Reply = require('../proxy/reply');
 const tools = require('../common/tools');
+const proxyUser = require('../proxy/user');
+const proxyTopic = require('../proxy/topic');
+const proxyReply = require('../proxy/reply');
 
 function randomInt() {
   return (Math.random() * 10000).toFixed(0);
@@ -24,25 +24,25 @@ exports.findRouterHandler = function(router, method, path) {
 exports.createUser = async function() {
   const key = new Date().getTime() + '_' + randomInt();
   const passhash = await tools.bhash('pass');
-  return await User.newAndSaveUser('alsotang' + key, passhash, 'alsotang' + key + '@gmail.com', false);
+  return await proxyUser.newAndSaveUser('alsotang' + key, passhash, 'alsotang' + key + '@gmail.com', '', false);
 };
 
-exports.createUserByNameAndPwd = async function(loginname, pwd) {
+exports.createUserByNameAndPwd = async function(name, pwd) {
   const passhash = await tools.bhash(pwd);
-  return await User.newAndSaveUser(loginname, passhash, loginname + +new Date() + '@gmail.com', true);
+  return await proxyUser.newAndSaveUser(name, passhash, name + new Date() + '@gmail.com', '', true);
 };
 
 exports.createTopic = async function(authorId) {
   const key = new Date().getTime() + '_' + randomInt();
-  return await Topic.newAndSaveTopic('topic title' + key, 'test topic content' + key, 'share', authorId);
+  return await proxyTopic.newAndSaveTopic('topic title' + key, 'test topic content' + key, 'share', authorId);
 };
 
 exports.createReply = async function(topicId, authorId) {
-  return await Reply.newAndSaveReply('I am content', topicId, authorId);
+  return await proxyReply.newAndSaveReply('I am content', topicId, authorId);
 };
 
 exports.createSingleUp = async function(replyId, userId) {
-  const reply = await Reply.getReply(replyId);
+  const reply = await proxyReply.getReply(replyId);
   reply.ups = [userId];
   await reply.save();
   return reply;

@@ -1,30 +1,23 @@
-var request = require('supertest');
-var app = require('../../app');
-var support = require('../support');
+const app = require('../../app');
+const request = require('supertest');
+const support = require('../support');
 
-describe('test/controllers/message.test.js', function () {
-  before(function (done) {
-    support.ready(done);
-  });
-
-  describe('index', function () {
-    it('should 403 without session', function (done) {
-      request(app).get('/my/messages').end(function (err, res) {
-        res.statusCode.should.equal(403);
-        res.type.should.equal('text/html');
-        res.text.should.containEql('forbidden!');
-        done(err);
-      });
+describe('controllers/message', () => {
+  describe('index', () => {
+    test('should return 403 without session', async () => {
+      const res = await request(app).get('/my/messages');
+      expect(res.statusCode).toBe(403);
+      expect(res.type).toBe('text/html');
+      expect(res.text).toContain('forbidden!');
     });
 
-    it('should 200', function (done) {
-      request(app).get('/my/messages')
-      .set('Cookie', support.normalUserCookie)
-      .expect(200)
-      .end(function (err, res) {
-        res.text.should.containEql('新消息');
-        done(err);
-      });
+    test('should return 200 with session', async () => {
+      const res = await request(app)
+        .get('/my/messages')
+        .set('Cookie', support.normalUserCookie);
+      expect(res.statusCode).toBe(200);
+      expect(res.text).toContain('新消息');
     });
   });
 });
+

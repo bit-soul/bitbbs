@@ -1,89 +1,67 @@
-/*!
- * nodeclub - user controller test
- * Copyright(c) 2012 fengmk2 <fengmk2@gmail.com>
- * MIT Licensed
- */
+const app = require('../../app');
+const lodash = require('lodash');
+const request = require('supertest');
+const support = require('../support');
+const proxyUser = require('../../proxy/user');
+const modelReply = require('../../models');
 
-/**
- * Module dependencies.
- */
+describe('controllers/user', () => {
+  let testUser;
 
-var should = require('should');
-var app = require('../../app');
-var request = require('supertest')(app);
-var mm = require('mm');
-var support = require('../support');
-var _ = require('lodash');
-var pedding = require('pedding');
-var UserProxy = require('../../proxy/user');
-var ReplyModel = require('../../models').Reply;
-
-describe('test/controllers/user.test.js', function () {
-  var testUser;
-  before(function (done) {
-    done = pedding(done, 2);
-    support.ready(done);
-    support.createUser(function (err, user) {
-      testUser = user;
-      done(err);
-    });
+  beforeAll(async () => {
+    testUser = await support.createUser();
   });
 
-  describe('#index', function () {
-    it('should show user index', function (done) {
-      request.get('/user/' + testUser.loginname)
-      .expect(200, function (err, res) {
-        var texts = [
-          '注册时间',
-          '这家伙很懒，什么个性签名都没有留下。',
-          '最近创建的话题',
-          '无话题',
-          '最近参与的话题',
-          '无话题'
-        ];
-        texts.forEach(function (text) {
-          res.text.should.containEql(text);
-        });
-        done(err);
+  describe('/user/:uid', () => {
+    test('should show user index', async () => {
+      const res = await request(app).get(`/user/${testUser.uid}`);
+      expect(res.status).toBe(200);
+      const texts = [
+        '注册时间',
+        '这家伙很懒，什么个性签名都没有留下。',
+        '最近创建的话题',
+        '无话题',
+        '最近参与的话题',
+        '无话题'
+      ];
+      texts.forEach(text => {
+        expect(res.text).toContain(text);
       });
     });
   });
 
-  describe('#listStars', function () {
-    it('should show star uses', function (done) {
-      request.get('/stars')
-      .expect(200, function (err, res) {
-        res.text.should.containEql('社区达人');
-        done(err);
-      });
+  describe('#listStars', () => {
+    test('should show star uses', async () => {
+      const res = await request(app).get('/stars');
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('社区达人');
     });
   });
 
-  describe('#showSetting', function () {
-    it('should show setting page', function (done) {
-      request.get('/user/setting')
-      .set('Cookie', support.normalUserCookie)
-      .expect(200, function (err, res) {
-        res.text.should.containEql('同时决定了 Gravatar 头像');
-        res.text.should.containEql('Access Token');
-        done(err);
-      });
+  describe('#showSetting', () => {
+    test('should show setting page', async () => {
+      const res = await request(app)
+        .get('/user/setting')
+        .set('Cookie', support.normalUserCookie);
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('同时决定了 Gravatar 头像');
+      expect(res.text).toContain('Access Token');
     });
 
-    it('should show success info', function (done) {
-      request.get('/user/setting')
-      .query({save: 'success'})
-      .set('Cookie', support.normalUserCookie)
-      .expect(200, function (err, res) {
-        res.text.should.containEql('保存成功。');
-        done(err);
-      });
+    test('should show success info', async () => {
+      const res = await request(app)
+        .get('/user/setting')
+        .query({ save: 'success' })
+        .set('Cookie', support.normalUserCookie);
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('保存成功。');
     });
   });
 
-  describe('#setting', function () {
-    var userInfo;
-    before(function () {
+  describe('#setting', () => {
+    let userInfo;
+
+    beforeEach(() => {
       userInfo = {
         url: 'http://fxck.it',
         location: 'west lake',
@@ -94,196 +72,160 @@ describe('test/controllers/user.test.js', function () {
       };
     });
 
-    it('should change user setting', function (done) {
-      userInfo = _.cloneDeep(userInfo);
-      userInfo.action = 'change_setting';
-      request.post('/user/setting')
-      .set('Cookie', support.normalUserCookie)
-      .send(userInfo)
-      .expect(302, function (err, res) {
-        res.headers.location.should.equal('/user/setting?save=success');
-        done(err);
-      });
+    test('should change user setting', async () => {
+      const res = await request(app)
+        .post('/user/setting')
+        .set('Cookie', support.normalUserCookie)
+        .send({ ...userInfo, action: 'change_setting' });
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toBe('/user/setting?save=success');
     });
 
-    it('should change user password', function (done) {
-      userInfo = _.cloneDeep(userInfo);
-      userInfo.action = 'change_password';
-      userInfo.old_pass = 'pass';
-      userInfo.new_pass = 'passwordchanged';
-      request.post('/user/setting')
-      .set('Cookie', support.normalUserCookie)
-      .send(userInfo)
-      .expect(200, function (err, res) {
-        res.text.should.containEql('密码已被修改。');
-        done(err);
-      });
+    test('should change user password', async () => {
+      const res = await request(app)
+        .post('/user/setting')
+        .set('Cookie', support.normalUserCookie)
+        .send({ ...userInfo, action: 'change_password', old_pass: 'pass', new_pass: 'passwordchanged' });
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('密码已被修改。');
     });
 
-    it('should not change user password when old_pass is wrong', function (done) {
-      userInfo = _.cloneDeep(userInfo);
-      userInfo.action = 'change_password';
-      userInfo.old_pass = 'wrong_old_pass';
-      userInfo.new_pass = 'passwordchanged';
-      request.post('/user/setting')
-      .set('Cookie', support.normalUserCookie)
-      .send(userInfo)
-      .expect(200, function (err, res) {
-        res.text.should.containEql('当前密码不正确。');
-        done(err);
-      });
+    test('should not change user password when old_pass is wrong', async () => {
+      const res = await request(app)
+        .post('/user/setting')
+        .set('Cookie', support.normalUserCookie)
+        .send({ ...userInfo, action: 'change_password', old_pass: 'wrong_old_pass', new_pass: 'passwordchanged' });
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('当前密码不正确。');
     });
   });
 
-  describe('#toggleStar', function () {
-    it('should not set star user when no user_id', function (done) {
-      request.post('/user/set_star')
-      .set('Cookie', support.adminUserCookie)
-      .expect(500, function (err, res) {
-        res.text.should.containEql('user is not exists');
-        done(err);
-      });
+  describe('#toggleStar', () => {
+    test('should not set star user when no user_id', async () => {
+      const res = await request(app)
+        .post('/user/set_star')
+        .set('Cookie', support.adminUserCookie);
+      expect(res.status).toBe(500);
+      expect(res.text).toContain('user is not exists');
     });
 
-    it('should set star user', function (done) {
-      request.post('/user/set_star')
-      .send({
-        user_id: support.normalUser._id
-      })
-      .set('Cookie', support.adminUserCookie)
-      .expect(200, function (err, res) {
-        res.body.should.eql({status: 'success'});
+    test('should set star user', async () => {
+      const res = await request(app)
+        .post('/user/set_star')
+        .send({ user_id: support.normalUser._id })
+        .set('Cookie', support.adminUserCookie);
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ status: 'success' });
 
-        UserProxy.getUserById(support.normalUser._id, function (err, user) {
-          user.is_star.should.be.true();
-          done(err);
-        });
+      const user = await new Promise((resolve, reject) => {
+        proxyUser.getUserById(support.normalUser._id, (err, user) => err ? reject(err) : resolve(user));
       });
+      expect(user.is_star).toBe(true);
     });
 
-    it('should unset star user', function (done) {
-      request.post('/user/set_star')
-      .send({
-        user_id: support.normalUser._id
-      })
-      .set('Cookie', support.adminUserCookie)
-      .expect(200, function (err, res) {
-        res.body.should.eql({status: 'success'});
+    test('should unset star user', async () => {
+      const res = await request(app)
+        .post('/user/set_star')
+        .send({ user_id: support.normalUser._id })
+        .set('Cookie', support.adminUserCookie);
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ status: 'success' });
 
-        UserProxy.getUserById(support.normalUser._id, function (err, user) {
-          user.is_star.should.be.false();
-          done(err);
-        });
+      const user = await new Promise((resolve, reject) => {
+        proxyUser.getUserById(support.normalUser._id, (err, user) => err ? reject(err) : resolve(user));
       });
+      expect(user.is_star).toBe(false);
     });
   });
 
-  describe('#getCollectTopics', function () {
-    it('should get /user/:name/collections ok', function (done) {
-      request.get('/user/' + support.normalUser.loginname + '/collections')
-      .expect(200, function (err, res) {
-        res.text.should.containEql('收藏的话题');
-        done(err);
-      });
+  describe('#getCollectTopics', () => {
+    test('should get /user/:name/collections ok', async () => {
+      const res = await request(app).get(`/user/${support.normalUser.loginname}/collections`);
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('收藏的话题');
     });
   });
 
-  describe('#top100', function () {
-    it('should get /user/top100', function (done) {
-      request.get('/user/top100')
-      .expect(200, function (err, res) {
-        res.text.should.containEql('Top100 积分榜');
-        done(err);
-      });
+  describe('#top100', () => {
+    test('should get /user/top100', async () => {
+      const res = await request(app).get('/user/top100');
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('Top100 积分榜');
     });
   });
 
-  describe('#list_topics', function () {
-    it('should get /user/:name/topics ok', function (done) {
-      request.get('/user/' + support.normalUser.loginname + '/topics')
-      .expect(200, function (err, res) {
-        res.text.should.containEql('创建的话题');
-        done(err);
-      });
+  describe('#list_topics', () => {
+    test('should get /user/:name/topics ok', async () => {
+      const res = await request(app).get(`/user/${support.normalUser.loginname}/topics`);
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('创建的话题');
     });
   });
 
-  describe('#listReplies', function () {
-    it('should get /user/:name/replies ok', function (done) {
-      request.get('/user/' + support.normalUser.loginname + '/replies')
-      .expect(200, function (err, res) {
-        res.text.should.containEql(support.normalUser.loginname + ' 参与的话题');
-        done(err);
-      });
+  describe('#listReplies', () => {
+    test('should get /user/:name/replies ok', async () => {
+      const res = await request(app).get(`/user/${support.normalUser.loginname}/replies`);
+      expect(res.status).toBe(200);
+      expect(res.text).toContain(`${support.normalUser.loginname} 参与的话题`);
     });
   });
 
-  describe('#block', function () {
-    it('should block user', function (done) {
-      support.createUser(function (err, newuser) {
-        request.post('/user/' + newuser.loginname + '/block')
-        .send({
-          action: 'set_block'
-        })
-        .set('Cookie', support.adminUserCookie)
-        .expect(200, function (err, res) {
-          res.body.should.eql({status: 'success'});
-          UserProxy.getUserById(newuser._id, function (err, user) {
-            user.is_block.should.be.true();
-            done(err);
-          });
-        });
+  describe('#block', () => {
+    test('should block user', async () => {
+      const newuser = await new Promise((resolve, reject) => {
+        support.createUser((err, user) => err ? reject(err) : resolve(user));
       });
+      const res = await request(app)
+        .post(`/user/${newuser.loginname}/block`)
+        .send({ action: 'set_block' })
+        .set('Cookie', support.adminUserCookie);
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ status: 'success' });
+
+      const user = await new Promise((resolve, reject) => {
+        proxyUser.getUserById(newuser._id, (err, user) => err ? reject(err) : resolve(user));
+      });
+      expect(user.is_block).toBe(true);
     });
 
-    it('should unblock user', function (done) {
-      request.post('/user/' + support.normalUser.loginname + '/block')
-      .send({
-        action: 'cancel_block'
-      })
-      .set('Cookie', support.adminUserCookie)
-      .expect(200, function (err, res) {
-        res.body.should.eql({status: 'success'});
-        done(err);
-      })
-    })
+    test('should unblock user', async () => {
+      const res = await request(app)
+        .post(`/user/${support.normalUser.loginname}/block`)
+        .send({ action: 'cancel_block' })
+        .set('Cookie', support.adminUserCookie);
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ status: 'success' });
+    });
 
-    it('should wrong when user is not exists', function (done) {
-      request.post('/user/not_exists_user/block')
-      .send({
-        action: 'set_block'
-      })
-      .set('Cookie', support.adminUserCookie)
-      .expect(500, function (err, res) {
-        res.text.should.containEql('user is not exists')
-        done(err);
-      })
-    })
-  })
+    test('should error when user does not exist', async () => {
+      const res = await request(app)
+        .post('/user/not_exists_user/block')
+        .send({ action: 'set_block' })
+        .set('Cookie', support.adminUserCookie);
+      expect(res.status).toBe(500);
+      expect(res.text).toContain('user is not exists');
+    });
+  });
 
-  describe('#delete_all', function () {
-    it('should delele all ups', function (done) {
-      support.createUser(function (err, user) {
-        var userId = user._id;
-        ReplyModel.findOne(function (err, reply) {
-          should.not.exists(err);
-          reply.ups.push(userId);
-          reply.save(function (err, reply) {
-            reply.ups.should.containEql(userId)
+  describe('#delete_all', () => {
+    test('should delete all ups', async () => {
+      const user = await new Promise((resolve, reject) => {
+        support.createUser((err, user) => err ? reject(err) : resolve(user));
+      });
 
-            request.post('/user/' + user.loginname + '/delete_all')
-              .set('Cookie', support.adminUserCookie)
-              .expect(200, function (err, res) {
-                res.body.should.eql({ status: 'success' });
+      const reply = await modelReply.findOne();
+      reply.ups.push(user._id);
+      await reply.save();
+      expect(reply.ups).toContainEqual(user._id);
 
-                ReplyModel.findOne({_id: reply._id}, function (err, reply) {
-                  reply.ups.should.not.containEql(userId)
-                  done();
-                })
-              })
-          })
-        })
-      })
-    })
-  })
+      const res = await request(app)
+        .post(`/user/${user.loginname}/delete_all`)
+        .set('Cookie', support.adminUserCookie);
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ status: 'success' });
+
+      const updatedReply = await modelReply.findById(reply._id);
+      expect(updatedReply.ups).not.toContainEqual(user._id);
+    });
+  });
 });

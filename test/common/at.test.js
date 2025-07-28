@@ -85,7 +85,7 @@ describe('common/at', function () {
     });
 
     test('should send message to all mention users', async () => {
-      const text = `@${adminUser.loginname} @${normalUser2.loginname} @notexitstuser Hello BitBBS`;
+      const text = `@${adminUser.name} @${normalUser2.name} @notexitstuser Hello BitBBS`;
       const atUserIds = [String(adminUser._id), String(normalUser2._id)];
       const receivedUserIds = [];
 
@@ -109,7 +109,7 @@ describe('common/at', function () {
     });
 
     test('should not send at msg to author', async () => {
-      const text = `@${normalUser.loginname} hello`;
+      const text = `@${normalUser.name} hello`;
       jest.spyOn(message, 'sendAtMessage').mockImplementation(() => {
         throw new Error('should not call me');
       });
