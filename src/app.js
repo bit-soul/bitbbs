@@ -1,41 +1,11 @@
 //*****************************************************************************
-// choose config file
+// load global variable
 //*****************************************************************************
-switch (process.env.APP_ENV) {
-case 'dev':
-  global.env = 'dev';
-  global.config = require('./config/dev');
-  break;
-case 'local':
-  global.env = 'local';
-  global.config = require('./config/local');
-  break;
-case 'pre':
-  global.env = 'pre';
-  global.config = require('./config/pre');
-  break;
-case 'prod':
-  global.env = 'prod';
-  global.config = require('./config/prod');
-  break;
-case 'unittest':
-  global.env = 'unittest';
-  global.config = require('./config/unittest');
-  break;
-default:
-  global.env = 'local';
-  global.config = require('./config/local');
-  break;
+require("./global.js");
+
+if (!global.config.debug && global.config.oneapm_key) {
+  // require('oneapm');
 }
-if(process.env.admins) {
-  const items = process.env.admins.split(';');
-  items.forEach(item => {
-    global.config.admins[item.trim()] = true;
-  });
-}
-const { URL } = require('url');
-var urlinfo = new URL(global.config.host);
-global.config.hostname = urlinfo.hostname || global.config.host;
 
 
 //*****************************************************************************
@@ -69,16 +39,6 @@ const midRender = require('./middlewares/render');
 const midGithub = require('./middlewares/github');
 
 const logger = require('./common/logger');
-
-
-//*****************************************************************************
-// load global variable
-//*****************************************************************************
-require("./global.js");
-
-if (!global.config.debug && global.config.oneapm_key) {
-  // require('oneapm');
-}
 
 
 //*****************************************************************************

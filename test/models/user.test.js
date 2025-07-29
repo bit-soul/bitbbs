@@ -1,10 +1,10 @@
-var modelUser = require('../../src/models/user');
+const modelUser = require('../../src/models/user');
 
-describe('models/user', function () {
-  describe('avatar_url', function () {
-    test('should return proxy avatar url', function () {
-      var user = new modelUser({email: 'alsotang@gmail.com'});
-      user.avatar_url.should.eql(global.config.site_static_host + '/static/img/nobody.png');
+describe('models/user', () => {
+  describe('avatar_url', () => {
+    test('should return proxy avatar url', () => {
+      const user = new modelUser({ email: 'alsotang@gmail.com' });
+      expect(user.avatar_url).toBe(global.config.site_static_host + '/static/img/nobody.png');
     });
   });
 });

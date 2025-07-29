@@ -1,9 +1,8 @@
 require('os').hostname=()=>"localhost"
+require("../src/app.js");
 
 var nock = require('nock');
 var support = require('./support');
-
-require("../src/app.js");
 
 beforeAll(async () => {
   require('../src/common/redis').flushdb();

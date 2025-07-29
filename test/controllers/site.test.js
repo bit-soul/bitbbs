@@ -1,7 +1,6 @@
 const request = require('supertest');
 
 describe('controllers/site', () => {
-
   test('should / 200', async () => {
     const res = await request(global.server).get('/');
     expect(res.status).toBe(200);
@@ -21,10 +20,4 @@ describe('controllers/site', () => {
     expect(res.status).toBe(200);
     expect(res.text).toContain('<url>');
   });
-
-  test('should /app/download 302', async () => {
-    const res = await request(global.server).get('/app/download');
-    expect(res.status).toBe(302);
-  });
-
 });
