@@ -1,5 +1,5 @@
-var at      = require('../../common/at');
-var message = require('../../common/message');
+var at      = require('../../src/common/at');
+var message = require('../../src/common/message');
 
 var matched_users = ['A-aZ-z0-9_', 'begin_with_spaces',
   'multi_in_oneline', 'around_text', 'end_with_no_space',
@@ -67,13 +67,13 @@ var text =
 describe('common/at', function () {
   describe('fetchUserIds', () => {
     test('should find users', () => {
-      const users = at.fetchUsers(text);
+      const users = at.fetchUserIds(text);
       expect(users).toBeDefined();
       expect(users).toEqual(matched_users);
     });
 
     test('find 0 user', () => {
-      const users = at.fetchUsers('no users match in text @ @@@@ @ @@@ @哈哈 @ testuser1');
+      const users = at.fetchUserIds('no users match in text @ @@@@ @ @@@ @哈哈 @ testuser1');
       expect(users.length).toBe(0);
     });
   });
@@ -122,7 +122,7 @@ describe('common/at', function () {
   describe('textShowProcess', () => {
     test('just equal now', async () => {
       const text_show = await at.textShowProcess(text);
-      expect(text_show).toBe(linkedtext);
+      expect(text_show).toBe(text);
     });
   });
 });

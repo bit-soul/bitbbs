@@ -1,4 +1,4 @@
-const helper = require('../../common/helper');
+const helper = require('../../src/common/helper');
 
 describe('common/helper', () => {
   describe('markdown', () => {

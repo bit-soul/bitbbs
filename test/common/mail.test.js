@@ -1,4 +1,4 @@
-var mail = require('../../common/mail');
+var mail = require('../../src/common/mail');
 
 describe('common/mail', () => {
   describe('sendActiveMail', () => {

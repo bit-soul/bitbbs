@@ -1,8 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const config = require('../../config');
-const tools = require('../../common/tools');
-const store = require('../../common/store');
+const tools = require('../../src/common/tools');
+const store = require('../../src/common/store');
 
 describe('common/store', () => {
   describe('local', () => {
@@ -12,7 +11,7 @@ describe('common/store', () => {
       const filename = 'at.test.js';
       const data = await store.upload(file, { filename });
       const newFilename = data.url.match(/([^\/]+\.js)$/)[1];
-      const newFilePath = path.join(config.upload.path, newFilename);
+      const newFilePath = path.join(global.config.upload.path, newFilename);
 
       // Wait for file to be written
       await tools.sleep(1000);

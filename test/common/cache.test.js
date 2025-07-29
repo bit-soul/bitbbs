@@ -1,5 +1,5 @@
-var cache = require('../../common/cache');
-var tools = require('../../common/tools');
+var cache = require('../../src/common/cache');
+var tools = require('../../src/common/tools');
 
 describe('common/cache', () => {
   test('set then get', async () => {

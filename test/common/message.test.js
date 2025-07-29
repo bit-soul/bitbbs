@@ -1,5 +1,5 @@
 const support = require('../support');
-const message = require('../../common/message');
+const message = require('../../src/common/message');
 
 describe('common/message', () => {
   let atUser, author, topic, reply;

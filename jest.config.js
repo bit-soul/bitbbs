@@ -6,24 +6,19 @@ module.exports = {
   testPathIgnorePatterns: ['<rootDir>/test/fixtures'],
   coveragePathIgnorePatterns: ['<rootDir>/test/'],
   transform: {
-    '^.+\\.js$': [
-      'babel-jest',
-      {
-        babelConfig: {
-          compact: false,
-          minified: false,
-          retainLines: true,
-          sourceMaps: 'inline',
-          inputSourceMap: true,
-          presets: [],
-          overrides: [
-            {
-              test: ['src/**/*.js'],
-              plugins: ['babel-plugin-rewire'],
-            },
-          ],
+    '^.+\\.js$': ['babel-jest', {
+      compact: false,
+      minified: false,
+      retainLines: true,
+      sourceMaps: 'inline',
+      inputSourceMap: true,
+      presets: [],
+      overrides: [
+        {
+          test: ['src/**/*.js'],
+          plugins: ['babel-plugin-rewire'],
         },
-      },
-    ],
+      ],
+    }],
   },
 };

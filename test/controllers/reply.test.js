@@ -1,7 +1,6 @@
-const app = require('../../app');
 const request = require('supertest');
 const support = require('../support');
-const proxyReply = require('../../proxy/reply');
+const proxyReply = require('../../src/proxys/reply');
 
 describe('controllers/reply', () => {
   let reply1Id;
@@ -10,7 +9,7 @@ describe('controllers/reply', () => {
     test('should add a reply1', async () => {
       const topic = support.testTopic;
 
-      const res = await request(app)
+      const res = await request(global.server)
         .post(`/${topic._id}/reply`)
         .set('Cookie', support.normalUserCookie)
         .send({ r_content: 'test reply 1' })
@@ -23,7 +22,7 @@ describe('controllers/reply', () => {
     test('should 422 when add an empty reply1', async () => {
       const topic = support.testTopic;
 
-      await request(app)
+      await request(global.server)
         .post(`/${topic._id}/reply`)
         .set('Cookie', support.normalUserCookie)
         .send({ r_content: '' })
@@ -31,7 +30,7 @@ describe('controllers/reply', () => {
     });
 
     test('should not add a reply1 when not logged in', async () => {
-      await request(app)
+      await request(global.server)
         .post(`/${support.testTopic._id}/reply`)
         .send({ r_content: 'test reply 1' })
         .expect(403);
@@ -40,14 +39,14 @@ describe('controllers/reply', () => {
 
   describe('edit reply', () => {
     test('should not show edit page when not author', async () => {
-      await request(app)
+      await request(global.server)
         .get(`/reply/${reply1Id}/edit`)
         .set('Cookie', support.normalUser2Cookie)
         .expect(403);
     });
 
     test('should show edit page when is author', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .get(`/reply/${reply1Id}/edit`)
         .set('Cookie', support.normalUserCookie)
         .expect(200);
@@ -58,7 +57,7 @@ describe('controllers/reply', () => {
     test('should update edit', async () => {
       const topic = support.testTopic;
 
-      const res = await request(app)
+      const res = await request(global.server)
         .post(`/reply/${reply1Id}/edit`)
         .send({ t_content: 'been update' })
         .set('Cookie', support.normalUserCookie);
@@ -76,7 +75,7 @@ describe('controllers/reply', () => {
     });
 
     test('should increase', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .post(`/reply/${reply1Id}/up`)
         .send({ replyId: reply1Id })
         .set('Cookie', support.normalUser2Cookie);
@@ -89,7 +88,7 @@ describe('controllers/reply', () => {
     });
 
     test('should decrease', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .post(`/reply/${reply1Id}/up`)
         .send({ replyId: reply1Id })
         .set('Cookie', support.normalUser2Cookie);
@@ -104,14 +103,14 @@ describe('controllers/reply', () => {
 
   describe('delete reply', () => {
     test('should not delete when not author', async () => {
-      await request(app)
+      await request(global.server)
         .post(`/reply/${reply1Id}/delete`)
         .send({ reply_id: reply1Id })
         .expect(403);
     });
 
     test('should delete reply when author', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .post(`/reply/${reply1Id}/delete`)
         .send({ reply_id: reply1Id })
         .set('Cookie', support.normalUserCookie)

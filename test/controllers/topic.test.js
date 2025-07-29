@@ -1,13 +1,12 @@
-const app = require('../../app');
 const request = require('supertest');
 const support = require('../support');
-const store = require('../../common/store');
+const store = require('../../src/common/store');
 
 describe('controllers/topic', () => {
 
   describe('#index', () => {
     test('should get /topic/:tid 200', (done) => {
-      request(app)
+      request(global.server)
         .get('/topic/' + support.testTopic._id)
         .expect(200)
         .end((err, res) => {
@@ -18,7 +17,7 @@ describe('controllers/topic', () => {
     });
 
     test('should get /topic/:tid 200 when login in', (done) => {
-      request(app)
+      request(global.server)
         .get('/topic/' + support.testTopic._id)
         .set('Cookie', support.normalUser2Cookie)
         .expect(200)
@@ -32,7 +31,7 @@ describe('controllers/topic', () => {
 
   describe('#create', () => {
     test('should show a create page', (done) => {
-      request(app)
+      request(global.server)
         .get('/topic/create')
         .set('Cookie', support.normalUserCookie)
         .expect(200)
@@ -45,7 +44,7 @@ describe('controllers/topic', () => {
 
   describe('#put', () => {
     test('should not create a topic when no title', (done) => {
-      request(app)
+      request(global.server)
         .post('/topic/create')
         .send({
           title: '',
@@ -61,7 +60,7 @@ describe('controllers/topic', () => {
     });
 
     test('should not create a topic when no tab', (done) => {
-      request(app)
+      request(global.server)
         .post('/topic/create')
         .send({
           title: '呵呵复呵呵',
@@ -77,7 +76,7 @@ describe('controllers/topic', () => {
     });
 
     test('should not create a topic when no content', (done) => {
-      request(app)
+      request(global.server)
         .post('/topic/create')
         .send({
           title: '呵呵复呵呵',
@@ -93,7 +92,7 @@ describe('controllers/topic', () => {
     });
 
     test('should create a topic', (done) => {
-      request(app)
+      request(global.server)
         .post('/topic/create')
         .send({
           title: '呵呵复呵呵' + new Date(),
@@ -111,7 +110,7 @@ describe('controllers/topic', () => {
 
   describe('#showEdit', () => {
     test('should show an edit page', (done) => {
-      request(app)
+      request(global.server)
         .get(`/topic/${support.testTopic._id}/edit`)
         .set('Cookie', support.normalUserCookie)
         .expect(200)
@@ -124,7 +123,7 @@ describe('controllers/topic', () => {
 
   describe('#update', () => {
     test('should update a topic', (done) => {
-      request(app)
+      request(global.server)
         .post(`/topic/${support.testTopic._id}/edit`)
         .send({
           title: '修改后的 topic title',
@@ -148,7 +147,7 @@ describe('controllers/topic', () => {
     });
 
     test('should not delete a topic when not author', (done) => {
-      request(app)
+      request(global.server)
         .post(`/topic/${topicToDelete._id}/delete`)
         .set('Cookie', support.normalUser2Cookie)
         .expect(403)
@@ -159,7 +158,7 @@ describe('controllers/topic', () => {
     });
 
     test('should delete a topic', (done) => {
-      request(app)
+      request(global.server)
         .post(`/topic/${topicToDelete._id}/delete`)
         .set('Cookie', support.normalUserCookie)
         .expect(200)
@@ -172,7 +171,7 @@ describe('controllers/topic', () => {
 
   describe('#top', () => {
     test('should top a topic', (done) => {
-      request(app)
+      request(global.server)
         .post(`/topic/${support.testTopic._id}/top`)
         .set('Cookie', support.adminUserCookie)
         .expect(200)
@@ -183,7 +182,7 @@ describe('controllers/topic', () => {
     });
 
     test('should untop a topic', (done) => {
-      request(app)
+      request(global.server)
         .post(`/topic/${support.testTopic._id}/top`)
         .set('Cookie', support.adminUserCookie)
         .expect(200)
@@ -196,7 +195,7 @@ describe('controllers/topic', () => {
 
   describe('#good', () => {
     test('should good a topic', (done) => {
-      request(app)
+      request(global.server)
         .post(`/topic/${support.testTopic._id}/good`)
         .set('Cookie', support.adminUserCookie)
         .expect(200)
@@ -207,7 +206,7 @@ describe('controllers/topic', () => {
     });
 
     test('should ungood a topic', (done) => {
-      request(app)
+      request(global.server)
         .post(`/topic/${support.testTopic._id}/good`)
         .set('Cookie', support.adminUserCookie)
         .expect(200)
@@ -220,7 +219,7 @@ describe('controllers/topic', () => {
 
   describe('#collect', () => {
     test('should collect a topic', (done) => {
-      request(app)
+      request(global.server)
         .post('/topic/collect')
         .send({ topic_id: support.testTopic._id })
         .set('Cookie', support.normalUser2Cookie)
@@ -232,7 +231,7 @@ describe('controllers/topic', () => {
     });
 
     test('should not collect a topic twice', (done) => {
-      request(app)
+      request(global.server)
         .post('/topic/collect')
         .send({ topic_id: support.testTopic._id })
         .set('Cookie', support.normalUser2Cookie)
@@ -246,7 +245,7 @@ describe('controllers/topic', () => {
 
   describe('#de_collect', () => {
     test('should decollect a topic', (done) => {
-      request(app)
+      request(global.server)
         .post('/topic/de_collect')
         .send({ topic_id: support.testTopic._id })
         .set('Cookie', support.normalUser2Cookie)
@@ -258,7 +257,7 @@ describe('controllers/topic', () => {
     });
 
     test('should not decollect a non-exist topic_collect', (done) => {
-      request(app)
+      request(global.server)
         .post('/topic/de_collect')
         .send({ topic_id: support.testTopic._id })
         .set('Cookie', support.normalUser2Cookie)
@@ -285,7 +284,7 @@ describe('controllers/topic', () => {
     });
 
     test('should upload a file', (done) => {
-      request(app)
+      request(global.server)
         .post('/upload')
         .attach('selffile', __filename)
         .set('Cookie', support.normalUser2Cookie)
@@ -298,7 +297,7 @@ describe('controllers/topic', () => {
 
   describe('#lock', () => {
     test('should lock a topic', (done) => {
-      request(app)
+      request(global.server)
         .post(`/topic/${support.testTopic._id}/lock`)
         .set('Cookie', support.adminUserCookie)
         .expect(200)
@@ -309,7 +308,7 @@ describe('controllers/topic', () => {
     });
 
     test('should not reply to a locked topic', (done) => {
-      request(app)
+      request(global.server)
         .post(`/${support.testTopic._id}/reply`)
         .set('Cookie', support.normalUserCookie)
         .send({ r_content: 'test reply 1' })
@@ -321,7 +320,7 @@ describe('controllers/topic', () => {
     });
 
     test('should unlock a topic', (done) => {
-      request(app)
+      request(global.server)
         .post(`/topic/${support.testTopic._id}/lock`)
         .set('Cookie', support.adminUserCookie)
         .expect(200)
@@ -332,7 +331,7 @@ describe('controllers/topic', () => {
     });
 
     test('should reply to an unlocked topic', (done) => {
-      request(app)
+      request(global.server)
         .post(`/${support.testTopic._id}/reply`)
         .set('Cookie', support.normalUserCookie)
         .send({ r_content: 'test reply 1' })

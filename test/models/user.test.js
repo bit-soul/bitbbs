@@ -1,4 +1,4 @@
-var modelUser = require('../../models/user');
+var modelUser = require('../../src/models/user');
 
 describe('models/user', function () {
   describe('avatar_url', function () {

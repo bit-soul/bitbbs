@@ -242,5 +242,5 @@ router.all('/agent/(.*)', midProxy.proxy);
 //*****************************************************************************
 // start server
 //*****************************************************************************
-const server = app.listen(global.config.port, "127.0.0.1");
-gracefulShutdown(server);
+global.server = app.listen(global.config.port, "127.0.0.1");
+gracefulShutdown(global.server);

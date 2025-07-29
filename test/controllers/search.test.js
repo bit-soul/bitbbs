@@ -1,9 +1,8 @@
-const app = require('../../app');
 const request = require('supertest');
 
 describe('controllers/search', () => {
   test('should redirect to google search', async () => {
-    const res = await request(app)
+    const res = await request(global.server)
       .get('/search')
       .query({ q: 'node 中文' })
       .expect(302);

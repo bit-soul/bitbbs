@@ -1,11 +1,10 @@
-const app = require('../../app');
 const request = require('supertest');
-const proxyTopic = require('../../proxy/topic');
+const proxyTopic = require('../../src/proxys/topic');
 
 describe('controllers/rss', () => {
   describe('/rss', () => {
     test('should return `application/xml` Content-Type', async () => {
-      const res = await request(app).get('/rss');
+      const res = await request(global.server).get('/rss');
       expect(res.status).toBe(200);
       expect(res.headers['content-type']).toBe('application/xml; charset=utf-8');
       expect(res.text.startsWith('<?xml version="1.0" encoding="utf-8"?>')).toBe(true);
@@ -22,7 +21,7 @@ describe('controllers/rss', () => {
         global.config.rss = originalRss;
       });
       test('should return warning message', async () => {
-        const res = await request(app).get('/rss');
+        const res = await request(global.server).get('/rss');
         expect(res.status).toBe(404);
         expect(res.text).toBe('Please set `rss` in config.js');
       });
@@ -40,7 +39,7 @@ describe('controllers/rss', () => {
         proxyTopic.getTopicsByQuery = originalFn;
       });
       test('should return error', async () => {
-        const res = await request(app).get('/rss');
+        const res = await request(global.server).get('/rss');
         expect(res.status).toBe(500);
         expect(res.text).toContain('mock getTopicsByQuery() error');
       });

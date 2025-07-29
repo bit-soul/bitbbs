@@ -1,9 +1,8 @@
-const app = require('../../app');
 const lodash = require('lodash');
 const request = require('supertest');
 const support = require('../support');
-const proxyUser = require('../../proxy/user');
-const modelReply = require('../../models');
+const proxyUser = require('../../src/proxys/user');
+const modelReply = require('../../src/models/reply');
 
 describe('controllers/user', () => {
   let testUser;
@@ -14,7 +13,7 @@ describe('controllers/user', () => {
 
   describe('/user/:uid', () => {
     test('should show user index', async () => {
-      const res = await request(app).get(`/user/${testUser.uid}`);
+      const res = await request(global.server).get(`/user/${testUser.uid}`);
       expect(res.status).toBe(200);
       const texts = [
         '注册时间',
@@ -32,7 +31,7 @@ describe('controllers/user', () => {
 
   describe('#listStars', () => {
     test('should show star uses', async () => {
-      const res = await request(app).get('/stars');
+      const res = await request(global.server).get('/stars');
       expect(res.status).toBe(200);
       expect(res.text).toContain('社区达人');
     });
@@ -40,7 +39,7 @@ describe('controllers/user', () => {
 
   describe('#showSetting', () => {
     test('should show setting page', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .get('/user/setting')
         .set('Cookie', support.normalUserCookie);
       expect(res.status).toBe(200);
@@ -49,7 +48,7 @@ describe('controllers/user', () => {
     });
 
     test('should show success info', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .get('/user/setting')
         .query({ save: 'success' })
         .set('Cookie', support.normalUserCookie);
@@ -73,7 +72,7 @@ describe('controllers/user', () => {
     });
 
     test('should change user setting', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .post('/user/setting')
         .set('Cookie', support.normalUserCookie)
         .send({ ...userInfo, action: 'change_setting' });
@@ -82,7 +81,7 @@ describe('controllers/user', () => {
     });
 
     test('should change user password', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .post('/user/setting')
         .set('Cookie', support.normalUserCookie)
         .send({ ...userInfo, action: 'change_password', old_pass: 'pass', new_pass: 'passwordchanged' });
@@ -91,7 +90,7 @@ describe('controllers/user', () => {
     });
 
     test('should not change user password when old_pass is wrong', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .post('/user/setting')
         .set('Cookie', support.normalUserCookie)
         .send({ ...userInfo, action: 'change_password', old_pass: 'wrong_old_pass', new_pass: 'passwordchanged' });
@@ -102,7 +101,7 @@ describe('controllers/user', () => {
 
   describe('#toggleStar', () => {
     test('should not set star user when no user_id', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .post('/user/set_star')
         .set('Cookie', support.adminUserCookie);
       expect(res.status).toBe(500);
@@ -110,7 +109,7 @@ describe('controllers/user', () => {
     });
 
     test('should set star user', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .post('/user/set_star')
         .send({ user_id: support.normalUser._id })
         .set('Cookie', support.adminUserCookie);
@@ -124,7 +123,7 @@ describe('controllers/user', () => {
     });
 
     test('should unset star user', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .post('/user/set_star')
         .send({ user_id: support.normalUser._id })
         .set('Cookie', support.adminUserCookie);
@@ -140,7 +139,7 @@ describe('controllers/user', () => {
 
   describe('#getCollectTopics', () => {
     test('should get /user/:name/collections ok', async () => {
-      const res = await request(app).get(`/user/${support.normalUser.loginname}/collections`);
+      const res = await request(global.server).get(`/user/${support.normalUser.loginname}/collections`);
       expect(res.status).toBe(200);
       expect(res.text).toContain('收藏的话题');
     });
@@ -148,7 +147,7 @@ describe('controllers/user', () => {
 
   describe('#top100', () => {
     test('should get /user/top100', async () => {
-      const res = await request(app).get('/user/top100');
+      const res = await request(global.server).get('/user/top100');
       expect(res.status).toBe(200);
       expect(res.text).toContain('Top100 积分榜');
     });
@@ -156,7 +155,7 @@ describe('controllers/user', () => {
 
   describe('#list_topics', () => {
     test('should get /user/:name/topics ok', async () => {
-      const res = await request(app).get(`/user/${support.normalUser.loginname}/topics`);
+      const res = await request(global.server).get(`/user/${support.normalUser.loginname}/topics`);
       expect(res.status).toBe(200);
       expect(res.text).toContain('创建的话题');
     });
@@ -164,7 +163,7 @@ describe('controllers/user', () => {
 
   describe('#listReplies', () => {
     test('should get /user/:name/replies ok', async () => {
-      const res = await request(app).get(`/user/${support.normalUser.loginname}/replies`);
+      const res = await request(global.server).get(`/user/${support.normalUser.loginname}/replies`);
       expect(res.status).toBe(200);
       expect(res.text).toContain(`${support.normalUser.loginname} 参与的话题`);
     });
@@ -175,7 +174,7 @@ describe('controllers/user', () => {
       const newuser = await new Promise((resolve, reject) => {
         support.createUser((err, user) => err ? reject(err) : resolve(user));
       });
-      const res = await request(app)
+      const res = await request(global.server)
         .post(`/user/${newuser.loginname}/block`)
         .send({ action: 'set_block' })
         .set('Cookie', support.adminUserCookie);
@@ -189,7 +188,7 @@ describe('controllers/user', () => {
     });
 
     test('should unblock user', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .post(`/user/${support.normalUser.loginname}/block`)
         .send({ action: 'cancel_block' })
         .set('Cookie', support.adminUserCookie);
@@ -198,7 +197,7 @@ describe('controllers/user', () => {
     });
 
     test('should error when user does not exist', async () => {
-      const res = await request(app)
+      const res = await request(global.server)
         .post('/user/not_exists_user/block')
         .send({ action: 'set_block' })
         .set('Cookie', support.adminUserCookie);
@@ -218,7 +217,7 @@ describe('controllers/user', () => {
       await reply.save();
       expect(reply.ups).toContainEqual(user._id);
 
-      const res = await request(app)
+      const res = await request(global.server)
         .post(`/user/${user.loginname}/delete_all`)
         .set('Cookie', support.adminUserCookie);
       expect(res.status).toBe(200);

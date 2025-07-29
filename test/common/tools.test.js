@@ -1,4 +1,4 @@
-const tools = require('../../common/tools');
+const tools = require('../../src/common/tools');
 
 describe('common/tools', () => {
   describe('formatDate', () => {

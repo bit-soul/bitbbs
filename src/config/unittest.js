@@ -31,7 +31,7 @@ var config = {
 
   mongodb_cfg: {
     host: '127.0.0.1',
-    db: 'mongodb://127.0.0.1:27017/bitbbs_local',
+    db: 'mongodb://127.0.0.1:27017/bitbbs_unittest',
   },
 
   koaredis_cfg: {
