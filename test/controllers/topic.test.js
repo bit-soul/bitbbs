@@ -1,5 +1,4 @@
 const request = require('supertest');
-const support = require('../support');
 const store = require('../../src/common/store');
 
 describe('controllers/topic', () => {

@@ -1,4 +1,3 @@
-const support = require('../support');
 const message = require('../../src/common/message');
 
 describe('common/message', () => {

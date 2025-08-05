@@ -1,4 +1,3 @@
-const support = require('../support');
 const midLimit = require('../../src/middlewares/limit');
 
 describe('middlewares/limit', () => {

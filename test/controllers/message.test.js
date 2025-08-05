@@ -1,5 +1,4 @@
 const request = require('supertest');
-const support = require('../support');
 
 describe('controllers/message', () => {
   describe('index', () => {

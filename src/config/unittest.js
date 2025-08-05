@@ -7,19 +7,6 @@ var config = {
   port: 3000,
   proxyurl: 'socks://127.0.0.1:7890',
 
-  tabs: [
-    ['btc', 'BTC'],
-    ['eth', 'ETH'],
-    ['sol', 'SOL'],
-    ['bsc', 'BSC'],
-    ['ai', 'AI'],
-    ['meme', 'Meme'],
-    ['defi', 'Defi'],
-    ['game', 'Game'],
-    ['social', 'Social'],
-    ['others', 'Others'],
-  ],
-
   session_secret: process.env.session_secret,
   session_max_age: 1000 * 60 * 60 * 1, // 1 hour for local development
   session_cookie_key: 'koa:sess',

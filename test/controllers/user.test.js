@@ -1,6 +1,5 @@
 const lodash = require('lodash');
 const request = require('supertest');
-const support = require('../support');
 const proxyUser = require('../../src/proxys/user');
 const modelReply = require('../../src/models/reply');
 

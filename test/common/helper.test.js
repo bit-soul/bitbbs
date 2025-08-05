@@ -29,7 +29,7 @@ describe('common/helper', () => {
     });
   });
 
-  describe('#tabName', () => {
+  describe('tabName', () => {
     test('should translate', () => {
       expect(helper.tabName('share')).toBe('Share');
     });

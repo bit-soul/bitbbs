@@ -11,7 +11,7 @@ function mockUser(user) {
   return 'mock_user=' + JSON.stringify(user) + ';';
 }
 
-exports.emptyFunction = jest.fn();
+exports.emptyFunction = () => {};
 
 exports.findRouterHandler = function(router, method, path) {
   const route = router.stack.find(r => r.path === path && r.methods.includes(method));
@@ -48,7 +48,13 @@ exports.createSingleUp = async function(replyId, userId) {
   return reply;
 };
 
+let initSupportDone = false;
 exports.initSupport = async function () {
+  if (initSupportDone) {
+    return;
+  }
+
+  initSupportDone = true;
   try {
     const [user, user2, admin] = await Promise.all([
       exports.createUser(),
@@ -72,7 +78,6 @@ exports.initSupport = async function () {
 
     const reply = await exports.createReply(topic._id, user._id);
     exports.testReply = reply;
-
   } catch (err) {
     console.error('Init test data error: ', err);
     throw err;

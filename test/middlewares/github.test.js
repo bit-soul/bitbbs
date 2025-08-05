@@ -1,4 +1,3 @@
-const support = require('../support');
 const midGithub  = require('../../src/middlewares/github');
 
 describe('middlewares/github', () => {
