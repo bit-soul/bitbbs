@@ -40,8 +40,12 @@ gulp.task('compress-js', function(){
 
 gulp.task('compress-css', function(){
     return gulp.src([
-        './static/css/common.less',
         './static/css/style.less',
+        './static/css/layout.less',
+        './static/css/sidebar.less',
+        './static/css/topic.less',
+        './static/css/reply.less',
+        './static/css/user.less',
         './static/css/responsive.less',
         ])
         .pipe(less())

@@ -62,7 +62,7 @@ mongoose.connect(global.config.mongodb_cfg.db, {
   maxPoolSize: 10,
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 10000,
+  serverSelectionTimeoutMS: 5000,
 }, function (err) {
   if (err) {
     logger.error(`connect to ${global.config.mongodb_cfg.db} error: ${err.message}`);
