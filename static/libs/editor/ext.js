@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
   (function(Editor, markdownit){
       // Set default options
       var md = new markdownit();
-  
+
       md.set({
         html:         false,        // Enable HTML tags in source
         xhtmlOut:     false,        // Use '/' to close single tags (<br />)
@@ -59,11 +59,11 @@ document.addEventListener('DOMContentLoaded', function () {
         linkify:      false,        // Autoconvert URL-like text to links
         typographer:  false,        // Enable smartypants and other sweet transforms
       });
-  
+
       window.markdowniter = md;
-  
+
       var toolbar = Editor.toolbar;
-  
+
       var replaceTool = function(name, callback){
           for(var i=0, len=toolbar.length; i<len; i++){
               var v = toolbar[i];
@@ -73,9 +73,9 @@ document.addEventListener('DOMContentLoaded', function () {
               }
           }
       };
-  
+
       var $body = $('body');
-  
+
       //添加@工具
       var ToolAt = function(){
           var self = this;
@@ -85,21 +85,21 @@ document.addEventListener('DOMContentLoaded', function () {
           var stat = getState(cm);
           var $input = $(editor.codemirror.display.input);
           $input.focus();
-  
+
           var startPoint = cm.getCursor('start');
           var endPoint = cm.getCursor('start');
           endPoint.ch = endPoint.ch + 1;
-  
+
           var input_dom = $input[0];
           var cursorPos = input_dom.selectionStart;
           input_dom.setRangeText('@');
           input_dom.selectionStart = input_dom.selectionEnd = cursorPos + 1;
-  
+
           setTimeout(() => {
               $input.atwho('run');
               choose_cb = () => {
                   var startPoint2 = cm.getCursor('start');
-                  startPoint2.ch = startPoint2.ch-1; 
+                  startPoint2.ch = startPoint2.ch-1;
                   var endPoint2 = cm.getCursor('end');
                   endPoint2.ch = endPoint2.ch-1;
                   cm.setSelection(startPoint, endPoint);
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
       replaceTool('info', function(editor){
           toolAt.bind(editor);
       });
-  
+
       //添加链接工具
       var ToolLink = function(){
           var self = this;
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
                           '<div class="control-group">',
                               '<label class="control-label">Link</label>',
                               '<div class="controls">',
-                                  '<input type="text" name="link" value="http://" placeholder="Link">',
+                                  '<input type="text" name="link" placeholder="Link">',
                               '</div>',
                           '</div>',
                       '</form>',
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   '</div>',
               '</div>'
           ].join('')).appendTo($body);
-  
+
           this.$confirmBtn = this.$win.find('.modal-footer button').css({
               width: 80,
               height: 35,
@@ -154,37 +154,37 @@ document.addEventListener('DOMContentLoaded', function () {
               lineHeight: '35px',
               color: 'white',
           });
-  
+
           this.$win.on('click', '[role=save]', function(){
               self.$win.find('form').submit();
           }).on('submit', 'form', function(){
               var $el = $(this);
               var title = $el.find('[name=title]').val();
               var link = $el.find('[name=link]').val();
-  
+
               self.$win.modal('hide');
-  
+
               var cm = self.editor.codemirror;
               var stat = getState(cm);
               _replaceSelection(cm, stat.link, '['+ title +']('+ link +')');
-  
+
               $el.find('[name=title]').val('');
               $el.find('[name=link]').val('http://');
-  
+
               return false;
           });
       };
-  
+
       ToolLink.prototype.bind = function(editor){
           this.editor = editor;
           this.$win.modal('show');
       };
-  
+
       var toolLink = new ToolLink();
       replaceTool('link', function(editor){
           toolLink.bind(editor);
       });
-  
+
       //图片上传工具
       var ToolImage = function(){
           var self = this;
@@ -199,21 +199,21 @@ document.addEventListener('DOMContentLoaded', function () {
                           //'<!-- this input only run when file changed, so choose the same file no use -->'
                           '<input id="upload_file" onchange="uploadFile(this.files)" type="file" style="position:absolute; z-index: -1; visibility: hidden;" accept=".gif, .png, .jpg, .jpeg" />',
                           //'<!-- this label connected with input above, it implemented hide filename of input -->'
-                          '<label for="upload_file" class="button">Upload</label>',
+                          '<label for="upload_file" class="button">Upload (<1MB)</label>',
                           '<span class="tip"></span>',
                           '<div class="alert alert-error hide"></div>',
                       '</div>',
                   '</div>',
               '</div>'
           ].join('')).appendTo($body);
-  
+
           this.$upload = this.$win.find('.upload-img').css({
               height: 50,
               padding: '60px 0',
               textAlign: 'center',
               border: '4px dashed#ddd'
           });
-  
+
           this.$uploadBtn = this.$upload.find('.button').css({
               width: 86,
               height: 40,
@@ -224,13 +224,13 @@ document.addEventListener('DOMContentLoaded', function () {
               fontWeight: 'bold',
               color: 'white',
           });
-  
+
           this.$uploadTip = this.$upload.find('.tip').hide();
-  
+
           this.file = false;
           this._csrf = $('[name=_csrf]').val();
       };
-  
+
       ToolImage.prototype.removeFile = function(){
           //var self = this;
           this.file = false;
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
           this.$uploadTip.hide();
           document.getElementById('upload_file').value = '';
       };
-  
+
       ToolImage.prototype.showFile = function(file){
           //var self = this;
           this.file = file;
@@ -246,31 +246,31 @@ document.addEventListener('DOMContentLoaded', function () {
           this.$uploadTip.html('正在上传: ' + file.name).show();
           this.hideError();
       };
-  
+
       ToolImage.prototype.showError = function(error){
           this.$upload.find('.alert-error').html(error).show();
       };
-  
+
       ToolImage.prototype.hideError = function(error){
           this.$upload.find('.alert-error').hide();
       };
-  
+
       ToolImage.prototype.showProgress = function(file, percentage){
           this.$uploadTip
               .html('正在上传: ' + file.name + ' ' + percentage + '%')
               .show();
       };
-  
+
       ToolImage.prototype.bind = function(editor) {
           this.editor = editor;
           this.$win.modal('show');
       };
-  
+
       toolImage = new ToolImage();
       replaceTool('image', function(editor){
           toolImage.bind(editor);
       });
-  
+
       //当编辑器取得焦点时，绑定 toolImage；
       var createToolbar = Editor.prototype.createToolbar;
       Editor.prototype.createToolbar = function(items){
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function () {
               toolImage.editor = self;
           });
       };
-  
+
       //追加内容
       Editor.prototype.push = function(txt){
           var cm = this.codemirror;
@@ -319,7 +319,7 @@ function uploadFile(files) {
       try {
         const response = await fetch(encodeURI(url), { method: 'GET' });
         const data = await response.json();
-        
+
         if (data.code === 0) {
           try {
             const uploadResponse = await fetch(data.data.uploadurl, {
