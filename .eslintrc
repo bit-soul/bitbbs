@@ -21,7 +21,7 @@
     {
       "files": ["test/**/*.js"],
       "plugins": ["jest"],
-      "extends": ["plugin:jest/recommended"]
+      "extends": ["plugin:jest/recommended"],
       "env": {
         "jest": true
       },
