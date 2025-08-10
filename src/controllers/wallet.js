@@ -135,7 +135,7 @@ router.post('/get_authkey', async (ctx, next) => {
     return;
   }
 
-  const authkey = tools.generateauthkey(session.user._id, maxage);
+  const authkey = tools.generateauthkey(session.user_id, maxage);
 
   result.code = 0;
   result.data = authkey;

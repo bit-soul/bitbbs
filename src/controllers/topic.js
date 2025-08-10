@@ -52,17 +52,16 @@ router.post('/topic/create',
       });
     }
 
-    const topic = await proxyTopic.newAndSave(title, content, tab, ctx.session.user._id);
+    const topic = await proxyTopic.newAndSave(title, content, tab, ctx.session.user_id);
 
     // 更新用户分数
-    const user = await proxyUser.getUserById(ctx.session.user._id);
+    const user = await proxyUser.getUserById(ctx.session.user_id);
     user.score += 5;
     user.topic_count += 1;
     await user.save();
-    ctx.session.user = user;
 
     // 发送 @ 消息
-    at.sendMessageToMentionUsers(content, topic._id, ctx.session.user._id);
+    at.sendMessageToMentionUsers(content, topic._id, ctx.session.user_id);
 
     return ctx.redirect(`/topic/${topic._id}`);
   }
@@ -72,7 +71,7 @@ router.post('/topic/mark',
   midAuth.userRequired,
   async (ctx, next) => {
     const topic_id = ctx.request.body.topic_id;
-    const user_id = ctx.session.user._id;
+    const user_id = ctx.session.user_id;
 
     const topic = await proxyTopic.getTopic(topic_id);
     if (!topic) {
@@ -92,7 +91,6 @@ router.post('/topic/mark',
     user.mark_topic_count += 1;
     await user.save();
 
-    ctx.session.user.mark_topic_count += 1;
     topic.mark_count += 1;
     await topic.save();
 
@@ -104,7 +102,7 @@ router.post('/topic/unmark',
   midAuth.userRequired,
   async (ctx, next) => {
     const topic_id = ctx.request.body.topic_id;
-    const user_id = ctx.session.user._id;
+    const user_id = ctx.session.user_id;
 
     const topic = await proxyTopic.getTopic(topic_id);
     if (!topic) {
@@ -122,8 +120,6 @@ router.post('/topic/unmark',
     user.mark_topic_count -= 1;
     await user.save();
 
-    ctx.session.user = user;
-
     topic.mark_count -= 1;
     await topic.save();
 
@@ -140,7 +136,7 @@ router.get('/topic/:tid', async (ctx, next) => {
   }
 
   const topic_id = ctx.params.tid;
-  const currentUser = ctx.session.user;
+  const currentUser = await proxyUser.getUserById(ctx.session.user_id);
 
   if (topic_id.length !== 24) {
     ctx.status = 404;
@@ -211,8 +207,8 @@ router.get('/topic/:tid/edit',
       return await ctx.render('misc/notify', { error: 'proxyTopic not exist or deleted' });
     }
 
-    const isOwner = String(topic.author_id) === String(ctx.session.user._id);
-    const isAdmin = ctx.session.user.is_admin;
+    const isOwner = String(topic.author_id) === String(ctx.session.user_id);
+    const isAdmin = ctx.session.is_admin;
 
     if (isOwner || isAdmin) {
       return await ctx.render('topic/edit', {
@@ -245,8 +241,8 @@ router.post('/topic/:tid/edit',
       return await ctx.render('misc/notify', { error: 'proxyTopic not exist or deleted' });
     }
 
-    const isOwner = topic.author_id.equals(ctx.session.user._id);
-    const isAdmin = ctx.session.user.is_admin;
+    const isOwner = topic.author_id.equals(ctx.session.user_id);
+    const isAdmin = ctx.session.is_admin;
 
     if (!(isOwner || isAdmin)) {
       ctx.status = 403;
@@ -282,7 +278,7 @@ router.post('/topic/:tid/edit',
     topic.update_at = new Date();
     await topic.save();
 
-    at.sendMessageToMentionUsers(content, topic._id, ctx.session.user._id);
+    at.sendMessageToMentionUsers(content, topic._id, ctx.session.user_id);
 
     return ctx.redirect(`/topic/${topic._id}`);
   }
@@ -305,8 +301,8 @@ router.post('/topic/:tid/delete',
         return;
       }
 
-      const isAdmin = ctx.session.user.is_admin;
-      const isOwner = topic.author_id.equals(ctx.session.user._id);
+      const isAdmin = ctx.session.is_admin;
+      const isOwner = topic.author_id.equals(ctx.session.user_id);
 
       if (!(isAdmin || isOwner)) {
         ctx.status = 403;

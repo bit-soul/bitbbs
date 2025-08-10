@@ -16,7 +16,7 @@ const router = new Router();
 router.post('/user/refresh_token',
   midAuth.userRequired,
   async (ctx, next) => {
-    const user_id = ctx.session.user._id;
+    const user_id = ctx.session.user_id;
 
     const user = await proxyUser.getUserById(user_id);
     user.accessToken = tools.uuid();
@@ -65,7 +65,7 @@ router.post('/user/set_advance',
 router.get('/user/setting',
   midAuth.userRequired,
   async (ctx, next) => {
-    const user = await proxyUser.getUserById(ctx.session.user._id);
+    const user = await proxyUser.getUserById(ctx.session.user_id);
     if (!user) {
       return await next();
     }
@@ -83,7 +83,7 @@ router.post('/user/setting',
   midAuth.userRequired,
   async (ctx, next) => {
     const reqBody = ctx.request.body;
-    const sessionUser = ctx.session.user;
+    const sessionUser = await proxyUser.getUserById(ctx.session.user_id);
 
     async function showMessage(msg, data, isSuccess) {
       data = data || reqBody;
@@ -110,7 +110,6 @@ router.post('/user/setting',
       user.name = name;
       user.biog = biog;
       await user.save();
-      ctx.session.user = user.toObject({ virtual: true });
       return ctx.redirect('/user/setting?save=success');
     }
 
@@ -167,7 +166,7 @@ router.get('/user/:uid', async (ctx, next) => {
   });
 
   let token = '';
-  if (!user.active && ctx.session.user && ctx.session.user.is_admin) {
+  if (!user.active && ctx.session.user_id && ctx.session.is_admin) {
     token = tools.md5(user.email + user.pass + global.config.session_secret);
   }
 

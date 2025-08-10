@@ -4,11 +4,11 @@ const proxyMessage = require('../proxys/message');
 
 
 exports.adminRequired = async (ctx, next) => {
-  if (!ctx.session.user) {
+  if (!ctx.session.user_id) {
     return await ctx.render('misc/notify', { error: 'Please Login' });
   }
 
-  if (!ctx.session.user.is_admin) {
+  if (!ctx.session.is_admin) {
     return await ctx.render('misc/notify', { error: 'Need Admin' });
   }
 
@@ -17,7 +17,7 @@ exports.adminRequired = async (ctx, next) => {
 
 
 exports.userRequired = async (ctx, next) => {
-  if (!ctx.session || !ctx.session.user || !ctx.session.user._id) {
+  if (!ctx.session || !ctx.session.user_id) {
     ctx.status = 403;
     ctx.body = 'forbidden!';
     return;
@@ -33,7 +33,7 @@ exports.blockUser = async (ctx, next) => {
     return;
   }
 
-  if (ctx.session.user && ctx.session.user.is_block && ctx.method !== 'GET') {
+  if (ctx.session.user_id && ctx.session.is_block && ctx.method !== 'GET') {
     ctx.status = 403;
     ctx.body = 'You are blocked by Admin';
     return;
@@ -62,17 +62,21 @@ exports.authUser = async (ctx, next) => {
   try {
     if (global.config.debug && ctx.cookies.get('mock_user')) {
       const mockUser = JSON.parse(ctx.cookies.get('mock_user'));
-      ctx.session.user = new modelUser(mockUser);
+      const model_user = new modelUser(mockUser);
+      await model_user.save();
+      ctx.session.user_id = model_user._id.toString();
+    console.log(ctx.session.user_id);
+      ctx.session.is_block = model_user.is_block;
       if (mockUser.is_admin) {
-        ctx.session.user.is_admin = true;
+        ctx.session.is_admin = true;
       }
       await next();
       return;
     }
 
     let user;
-    if (ctx.session.user) {
-      user = ctx.session.user;
+    if (ctx.session.user_id) {
+      user = await proxyUser.getUserById(ctx.session.user_id);
     } else {
       const auth_token = ctx.cookies.get(global.config.auth_cookie_name, { signed: true });
       if (auth_token) {
@@ -87,7 +91,12 @@ exports.authUser = async (ctx, next) => {
       return;
     }
 
-    user = ctx.state.current_user = ctx.session.user = new modelUser(user);
+    const model_user = new modelUser(user);
+    await model_user.save();
+    ctx.session.user_id = model_user._id.toString();
+    console.log(ctx.session.user_id);
+    ctx.session.is_block = model_user.is_block;
+    user = ctx.state.current_user = model_user;
 
     // eslint-disable-next-line no-prototype-builtins
     if (global.config.admins.hasOwnProperty(user._id)) {

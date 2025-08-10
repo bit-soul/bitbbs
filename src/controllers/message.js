@@ -4,7 +4,7 @@ const Router       = require('@koa/router');
 const router = new Router();
 
 router.get('/my/messages', async (ctx, next) => {
-  const user_id = ctx.session.user._id;
+  const user_id = ctx.session.user_id;
 
   // 并发获取已读和未读消息原始数据
   const [has_read, unread] = await Promise.all([

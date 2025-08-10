@@ -26,7 +26,7 @@ router.get('/presignedurl',
       return;
     }
 
-    const userId = ctx.session.user._id;
+    const userId = ctx.session.user_id;
     const formatDate = tools.getFormattedDate();
     const formatTime = tools.getFormattedTime();
     const file_name = global.config.s3_client.prefix + userId + '/' + formatDate + '/' + formatTime + '_' + fileName

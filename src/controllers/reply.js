@@ -35,21 +35,20 @@ router.post('/reply/to/:tid',
 
     const topicAuthor = await proxyUser.getUserById(topic.author_id);
 
-    const reply = await proxyReply.newAndSave(content, tid, ctx.session.user._id, rid);
+    const reply = await proxyReply.newAndSave(content, tid, ctx.session.user_id, rid);
     await proxyTopic.updateLastReply(tid, reply._id);
 
     // @提及功能
     const newContent = content.replace(`[@${topicAuthor.name}](/user/${topicAuthor._id})`, '');
-    at.sendMessageToMentionUsers(newContent, tid, ctx.session.user._id, reply._id);
+    at.sendMessageToMentionUsers(newContent, tid, ctx.session.user_id, reply._id);
 
-    const user = await proxyUser.getUserById(ctx.session.user._id);
+    const user = await proxyUser.getUserById(ctx.session.user_id);
     user.score += 5;
     user.reply_count += 1;
     await user.save();
-    ctx.session.user = user;
 
-    if (topic.author_id.toString() !== ctx.session.user._id.toString()) {
-      await message.sendReplyMessage(topic.author_id, ctx.session.user._id, topic._id, reply._id);
+    if (topic.author_id.toString() !== ctx.session.user_id.toString()) {
+      await message.sendReplyMessage(topic.author_id, ctx.session.user_id, topic._id, reply._id);
     }
 
     return ctx.redirect(`/topic/${tid}#${reply._id}`);
@@ -68,9 +67,9 @@ router.post('/reply/:rid/delete',
       return;
     }
 
-    const currentUserId = ctx.session.user._id;
+    const currentUserId = ctx.session.user_id;
     const isAuthor = reply.author_id.toString() === currentUserId.toString();
-    const isAdmin = ctx.session.user.is_admin;
+    const isAdmin = ctx.session.is_admin;
 
     if (isAuthor || isAdmin) {
       reply.deleted = true;
@@ -100,8 +99,8 @@ router.get('/reply/:rid/edit',
       return await ctx.render('misc/notify', { error: 'reply not exist or deleted' });
     }
 
-    const isOwner = ctx.session.user._id.equals(reply.author_id);
-    const isAdmin = ctx.session.user.is_admin;
+    const isOwner = ctx.session.user_id.equals(reply.author_id);
+    const isAdmin = ctx.session.is_admin;
 
     if (isOwner || isAdmin) {
       return await ctx.render('reply/edit', {
@@ -127,8 +126,8 @@ router.post('/reply/:rid/edit',
       return await ctx.render('misc/notify', { error: 'reply not exist or deleted' });
     }
 
-    const isOwner = String(reply.author_id) === ctx.session.user._id.toString();
-    const isAdmin = ctx.session.user.is_admin;
+    const isOwner = String(reply.author_id) === ctx.session.user_id.toString();
+    const isAdmin = ctx.session.is_admin;
 
     if (isOwner || isAdmin) {
       if (content.trim().length > 0) {
@@ -151,7 +150,7 @@ router.post('/reply/:rid/up',
   midAuth.userRequired,
   async (ctx, next) => {
     const rid = ctx.params.rid;
-    const uid = ctx.session.user._id;
+    const uid = ctx.session.user_id;
     const reply = await proxyReply.getReplyById(rid);
 
     if (reply.author_id.equals(uid) && !global.config.debug) {

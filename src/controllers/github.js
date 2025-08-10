@@ -18,7 +18,7 @@ router.get(
  * GitHub OAuth 回调
  */
 router.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/signin' }), async (ctx, next) => {
-  const profile = ctx.state.user; // passport 插入的 user 对象
+  const profile = ctx.state.passport_user; // passport 插入的 user 对象
   const email = profile.emails && profile.emails[0]?.value;
 
   if (!email) {

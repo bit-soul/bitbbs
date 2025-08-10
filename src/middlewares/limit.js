@@ -43,7 +43,7 @@ const makePerDayLimiter = (identityName, identityFn) => {
 };
 
 exports.peruserperday = makePerDayLimiter('peruserperday', (ctx) => {
-  return (ctx.state.user || ctx.session.user)._id;
+  return ctx.session.user_id || ctx.state.passport_user?._id;
 });
 
 exports.peripperday = makePerDayLimiter('peripperday', (ctx) => {
