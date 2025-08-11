@@ -35,7 +35,7 @@ exports.fetchUserIds = async function(text) {
 
 
 exports.sendMessageToMentionUsers = async function(text, topicId, authorId, replyId = null) {
-  const userIds = exports.fetchUserIds(text);
+  const userIds = await exports.fetchUserIds(text);
   const users = await proxyUser.getUsersByIds(userIds);
 
   if (!users) {
