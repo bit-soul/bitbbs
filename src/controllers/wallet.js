@@ -1,12 +1,12 @@
-const modelUser   = require('../models/user');
-const proxySystem = require('../proxys/system');
-const midAuth     = require('../middlewares/auth');
-const tools       = require('../common/tools');
-const fetch       = require('../common/fetch');
+import modelUser from '../models/user.js';
+import * as proxySystem from '../proxys/system.js';
+import * as midAuth from '../middlewares/auth.js';
+import * as tools from '../common/tools.js';
+import * as fetch from '../common/fetch.js';
 
-const Router    = require('@koa/router');
-const validator = require('validator');
-const brcsoul   = require('brcsoul-sdk');
+import Router from '@koa/router';
+import validator from 'validator';
+import brcsoul from 'brcsoul-sdk';
 
 const router = new Router();
 
@@ -164,4 +164,4 @@ router.post('/authkey_login', async (ctx, next) => {
   }
 });
 
-module.exports = router;
+export default router;

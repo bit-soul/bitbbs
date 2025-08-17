@@ -1,10 +1,10 @@
-const tools     = require('../common/tools');
-const modelUser = require('../models/user');
-const midAuth   = require('../middlewares/auth');
-const midGithub = require('../middlewares/github');
+import modelUser from '../models/user.js';
+import * as tools from '../common/tools.js';
+import * as midAuth from '../middlewares/auth.js';
+import * as midGithub from '../middlewares/github.js';
 
-const Router   = require('@koa/router');
-const passport = require('koa-passport');
+import Router from '@koa/router';
+import passport from 'koa-passport';
 
 const router = new Router();
 
@@ -91,4 +91,4 @@ router.post('/auth/github/create', async (ctx, next) => {
   ctx.redirect('/');
 });
 
-module.exports = router;
+export default router;

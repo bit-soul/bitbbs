@@ -1,5 +1,5 @@
-const path = require('path')
-const log4js = require('log4js');
+import path from 'path';
+import log4js from 'log4js';
 
 const env = process.env.NODE_ENV || "development"
 const level = global.config.debug && env !== 'test' ? 'debug' : 'error';
@@ -18,4 +18,4 @@ log4js.configure({
   }
 });
 
-module.exports = log4js.getLogger('default');
+export default log4js.getLogger('default');

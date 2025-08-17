@@ -1,10 +1,12 @@
-const proxyTopic  = require('../proxys/topic');
-const cache       = require('../common/cache');
-const helper     = require('../common/helper');
-const tools       = require('../common/tools');
+import * as proxyTopic from '../proxys/topic.js';
+import * as cache from '../common/cache.js';
+import * as helper from '../common/helper.js';
+import * as tools from '../common/tools.js';
 
-const Router   = require('@koa/router');
-const data2xml = require('data2xml')({ xmlDecl: { version: '1.0', encoding: 'UTF-8' } });
+import Router from '@koa/router';
+import data2xml from 'data2xml';
+
+const toxml = data2xml({ xmlDecl: { version: '1.0', encoding: 'UTF-8' } });
 
 const router = new Router();
 
@@ -53,11 +55,11 @@ router.get('/rss', async (ctx, next) => {
     });
   });
 
-  let rssContent = data2xml('rss', rss_obj);
+  let rssContent = toxml('rss', rss_obj);
   rssContent = tools.utf8ForXml(rssContent);
   await cache.set('rss', rssContent, 60 * 5); // 5分钟缓存
 
   ctx.body = rssContent;
 });
 
-module.exports = router;
+export default router;

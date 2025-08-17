@@ -1,5 +1,5 @@
-const fetch = require('node-fetch');
-const proxyagent = require('socks-proxy-agent');
+import fetch from 'node-fetch';
+import proxyagent from 'socks-proxy-agent';
 
 var agent = null;
 if (global.config.socks_proxy_url && global.config.socks_proxy_url !== '') {
@@ -16,7 +16,7 @@ async function fetchWithTimeout(url, options, timeout = 15000) {
   return Promise.race([fetch(url, options), timeoutPromise]);
 }
 
-exports.fetchData = async function (url, method = 'GET', body = null) {
+export async function fetchData(url, method = 'GET', body = null) {
   try {
     const options = {
       agent: agent,

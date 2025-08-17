@@ -1,24 +1,25 @@
-const modelUser = require('../models/user');
-const tools     = require('../common/tools');
+import modelUser from '../models/user.js';
+import * as tools from '../common/tools.js';
 
-exports.getUserById = async function (id) {
+
+export async function getUserById(id) {
   if (!id) {return null;}
   return await modelUser.findOne({ _id: id });
-};
+}
 
-exports.getUsersByIds = async function (ids) {
+export async function getUsersByIds (ids) {
   return await modelUser.find({ _id: { $in: ids } });
-};
+}
 
-exports.getUserByMail = async function (email) {
+export async function getUserByMail (email) {
   return await modelUser.findOne({ email: email });
-};
+}
 
-exports.getUsersByQuery = async function (query, opt = {}) {
+export async function getUsersByQuery (query, opt = {}) {
   return await modelUser.find(query, '', opt);
-};
+}
 
-exports.newAndSave = async function (name, pass, email, icon, active = false) {
+export async function newAndSave (name, pass, email, icon, active = false) {
   const user = new modelUser({
     name,
     pass,
@@ -30,4 +31,4 @@ exports.newAndSave = async function (name, pass, email, icon, active = false) {
 
   await user.save();
   return user;
-};
+}

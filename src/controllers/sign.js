@@ -1,10 +1,10 @@
-const proxyUser = require('../proxys/user');
-const midAuth   = require('../middlewares/auth');
-const mail      = require('../common/mail');
-const tools     = require('../common/tools');
+import * as proxyUser from '../proxys/user.js';
+import * as midAuth from '../middlewares/auth.js';
+import * as mail from '../common/mail.js';
+import * as tools from '../common/tools.js';
 
-const Router    = require('@koa/router');
-const validator = require('validator');
+import Router from '@koa/router';
+import validator from 'validator';
 
 const router = new Router();
 
@@ -216,4 +216,4 @@ router.post('/reset_pass', async (ctx, next) => {
   return await ctx.render('misc/notify', { success: '你的密码已重置。' });
 });
 
-module.exports = router;
+export default router;

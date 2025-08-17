@@ -1,6 +1,7 @@
-const mongoose  = require('mongoose');
-const Schema    = mongoose.Schema;
-const BaseModel = require("./base_model");
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
+const { ObjectId } = Schema;
+import BaseModel from './base_model.js';
 
 const UserSchema = new Schema({
   name: { type: String},
@@ -59,4 +60,4 @@ UserSchema.pre('save', function(next){
   next();
 });
 
-module.exports = mongoose.model('User', UserSchema);
+export default mongoose.model('User', UserSchema);

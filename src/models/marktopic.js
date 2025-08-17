@@ -1,7 +1,8 @@
-const mongoose  = require('mongoose');
-const Schema    = mongoose.Schema;
-const ObjectId  = Schema.ObjectId;
-const BaseModel = require("./base_model");
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
+const { ObjectId } = Schema;
+import BaseModel from './base_model.js';
+
 
 const MarkTopicSchema = new Schema({
   user_id: { type: ObjectId },
@@ -12,4 +13,5 @@ const MarkTopicSchema = new Schema({
 MarkTopicSchema.plugin(BaseModel);
 MarkTopicSchema.index({user_id: 1, topic_id: 1}, {unique: true});
 
-module.exports = mongoose.model('MarkTopic', MarkTopicSchema);
+
+export default mongoose.model('MarkTopic', MarkTopicSchema);

@@ -1,4 +1,8 @@
-var path = require('path');
+import url from 'url';
+import path from 'path';
+
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 var config = {
   debug: false,
@@ -107,4 +111,4 @@ var config = {
   visit_per_day: 1000, // 每个 ip 每天能访问的次数
 };
 
-module.exports = config;
+export default config;

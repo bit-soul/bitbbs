@@ -1,5 +1,5 @@
-const Redis = require('ioredis');
-const logger = require('./logger')
+import Redis from 'ioredis';
+import logger from './logger.js';
 
 const client = new Redis(global.config.ioredis_cfg);
 
@@ -10,4 +10,4 @@ client.on('error', function (err) {
   }
 })
 
-module.exports = client;
+export default client;

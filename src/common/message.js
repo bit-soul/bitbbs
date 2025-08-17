@@ -1,6 +1,6 @@
-const modelMessage = require('../models/message');
+import modelMessage from '../models/message.js';
 
-exports.sendReplyMessage = async function (master_id, author_id, topic_id, reply_id) {
+export async function sendReplyMessage(master_id, author_id, topic_id, reply_id) {
   const message = new modelMessage();
   message.type = 'reply';
   message.master_id = master_id;
@@ -9,9 +9,9 @@ exports.sendReplyMessage = async function (master_id, author_id, topic_id, reply
   message.reply_id = reply_id;
 
   return await message.save();
-};
+}
 
-exports.sendAtMessage = async function (master_id, author_id, topic_id, reply_id) {
+export async function sendAtMessage(master_id, author_id, topic_id, reply_id) {
   const message = new modelMessage();
   message.type = 'at';
   message.master_id = master_id;
@@ -20,4 +20,4 @@ exports.sendAtMessage = async function (master_id, author_id, topic_id, reply_id
   message.reply_id = reply_id;
 
   return await message.save();
-};
+}

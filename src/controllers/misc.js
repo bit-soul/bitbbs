@@ -1,13 +1,13 @@
-const fs = require("fs");
+import fs from 'fs';
 
-const midAuth = require('../middlewares/auth');
-const tools   = require('../common/tools');
-const store   = require('../common/store');
-const logger  = require('../common/logger')
+import store from '../common/store.js';
+import logger from '../common/logger.js';
+import * as tools from '../common/tools.js';
+import * as midAuth from '../middlewares/auth.js';
 
-const Router    = require('@koa/router');
-const validator = require('validator');
-const lodash    = require('lodash');
+import Router from '@koa/router';
+import validator from 'validator';
+import lodash from 'lodash';
 
 const router = new Router();
 
@@ -84,4 +84,4 @@ router.get('/test', async (ctx, next) => {
   //return ctx.body='abc';
 });
 
-module.exports = router;
+export default router;

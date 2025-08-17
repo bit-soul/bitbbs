@@ -1,10 +1,10 @@
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
-const moment = require('moment');
+import moment from 'moment';
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 moment.locale('en');
 
-exports.formatDate = function (date, friendly) {
+export function formatDate(date, friendly) {
   date = moment(date);
 
   if (friendly) {
@@ -12,43 +12,43 @@ exports.formatDate = function (date, friendly) {
   } else {
     return date.format('YYYY-MM-DD HH:mm');
   }
-};
+}
 
-exports.getFormattedDate = function() {
+export function getFormattedDate() {
   const date = new Date();
   return date.getFullYear() +
          String(date.getMonth() + 1).padStart(2, '0') +
          String(date.getDate()).padStart(2, '0');
 }
 
-exports.getFormattedTime = function() {
+export function getFormattedTime() {
   const date = new Date();
   return String(date.getHours()).padStart(2, '0') +
          String(date.getMinutes()).padStart(2, '0') +
          String(date.getSeconds()).padStart(2, '0');
 }
 
-exports.validateId = function (str) {
+export function validateId(str) {
   return (/^[a-zA-Z0-9\-_]+$/i).test(str);
-};
+}
 
-exports.bhash = async function (str) {
+export async function bhash(str) {
   return await bcrypt.hash(str, 10);
-};
+}
 
-exports.bcompare = async function (str, hash) {
+export async function bcompare(str, hash) {
   return await bcrypt.compare(str, hash);
-};
+}
 
-exports.md5 = function (str) {
+export function md5(str) {
   return crypto.createHash('md5').update(str).digest('hex');
 }
 
-exports.uuid = function () {
+export function uuid() {
   return crypto.randomUUID();
 }
 
-exports.generateauthkey = function (userid, maxage) {
+export function generateauthkey(userid, maxage) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let authkey = '';
   for (let i = 0; i < 10; i++) {
@@ -64,18 +64,18 @@ exports.generateauthkey = function (userid, maxage) {
   return authkey;
 }
 
-exports.sleep = async (ms) => {
+export async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-exports.retryTimes = async (fun, times, interval) => {
+export async function retryTimes(fun, times, interval) {
   let last_error;
 
   for (let retry_cnt = 0; retry_cnt < times; ++retry_cnt) {
     try {
       return await fun();
     } catch (error) {
-      await exports.sleep(interval);
+      await sleep(interval);
       last_error = error;
     }
   }
@@ -83,7 +83,7 @@ exports.retryTimes = async (fun, times, interval) => {
   throw last_error;
 }
 
-exports.utf8ForXml= function (inputStr) {
+export function utf8ForXml(inputStr) {
   // eslint-disable-next-line no-control-regex
   return inputStr.replace(/[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm, '');
 }

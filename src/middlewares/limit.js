@@ -1,9 +1,9 @@
-const moment = require('moment');
-const cache = require('../common/cache');
+import moment from 'moment';
+import * as cache from '../common/cache.js';
 
 const SEPARATOR = '^_^@T_T';
 
-const makePerDayLimiter = (identityName, identityFn) => {
+function makePerDayLimiter(identityName, identityFn) {
   return (name, limitCount, options = {}) => {
     /*
     options.showJson = true 表示调用来自API并返回结构化数据；否则表示调用来自前端并渲染错误页面
@@ -40,16 +40,16 @@ const makePerDayLimiter = (identityName, identityFn) => {
       }
     };
   };
-};
+}
 
-exports.peruserperday = makePerDayLimiter('peruserperday', (ctx) => {
+export const peruserperday = makePerDayLimiter('peruserperday', (ctx) => {
   return ctx.session.user_id || ctx.state.passport_user?._id;
-});
+})
 
-exports.peripperday = makePerDayLimiter('peripperday', (ctx) => {
+export const peripperday = makePerDayLimiter('peripperday', (ctx) => {
   const realIP = ctx.get('x-real-ip');
   if (!realIP && !global.config.debug) {
     throw new Error('should provide `x-real-ip` header');
   }
   return realIP;
-});
+})

@@ -7,15 +7,16 @@
     "node": true
   },
   "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "script"
+    "sourceType": "module",
+    "ecmaVersion": "latest"
   },
   "rules": {
     "eqeqeq": "error",
     "no-undef": "error",
     "no-unused-vars": "off",
     "no-process-exit": "off",
-    "node/no-missing-require": "off"
+    "node/no-missing-require": "off",
+    "node/no-unsupported-features/es-syntax": "off"
   },
   "overrides": [
     {

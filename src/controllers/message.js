@@ -1,5 +1,5 @@
-const proxyMessage = require('../proxys/message');
-const Router       = require('@koa/router');
+import Router from '@koa/router';
+import * as proxyMessage from '../proxys/message.js';
 
 const router = new Router();
 
@@ -36,4 +36,4 @@ router.get('/my/messages', async (ctx, next) => {
   });
 });
 
-module.exports = router;
+export default router;

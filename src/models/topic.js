@@ -1,8 +1,8 @@
-const lodash    = require('lodash');
-const mongoose  = require('mongoose');
-const Schema    = mongoose.Schema;
-const ObjectId  = Schema.ObjectId;
-const BaseModel = require("./base_model");
+import lodash from 'lodash';
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
+const { ObjectId } = Schema;
+import BaseModel from './base_model.js';
 
 const TopicSchema = new Schema({
   title: { type: String },
@@ -42,4 +42,4 @@ TopicSchema.virtual('tabName').get(function () {
   }
 });
 
-module.exports = mongoose.model('Topic', TopicSchema);
+export default mongoose.model('Topic', TopicSchema);

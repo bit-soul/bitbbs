@@ -1,10 +1,11 @@
-const lodash     = require('lodash');
-const modelTopic = require('../models/topic');
-const proxyUser  = require('./user');
-const proxyReply = require('./reply');
-const at         = require('../common/at');
+import lodash from 'lodash';
+import modelTopic from '../models/topic.js';
+import * as proxyUser from './user.js';
+import * as proxyReply from './reply.js';
+import * as at from '../common/at.js';
 
-exports.getTopicById = async function (id) {
+
+export async function getTopicById(id) {
   const topic = await modelTopic.findOne({ _id: id });
   if (!topic) {return { topic: null, author: null, lastReply: null };}
 
@@ -14,13 +15,13 @@ exports.getTopicById = async function (id) {
   ]);
 
   return { topic, author, lastReply };
-};
+}
 
-exports.getCountByQuery = async function (query) {
+export async function getCountByQuery(query) {
   return await modelTopic.countDocuments(query);
-};
+}
 
-exports.getTopicsByQuery = async function (query, opt = {}) {
+export async function getTopicsByQuery(query, opt = {}) {
   query.deleted = false;
   const topics = await modelTopic.find(query, {}, opt);
   if (!topics || topics.length === 0) {return [];}
@@ -41,16 +42,16 @@ exports.getTopicsByQuery = async function (query, opt = {}) {
   );
 
   return lodash.compact(enrichedTopics);
-};
+}
 
-exports.getLimit5w = async function () {
+export async function getLimit5w() {
   return await modelTopic.find({ deleted: false }, '_id', {
     limit: 50000,
     sort: '-create_at'
   });
-};
+}
 
-exports.getFullTopic = async function (id) {
+export async function getFullTopic (id) {
   const topic = await modelTopic.findOne({ _id: id, deleted: false });
   if (!topic) {
     throw new Error('modelTopic not exist or deleted');
@@ -68,9 +69,9 @@ exports.getFullTopic = async function (id) {
 
   topic.linkedContent = linkedContent;
   return { message: '', topic, author, replies };
-};
+}
 
-exports.updateLastReply = async function (topicId, replyId) {
+export async function updateLastReply(topicId, replyId) {
   const topic = await modelTopic.findOne({ _id: topicId });
   if (!topic) {throw new Error('modelTopic not exist');}
 
@@ -80,13 +81,13 @@ exports.updateLastReply = async function (topicId, replyId) {
 
   await topic.save();
   return topic;
-};
+}
 
-exports.getTopic = async function (id) {
+export async function getTopic(id) {
   return await modelTopic.findOne({ _id: id });
-};
+}
 
-exports.reduceCount = async function (id) {
+export async function reduceCount (id) {
   const topic = await modelTopic.findOne({ _id: id });
   if (!topic) {throw new Error('modelTopic not exist or deleted');}
 
@@ -97,9 +98,9 @@ exports.reduceCount = async function (id) {
 
   await topic.save();
   return topic;
-};
+}
 
-exports.newAndSave = async function (title, content, tab, authorId) {
+export async function newAndSave (title, content, tab, authorId) {
   const topic = new modelTopic({
     title,
     content,
@@ -109,4 +110,4 @@ exports.newAndSave = async function (title, content, tab, authorId) {
 
   await topic.save();
   return topic;
-};
+}

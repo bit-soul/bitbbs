@@ -1,5 +1,10 @@
 //fix run node18 in win7
-require('os').hostname=()=>"localhost"
+import os from 'os';
+os.hostname = ()=>"localhost";
 
-require('@dotenvx/dotenvx').config({path:'./env/local.env'});
-require("./src/app.js");
+import dotenvx from '@dotenvx/dotenvx';
+dotenvx.config({path:'./env/local.env'});
+
+(async () => {
+  await import("./src/app.js");
+})();

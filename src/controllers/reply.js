@@ -1,14 +1,14 @@
-const proxyUser   = require('../proxys/user');
-const proxyTopic  = require('../proxys/topic');
-const proxyReply  = require('../proxys/reply');
-const midAuth     = require('../middlewares/auth');
-const midLimit    = require('../middlewares/limit');
-const at          = require('../common/at');
-const message     = require('../common/message');
+import * as proxyUser from '../proxys/user.js';
+import * as proxyTopic from '../proxys/topic.js';
+import * as proxyReply from '../proxys/reply.js';
+import * as midAuth from '../middlewares/auth.js';
+import * as midLimit from '../middlewares/limit.js';
+import * as at from '../common/at.js';
+import * as message from '../common/message.js';
 
-const Router    = require('@koa/router');
-const lodash    = require('lodash');
-const validator = require('validator');
+import Router from '@koa/router';
+import lodash from 'lodash';
+import validator from 'validator';
 
 const router = new Router();
 
@@ -179,4 +179,4 @@ router.post('/reply/:rid/up',
   }
 );
 
-module.exports = router;
+export default router;

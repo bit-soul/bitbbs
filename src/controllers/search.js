@@ -1,4 +1,4 @@
-const Router = require('@koa/router');
+import Router from '@koa/router';
 const router = new Router();
 
 router.get('/search', async (ctx, next) => {
@@ -6,4 +6,4 @@ router.get('/search', async (ctx, next) => {
   ctx.redirect('https://www.google.com.hk/search?q=site:bitbbs.bitsoul.xyz+' + q);
 });
 
-module.exports = router;
+export default router;

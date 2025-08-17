@@ -1,45 +1,46 @@
 //*****************************************************************************
 // load global variable
 //*****************************************************************************
-require("./global.js");
-
+import './global.js';
 if (!global.config.debug && global.config.oneapm_key) {
-  // require('oneapm');
+  // import 'oneapm';
 }
 
-
 //*****************************************************************************
-// require modules
+// import modules
 //*****************************************************************************
-const fs = require('fs');
-const path = require('path');
-const lodash = require('lodash');
+import fs from 'fs';
+import url from 'url';
+import path from 'path';
+import lodash from 'lodash';
 
-const Koa = require('koa');
-const koaonerror = require('koa-onerror')
-const koarouter = require('@koa/router');
-const koastatic = require('koa-static')
-const koamount = require('koa-mount');
-const koaejs = require('@koa/ejs')
-const koabody = require('koa-body')
-const koaredis = require('koa-redis');
-const koasession = require('koa-session');
+import Koa from 'koa';
+import koarouter from '@koa/router';
+import koastatic from 'koa-static';
+import koamount from 'koa-mount';
+import koaejs from '@koa/ejs';
+import koabody from 'koa-body';
+import koaredis from 'koa-redis';
+import * as koaonerror from 'koa-onerror';
+import * as koasession from 'koa-session';
 
-const koacors = require('@koa/cors');
-const koacsrf = require('koa-csrf');
-const koahelmet = require('koa-helmet');
-const koapassport = require('koa-passport');
-const GitHubStrategy = require('passport-github').Strategy;
-const gracefulShutdown = require('http-graceful-shutdown');
+import koacors from '@koa/cors';
+import koacsrf from 'koa-csrf';
+import koahelmet from 'koa-helmet';
+import koapassport from 'koa-passport';
+import { Strategy as GitHubStrategy } from 'passport-github';
+import gracefulShutdown from 'http-graceful-shutdown';
 
-const midAuth = require('./middlewares/auth');
-const midProxy = require('./middlewares/proxy');
-const midReqlog = require('./middlewares/reqlog');
-const midRender = require('./middlewares/render');
-const midGithub = require('./middlewares/github');
+import * as midAuth from './middlewares/auth.js';
+import * as midProxy from './middlewares/proxy.js';
+import * as midReqlog from './middlewares/reqlog.js';
+import * as midRender from './middlewares/render.js';
+import * as midGithub from './middlewares/github.js';
 
-const logger = require('./common/logger');
+import logger from './common/logger.js';
 
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 //*****************************************************************************
 // create app and load middlewares
@@ -54,7 +55,7 @@ if (!fs.existsSync(global.config.log_dir)) {
   fs.mkdirSync(global.config.log_dir, { recursive: true });
 }
 if(global.config.debug) {
-  app.use(midReqlog);
+  app.use(midReqlog.reqlog);
   app.use(midRender.times);
 }
 
@@ -163,24 +164,24 @@ const router = new koarouter();
 router.all('/agent/(.*)', midProxy.proxy);
 
 //load routers recursively
-(function(){
+(async function(){
 
-  loadRouters(path.join(__dirname, './controllers'));
+  await loadRouters(path.join(__dirname, './controllers'));
 
-  function loadRouters(router_path)
+  async function loadRouters(router_path)
   {
     //if router_path is a directory, then call loadRouters for each of it's items
     if(fs.lstatSync(router_path).isDirectory())
     {
       var items=fs.readdirSync(router_path);
       items.forEach(function(item, index, array){
-        loadRouters(router_path + '/' + item);
+        loadRouters(path.join(router_path, item));
       });
     }
     //if router_path is js file, then load it as router
     else if(router_path.slice(-3) === '.js')
     {
-      var router_handler = require(router_path);
+      var router_handler = (await import(url.pathToFileURL(router_path))).default;
       if(router_handler.routes !== undefined)
       {
         app.use(router_handler.routes(), router_handler.allowedMethods());

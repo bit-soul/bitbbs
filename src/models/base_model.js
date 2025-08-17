@@ -1,6 +1,6 @@
-const tools = require('../common/tools');
+import * as tools from '../common/tools.js';
 
-module.exports = function (schema) {
+export default function (schema) {
   schema.methods.create_at_ago = function () {
     return tools.formatDate(this.create_at, true);
   };
@@ -8,4 +8,4 @@ module.exports = function (schema) {
   schema.methods.update_at_ago = function () {
     return tools.formatDate(this.update_at, true);
   };
-};
+}

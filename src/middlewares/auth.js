@@ -1,9 +1,9 @@
-const modelUser    = require('../models/user');
-const proxyUser    = require('../proxys/user');
-const proxyMessage = require('../proxys/message');
+import modelUser from '../models/user.js';
+import * as proxyUser from '../proxys/user.js';
+import * as proxyMessage from '../proxys/message.js';
 
 
-exports.adminRequired = async (ctx, next) => {
+export async function adminRequired(ctx, next) {
   if (!ctx.session.user_id) {
     return await ctx.render('misc/notify', { error: 'Please Login' });
   }
@@ -13,10 +13,10 @@ exports.adminRequired = async (ctx, next) => {
   }
 
   await next();
-};
+}
 
 
-exports.userRequired = async (ctx, next) => {
+export async function userRequired(ctx, next) {
   if (!ctx.session || !ctx.session.user_id) {
     ctx.status = 403;
     ctx.body = 'forbidden!';
@@ -24,10 +24,10 @@ exports.userRequired = async (ctx, next) => {
   }
 
   await next();
-};
+}
 
 
-exports.blockUser = async (ctx, next) => {
+export async function blockUser(ctx, next) {
   if (ctx.path === '/signout') {
     await next();
     return;
@@ -40,10 +40,10 @@ exports.blockUser = async (ctx, next) => {
   }
 
   await next();
-};
+}
 
 
-exports.gen_session = async (ctx, userid, maxage) => {
+export async function gen_session(ctx, userid, maxage) {
   const auth_token = userid + '$$$$';
   const opts = {
     path: '/',
@@ -56,7 +56,7 @@ exports.gen_session = async (ctx, userid, maxage) => {
 }
 
 
-exports.authUser = async (ctx, next) => {
+export async function authUser(ctx, next) {
   ctx.state.current_user = null;
 
   try {
@@ -110,4 +110,4 @@ exports.authUser = async (ctx, next) => {
   } catch (err) {
     ctx.throw(500, err);
   }
-};
+}

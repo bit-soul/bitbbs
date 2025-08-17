@@ -1,4 +1,4 @@
-var config_default = require('./default');
+import config_default from './default.js';
 
 var config = {
   debug: false,
@@ -88,4 +88,4 @@ var config = {
 
 Object.assign(config_default, config);
 
-module.exports = config_default;
+export default config_default;

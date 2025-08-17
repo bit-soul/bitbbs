@@ -1,12 +1,14 @@
-const proxyUser   = require('../proxys/user');
-const proxyTopic  = require('../proxys/topic');
-const cache       = require('../common/cache');
-const helper     = require('../common/helper');
-const tools       = require('../common/tools');
+import * as proxyUser from '../proxys/user.js';
+import * as proxyTopic from '../proxys/topic.js';
+import * as cache from '../common/cache.js';
+import * as helper from '../common/helper.js';
+import * as tools from '../common/tools.js';
 
-const Router      = require('@koa/router');
-const moment      = require('moment');
-const data2xml    = require('data2xml')({ xmlDecl: { version: '1.0', encoding: 'UTF-8' } });
+import Router from '@koa/router';
+import moment from 'moment';
+import data2xml from 'data2xml';
+
+const toxml = data2xml({ xmlDecl: { version: '1.0', encoding: 'UTF-8' } });
 
 const router = new Router();
 
@@ -96,7 +98,7 @@ router.get('/sitemap.xml', async (ctx, next) => {
         loc: `https://bitbbs.bitsoul.xyz/topic/${topic._id}`
       }))
     };
-    let sitemapData = data2xml('urlset', urlset);
+    let sitemapData = toxml('urlset', urlset);
     sitemapData = tools.utf8ForXml(sitemapData);
     await cache.set('sitemap', sitemapData, 3600 * 24); // 缓存一天
   }
@@ -105,4 +107,4 @@ router.get('/sitemap.xml', async (ctx, next) => {
   ctx.body = sitemapData;
 });
 
-module.exports = router;
+export default router;

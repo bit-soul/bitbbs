@@ -1,8 +1,9 @@
-const lodash     = require('lodash');
-const Message    = require('./message');
-const proxyUser  = require('../proxys/user');
+import lodash from 'lodash';
 
-exports.fetchUserIds = async function(text) {
+import * as Message from './message.js';
+import * as proxyUser from '../proxys/user.js';
+
+export async function fetchUserIds(text) {
   if (!text) {
     return [];
   }
@@ -34,8 +35,8 @@ exports.fetchUserIds = async function(text) {
 }
 
 
-exports.sendMessageToMentionUsers = async function(text, topicId, authorId, replyId = null) {
-  const userIds = await exports.fetchUserIds(text);
+export async function sendMessageToMentionUsers(text, topicId, authorId, replyId = null) {
+  const userIds = await fetchUserIds(text);
   const users = await proxyUser.getUsersByIds(userIds);
 
   if (!users) {
@@ -49,10 +50,10 @@ exports.sendMessageToMentionUsers = async function(text, topicId, authorId, repl
       Message.sendAtMessage(user._id, authorId, topicId, replyId)
     )
   );
-};
+}
 
 
-exports.textShowProcess = async function(text) {
+export async function textShowProcess(text) {
   // 如果将来要替换为数据库处理，可在这里扩展
   return text;
-};
+}

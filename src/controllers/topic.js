@@ -1,15 +1,15 @@
-const proxyUser       = require('../proxys/user');
-const proxyTopic      = require('../proxys/topic');
-const proxyMarkTopic  = require('../proxys/marktopic');
-const midAuth         = require('../middlewares/auth');
-const midLimit        = require('../middlewares/limit');
-const at              = require('../common/at');
-const cache           = require('../common/cache');
-const logger          = require('../common/logger')
+import * as proxyUser from '../proxys/user.js';
+import * as proxyTopic from '../proxys/topic.js';
+import * as proxyMarkTopic from '../proxys/marktopic.js';
+import * as midAuth from '../middlewares/auth.js';
+import * as midLimit from '../middlewares/limit.js';
+import * as at from '../common/at.js';
+import * as cache from '../common/cache.js';
+import logger from '../common/logger.js';
 
-const Router    = require('@koa/router');
-const validator = require('validator');
-const lodash    = require('lodash');
+import Router from '@koa/router';
+import validator from 'validator';
+import lodash from 'lodash';
 
 const router = new Router();
 
@@ -390,4 +390,4 @@ router.post('/topic/:tid/lock',
   }
 );
 
-module.exports = router;
+export default router;

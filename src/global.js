@@ -4,27 +4,27 @@
 switch (process.env.APP_ENV) {
 case 'dev':
   global.env = 'dev';
-  global.config = require('./config/dev');
+  global.config =  (await import('./config/dev.js')).default;
   break;
 case 'local':
   global.env = 'local';
-  global.config = require('./config/local');
+  global.config =  (await import('./config/local.js')).default;
   break;
 case 'pre':
   global.env = 'pre';
-  global.config = require('./config/pre');
+  global.config =  (await import('./config/pre.js')).default;
   break;
 case 'prod':
   global.env = 'prod';
-  global.config = require('./config/prod');
+  global.config =  (await import('./config/prod.js')).default;
   break;
 case 'unittest':
   global.env = 'unittest';
-  global.config = require('./config/unittest');
+  global.config =  (await import('./config/unittest.js')).default;
   break;
 default:
   global.env = 'local';
-  global.config = require('./config/local');
+  global.config =  (await import('./config/local.js')).default;
   break;
 }
 if(process.env.admins) {
@@ -33,10 +33,10 @@ if(process.env.admins) {
     global.config.admins[item.trim()] = true;
   });
 }
-const { URL } = require('url');
+
+import { URL } from 'url';
 var urlinfo = new URL(global.config.host);
 global.config.hostname = urlinfo.hostname || global.config.host;
-
 
 
 /****************************************************************************************
@@ -54,8 +54,7 @@ global.authkeys = {
  *  mongoose database connection
  *
  ****************************************************************************************/
-var mongoose = require('mongoose');
-var logger = require('./common/logger');
+import mongoose from 'mongoose';
 
 mongoose.set('strictQuery', true);
 mongoose.connect(global.config.mongodb_cfg.db, {
@@ -65,7 +64,7 @@ mongoose.connect(global.config.mongodb_cfg.db, {
   serverSelectionTimeoutMS: 5000,
 }, function (err) {
   if (err) {
-    logger.error(`connect to ${global.config.mongodb_cfg.db} error: ${err.message}`);
+    console.log(`connect to ${global.config.mongodb_cfg.db} error: ${err.message}`);
     process.exit(1);
   }
 });
@@ -74,14 +73,14 @@ if (global.config.debug) {
   var traceMQuery = function (method, info, query) {
     return function (err, result, millis) {
       if (err) {
-        logger.error('traceMQuery error:', err)
+        console.log('traceMQuery error:', err)
       }
       var infos = [];
       infos.push(query._collection.collection.name + "." + method);
       infos.push(JSON.stringify(info));
       infos.push((millis + 'ms'));
 
-      logger.debug("MONGO", infos.join(' '));
+      console.log("MONGO", infos.join(' '));
     };
   };
 

@@ -1,15 +1,15 @@
-const modelTopic      = require('../models/topic');
-const modelReply      = require('../models/reply');
-const tools           = require('../common/tools');
-const proxyUser       = require('../proxys/user');
-const proxyTopic      = require('../proxys/topic');
-const proxyReply      = require('../proxys/reply');
-const proxyMarkTopic  = require('../proxys/marktopic');
-const midAuth         = require('../middlewares/auth');
+import modelTopic from '../models/topic.js';
+import modelReply from '../models/reply.js';
+import * as tools from '../common/tools.js';
+import * as proxyUser from '../proxys/user.js';
+import * as proxyTopic from '../proxys/topic.js';
+import * as proxyReply from '../proxys/reply.js';
+import * as proxyMarkTopic from '../proxys/marktopic.js';
+import * as midAuth from '../middlewares/auth.js';
 
-const Router    = require('@koa/router');
-const validator = require('validator');
-const lodash    = require('lodash');
+import Router from '@koa/router';
+import validator from 'validator';
+import lodash from 'lodash';
 
 const router = new Router();
 
@@ -326,4 +326,4 @@ router.get('/user/:uid/delete_all',
   }
 );
 
-module.exports = router;
+export default router;

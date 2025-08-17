@@ -1,12 +1,13 @@
 {
   "name": "bitbbs",
   "version": "0.0.1",
+  "type": "module",
   "private": true,
   "main": "main.js",
   "description": "Open BBS based on Bitcoin and Bitsoul",
   "repository": "https://github.com/bitsoul_xyz/bitbbs",
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.744.0",

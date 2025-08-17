@@ -1,8 +1,9 @@
-const helper = require('../common/helper');
-const logger  = require('../common/logger');
-const lodash  = require('lodash');
+import * as helper from '../common/helper.js';
+import logger from '../common/logger.js';
+import lodash from 'lodash';
 
-exports.times = async function (ctx, next) {
+
+export async function times(ctx, next) {
   const originalRender = ctx.render;
 
   ctx.render = async function (view, options = {}) {
@@ -15,11 +16,11 @@ exports.times = async function (ctx, next) {
   };
 
   await next();
-};
+}
 
-exports.extend = async function (ctx, next) {
+export async function extend(ctx, next) {
   ctx.state.config = global.config;
   ctx.state.helper = helper;
   ctx.state.lodash = lodash;
   await next();
-};
+}

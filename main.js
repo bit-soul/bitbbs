@@ -1,7 +1,8 @@
 //fix run node18 in win7
-require('os').hostname=()=>"localhost"
+import os from 'os';
+os.hostname = ()=>"localhost";
 
-const dotenvx = require('@dotenvx/dotenvx');
+import dotenvx from '@dotenvx/dotenvx';
 switch(process.env.APP_ENV) {
 case 'dev':
   dotenvx.config({path:'./env/dev.env'});
@@ -23,4 +24,6 @@ default:
   break;
 }
 
-require("./src/app.js");
+(async () => {
+  await import("./src/app.js");
+})();

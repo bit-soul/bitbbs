@@ -1,8 +1,8 @@
-const logger = require('../common/logger');
+import logger from '../common/logger.js';
 
 const ignore = /^\/(static|agent|upload)/;
 
-module.exports = async function (ctx, next) {
+export async function reqlog(ctx, next) {
   // Assets do not output log.
   if (ignore.test(ctx.url)) {
     await next();
@@ -16,4 +16,4 @@ module.exports = async function (ctx, next) {
 
   const duration = new Date() - t;
   logger.info('Completed', ctx.status, `(${duration}ms)`);
-};
+}

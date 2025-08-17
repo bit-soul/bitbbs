@@ -1,13 +1,14 @@
-const { URL } = require('url');
-const fetch = require('node-fetch');
-const logger = require('../common/logger');
+import { URL } from 'url';
+import fetch from 'node-fetch';
+import logger from '../common/logger.js';
+
 
 const ALLOW_HOSTNAME = [
   'avatars.githubusercontent.com', 'www.gravatar.com',
   'gravatar.com', 'www.google-analytics.com',
 ];
 
-exports.proxy = async (ctx, next) => {
+export async function proxy(ctx, next) {
   const url = decodeURIComponent(ctx.query.url || '');
   const hostname = new URL(url).hostname;
 
@@ -35,4 +36,4 @@ exports.proxy = async (ctx, next) => {
     ctx.status = 502;
     ctx.body = 'Proxy Error';
   }
-};
+}

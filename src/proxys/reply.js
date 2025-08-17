@@ -1,12 +1,13 @@
-const modelReply = require('../models/reply');
-const proxyUser  = require('./user');
-const at         = require('../common/at');
+import modelReply from '../models/reply.js';
+import * as proxyUser from './user.js';
+import * as at from '../common/at.js';
 
-exports.getReply = async function (id) {
+
+export async function getReply(id) {
   return await modelReply.findOne({ _id: id });
-};
+}
 
-exports.getReplyById = async function (id) {
+export async function getReplyById(id) {
   if (!id) {
     return null;
   }
@@ -25,9 +26,9 @@ exports.getReplyById = async function (id) {
   reply.content = str;
 
   return reply;
-};
+}
 
-exports.getRepliesByTopicId = async function (id) {
+export async function getRepliesByTopicId(id) {
   const replies = await modelReply.find({ topic_id: id, deleted: false }, '', { sort: 'create_at' });
   if (replies.length === 0) {
     return [];
@@ -44,9 +45,9 @@ exports.getRepliesByTopicId = async function (id) {
   }));
 
   return replies;
-};
+}
 
-exports.newAndSave = async function (content, topicId, authorId, replyId = null) {
+export async function newAndSave(content, topicId, authorId, replyId = null) {
   const reply = new modelReply({
     content,
     topic_id: topicId,
@@ -56,19 +57,19 @@ exports.newAndSave = async function (content, topicId, authorId, replyId = null)
 
   await reply.save();
   return reply;
-};
+}
 
-exports.getLastReplyByTopId = async function (topicId) {
+export async function getLastReplyByTopId(topicId) {
   return await modelReply.find({ topic_id: topicId, deleted: false }, '_id', {
     sort: { create_at: -1 },
     limit: 1
   });
-};
+}
 
-exports.getRepliesByAuthorId = async function (authorId, opt = {}) {
+export async function getRepliesByAuthorId(authorId, opt = {}) {
   return await modelReply.find({ author_id: authorId }, {}, opt);
-};
+}
 
-exports.getCountByAuthorId = async function (authorId) {
+export async function getCountByAuthorId(authorId) {
   return await modelReply.countDocuments({ author_id: authorId });
-};
+}

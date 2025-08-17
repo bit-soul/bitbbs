@@ -1,7 +1,7 @@
-const mongoose  = require('mongoose');
-const Schema    = mongoose.Schema;
-const ObjectId  = Schema.ObjectId;
-const BaseModel = require("./base_model");
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
+const { ObjectId } = Schema;
+import BaseModel from './base_model.js';
 
 const ReplySchema = new Schema({
   content: { type: String },
@@ -19,4 +19,4 @@ ReplySchema.plugin(BaseModel);
 ReplySchema.index({topic_id: 1});
 ReplySchema.index({author_id: 1, create_at: -1});
 
-module.exports = mongoose.model('Reply', ReplySchema);
+export default mongoose.model('Reply', ReplySchema);

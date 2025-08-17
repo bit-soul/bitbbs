@@ -1,7 +1,7 @@
-const lodash     = require('lodash');
-const MarkdownIt = require('markdown-it');
-const validator  = require('validator');
-const jsxss      = require('xss');
+import jsxss from 'xss';
+import lodash from 'lodash';
+import MarkdownIt from 'markdown-it';
+import validator from 'validator';
 
 const md = new MarkdownIt();
 
@@ -40,34 +40,34 @@ var myxss = new jsxss.FilterXSS({
   }
 });
 
-exports.markdown = function (text) {
+export function markdown(text) {
   return '<div class="markdown-text">' + myxss.process(md.render(text || '')) + '</div>';
-};
+}
 
-exports.escapeBiog = function (biog) {
+export function escapeBiog(biog) {
   return biog.split('\n').map(function (p) {
     return lodash.escape(p);
   }).join('<br>');
-};
+}
 
-exports.staticFile = function (filePath) {
+export function staticFile(filePath) {
   if (filePath.indexOf('http') === 0 || filePath.indexOf('//') === 0) {
     return filePath;
   }
   return global.config.site_static_host + filePath;
-};
+}
 
-exports.tabName = function (tab) {
+export function tabName(tab) {
   var pair = lodash.find(global.config.tabs, function (pair) {
     return pair[0] === tab;
   });
   if (pair) {
     return pair[1];
   }
-};
+}
 
-exports.proxy = function (url) {
+export function proxy(url) {
   return url;
   // some resource need proxy to avoid gtw
   // return '/agent?url=' + encodeURIComponent(url);
-};
+}

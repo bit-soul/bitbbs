@@ -1,7 +1,7 @@
-const mongoose  = require('mongoose');
-const Schema    = mongoose.Schema;
-const ObjectId  = Schema.ObjectId;
-const BaseModel = require("./base_model");
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
+const { ObjectId } = Schema;
+import BaseModel from './base_model.js';
 
 /*
  * type:
@@ -22,4 +22,4 @@ const MessageSchema = new Schema({
 MessageSchema.plugin(BaseModel);
 MessageSchema.index({master_id: 1, has_read: -1, create_at: -1});
 
-module.exports = mongoose.model('Message', MessageSchema);
+export default mongoose.model('Message', MessageSchema);

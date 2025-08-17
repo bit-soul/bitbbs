@@ -1,6 +1,6 @@
-const modelSystem = require('../models/system');
+import modelSystem from '../models/system.js';
 
-exports.incrementUserCnt = async function () {
+export async function incrementUserCnt () {
   const result = await modelSystem.findOneAndUpdate(
     {}, // 查找条件, 匹配第一条记录
     { $inc: { user_cnt: 1 } }, // 计数器加1
@@ -8,4 +8,4 @@ exports.incrementUserCnt = async function () {
   );
 
   return result.user_cnt;
-};
+}

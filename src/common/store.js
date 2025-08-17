@@ -1,11 +1,12 @@
-const path    = require('path');
-const fs      = require('fs');
-const { pipeline } = require('stream/promises');
+import fs from 'fs';
+import path from 'path';
+import { pipeline } from 'stream/promises';
 
-const s3sdk = require("@aws-sdk/client-s3");
-const s3presigner = require("@aws-sdk/s3-request-presigner");
+import s3sdk from '@aws-sdk/client-s3';
+import s3presigner from '@aws-sdk/s3-request-presigner';
 
-const tools  = require('./tools');
+import * as tools from './tools.js';
+
 
 var s3_client = null;
 if (global.config.s3_client && global.config.s3_client.secretAccessKey) {
@@ -58,8 +59,13 @@ var local = {
   },
 };
 
+
+let store;
+
 if (s3_client) {
-  module.exports = s3cloud;
+  store = s3cloud;
 } else {
-  module.exports = local;
+  store = local;
 }
+
+export default store;
