@@ -1,10 +1,12 @@
 //*****************************************************************************
-// load global variable
+// load config and global variable
 //*****************************************************************************
 import config from './config/index.js';
 if (!config.debug && config.oneapm_key) {
   // import 'oneapm';
 }
+
+import './global.js';
 
 //*****************************************************************************
 // import modules
