@@ -3,6 +3,8 @@ import * as midAuth from '../middlewares/auth.js';
 import * as mail from '../common/mail.js';
 import * as tools from '../common/tools.js';
 
+import config from '../config/index.js';
+
 import Router from '@koa/router';
 import validator from 'validator';
 
@@ -62,11 +64,11 @@ router.post('/signup', async (ctx, next) => {
   const user = await proxyUser.newAndSave(name, passhash, email, null, false);
 
   // 发激活邮件
-  const token = tools.md5(email + passhash + global.config.session_secret);
+  const token = tools.md5(email + passhash + config.session_secret);
   await mail.sendActiveMail(email, name, token, user._id);
 
   return await ctx.render('sign/signup', {
-    success: `欢迎加入 ${global.config.bbsname}！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。`
+    success: `欢迎加入 ${config.bbsname}！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。`
   });
 });
 
@@ -97,7 +99,7 @@ router.post('/signin', async (ctx, next) => {
   }
 
   if (!user.active) {
-    const token = tools.md5(user.email + user.pass + global.config.session_secret);
+    const token = tools.md5(user.email + user.pass + config.session_secret);
     await mail.sendActiveMail(user.email, user.name, token, user._id);
     ctx.status = 403;
     return await ctx.render('sign/signin', {
@@ -117,7 +119,7 @@ router.post('/signin', async (ctx, next) => {
 
 router.get('/signout', async (ctx, next) => {
   ctx.session = null;
-  ctx.cookies.set(global.config.auth_cookie_name, '', { path: '/' });
+  ctx.cookies.set(config.auth_cookie_name, '', { path: '/' });
   ctx.redirect('/');
 });
 
@@ -128,7 +130,7 @@ router.get('/active_account', async (ctx, next) => {
   const user = await proxyUser.getUserById(uid);
   if (!user) {throw new Error('[ACTIVE_ACCOUNT] no such user: ' + uid);}
 
-  const validKey = tools.md5(user.email + user.pass + global.config.session_secret);
+  const validKey = tools.md5(user.email + user.pass + config.session_secret);
   if (key !== validKey) {
     return await ctx.render('misc/notify', { error: '信息有误，帐号无法被激活。' });
   }

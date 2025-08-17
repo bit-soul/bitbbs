@@ -3,6 +3,8 @@ import lodash from 'lodash';
 import MarkdownIt from 'markdown-it';
 import validator from 'validator';
 
+import config from '../config/index.js';
+
 const md = new MarkdownIt();
 
 md.set({
@@ -54,11 +56,11 @@ export function staticFile(filePath) {
   if (filePath.indexOf('http') === 0 || filePath.indexOf('//') === 0) {
     return filePath;
   }
-  return global.config.site_static_host + filePath;
+  return config.site_static_host + filePath;
 }
 
 export function tabName(tab) {
-  var pair = lodash.find(global.config.tabs, function (pair) {
+  var pair = lodash.find(config.tabs, function (pair) {
     return pair[0] === tab;
   });
   if (pair) {

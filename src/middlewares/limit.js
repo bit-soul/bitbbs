@@ -1,4 +1,5 @@
 import moment from 'moment';
+import config from '../config/index.js';
 import * as cache from '../common/cache.js';
 
 const SEPARATOR = '^_^@T_T';
@@ -48,7 +49,7 @@ export const peruserperday = makePerDayLimiter('peruserperday', (ctx) => {
 
 export const peripperday = makePerDayLimiter('peripperday', (ctx) => {
   const realIP = ctx.get('x-real-ip');
-  if (!realIP && !global.config.debug) {
+  if (!realIP && !config.debug) {
     throw new Error('should provide `x-real-ip` header');
   }
   return realIP;

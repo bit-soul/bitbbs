@@ -1,16 +1,17 @@
 import nodemailer from 'nodemailer';
 import logger from './logger.js';
+import config from '../config/index.js';
 import * as tools from './tools.js';
 
-const transporter   = nodemailer.createTransport(global.config.mail_opts);
-const SITE_ROOT_URL = 'http://' + global.config.host;
+const transporter   = nodemailer.createTransport(config.mail_opts);
+const SITE_ROOT_URL = 'http://' + config.host;
 
 /**
  * Send an email
  * @param {Object} data 邮件对象
  */
 export async function sendMail(data) {
-  if (global.config.debug) {
+  if (config.debug) {
     return;
   }
 
@@ -35,14 +36,14 @@ export async function sendMail(data) {
  * @param {String} name 接收人的用户名
  */
 export function sendActiveMail(who, name, token, uid) {
-  var from    = `${global.config.bbsname} <${global.config.mail_opts.auth.user}>`;
+  var from    = `${config.bbsname} <${config.mail_opts.auth.user}>`;
   var to      = who;
-  var subject = global.config.bbsname + ' Community Account Activation';
+  var subject = config.bbsname + ' Community Account Activation';
   var html    = '<p>Hello, ' + name + '</p>' +
-      '<p>We have received your registration information for the ' + global.config.bbsname + ' community. Please click the link below to activate your account:</p>' +
+      '<p>We have received your registration information for the ' + config.bbsname + ' community. Please click the link below to activate your account:</p>' +
       '<a href="' + SITE_ROOT_URL + '/active_account?key=' + token + '&uid=' + uid + '">Activation Link</a>' +
-      '<p>If you have not registered on ' + global.config.bbsname + ' community, it means someone has misused your email address. Please delete this email, and we apologize for any inconvenience caused.</p>' +
-      '<p>' + global.config.bbsname + ' Community Best Regards.</p>';
+      '<p>If you have not registered on ' + config.bbsname + ' community, it means someone has misused your email address. Please delete this email, and we apologize for any inconvenience caused.</p>' +
+      '<p>' + config.bbsname + ' Community Best Regards.</p>';
 
   sendMail({
     from: from,
@@ -59,14 +60,14 @@ export function sendActiveMail(who, name, token, uid) {
  * @param {String} name 接收人的用户名
  */
 export function sendResetPassMail(who, token, name) {
-  var from    = `${global.config.bbsname} <${global.config.mail_opts.auth.user}>`;
+  var from    = `${config.bbsname} <${config.mail_opts.auth.user}>`;
   var to      = who;
-  var subject = global.config.bbsname + ' Community Password Reset';
+  var subject = config.bbsname + ' Community Password Reset';
   var html    = '<p>Hello, ' + name + '</p>' +
-      '<p>We have received a request to reset your password for ' + global.config.bbsname + ' community. Please click the link below within 24 hours to reset your password:</p>' +
+      '<p>We have received a request to reset your password for ' + config.bbsname + ' community. Please click the link below within 24 hours to reset your password:</p>' +
       '<a href="' + SITE_ROOT_URL + '/reset_pass?key=' + token + '&name=' + name + '">Reset Password Link</a>' +
-      '<p>If you have not registered on ' + global.config.bbsname + ' community, it means someone has misused your email address. Please delete this email, and we apologize for any inconvenience caused.</p>' +
-      '<p>' + global.config.bbsname + ' Community Best Regards.</p>';
+      '<p>If you have not registered on ' + config.bbsname + ' community, it means someone has misused your email address. Please delete this email, and we apologize for any inconvenience caused.</p>' +
+      '<p>' + config.bbsname + ' Community Best Regards.</p>';
   sendMail({
     from: from,
     to: to,

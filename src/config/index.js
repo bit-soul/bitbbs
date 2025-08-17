@@ -1,10 +1,16 @@
 import url from 'url';
 import path from 'path';
 
+import config_dev from './dev.js';
+import config_local from './local.js';
+import config_pre from './pre.js';
+import config_prod from './prod.js';
+import config_unittest from './unittest.js';
+
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-var config = {
+let config_default = {
   debug: false,
   cache: true,
   diststatic: true,
@@ -111,4 +117,35 @@ var config = {
   visit_per_day: 1000, // 每个 ip 每天能访问的次数
 };
 
-export default config;
+switch (process.env.APP_ENV) {
+case 'dev':
+  Object.assign(config_default, config_dev);
+  break;
+case 'local':
+  Object.assign(config_default, config_local);
+  break;
+case 'pre':
+  Object.assign(config_default, config_pre);
+  break;
+case 'prod':
+  Object.assign(config_default, config_prod);
+  break;
+case 'unittest':
+  Object.assign(config_default, config_unittest);
+  break;
+default:
+  Object.assign(config_default, config_local);
+  break;
+}
+
+if(process.env.admins) {
+  const items = process.env.admins.split(';');
+  items.forEach(item => {
+    config_default.admins[item.trim()] = true;
+  });
+}
+
+var urlinfo = new url.URL(config_default.host);
+config_default.hostname = urlinfo.hostname || config_default.host;
+
+export default config_default;

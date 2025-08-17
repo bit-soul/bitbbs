@@ -7,6 +7,8 @@ import * as proxyReply from '../proxys/reply.js';
 import * as proxyMarkTopic from '../proxys/marktopic.js';
 import * as midAuth from '../middlewares/auth.js';
 
+import config from '../config/index.js';
+
 import Router from '@koa/router';
 import validator from 'validator';
 import lodash from 'lodash';
@@ -167,7 +169,7 @@ router.get('/user/:uid', async (ctx, next) => {
 
   let token = '';
   if (!user.active && ctx.session.user_id && ctx.session.is_admin) {
-    token = tools.md5(user.email + user.pass + global.config.session_secret);
+    token = tools.md5(user.email + user.pass + config.session_secret);
   }
 
   return await ctx.render('user/index', {
@@ -182,7 +184,7 @@ router.get('/user/:uid', async (ctx, next) => {
 router.get('/user/:uid/markedtopics', async (ctx, next) => {
   const uid = ctx.params.uid;
   const page = Number(ctx.query.page) || 1;
-  const limit = global.config.list_topic_count;
+  const limit = config.list_topic_count;
 
   const user = await proxyUser.getUserById(uid);
   if (!user) {
@@ -213,7 +215,7 @@ router.get('/user/:uid/markedtopics', async (ctx, next) => {
 router.get('/user/:uid/topics', async (ctx, next) => {
   const uid = ctx.params.uid;
   const page = Number(ctx.query.page) || 1;
-  const limit = global.config.list_topic_count;
+  const limit = config.list_topic_count;
 
   const user = await proxyUser.getUserById(uid);
   if (!user) {

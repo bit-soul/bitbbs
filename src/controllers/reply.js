@@ -6,6 +6,8 @@ import * as midLimit from '../middlewares/limit.js';
 import * as at from '../common/at.js';
 import * as message from '../common/message.js';
 
+import config from '../config/index.js';
+
 import Router from '@koa/router';
 import lodash from 'lodash';
 import validator from 'validator';
@@ -14,7 +16,7 @@ const router = new Router();
 
 router.post('/reply/to/:tid',
   midAuth.userRequired,
-  midLimit.peruserperday('create_reply', global.config.create_reply_per_day, {showJson: false}),
+  midLimit.peruserperday('create_reply', config.create_reply_per_day, {showJson: false}),
   async (ctx, next) => {
     const content = ctx.request.body.r_content;
     const tid = ctx.params.tid;
@@ -153,7 +155,7 @@ router.post('/reply/:rid/up',
     const uid = ctx.session.user_id;
     const reply = await proxyReply.getReplyById(rid);
 
-    if (reply.author_id.equals(uid) && !global.config.debug) {
+    if (reply.author_id.equals(uid) && !config.debug) {
       return ctx.body = {
         success: false,
         message: 'can not up yourself',

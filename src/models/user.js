@@ -3,6 +3,8 @@ const { Schema } = mongoose;
 const { ObjectId } = Schema;
 import BaseModel from './base_model.js';
 
+import config from '../config/index.js';
+
 const UserSchema = new Schema({
   name: { type: String},
   biog: { type: String },
@@ -41,7 +43,7 @@ const UserSchema = new Schema({
 UserSchema.plugin(BaseModel);
 
 UserSchema.virtual('avatar_url').get(function () {
-  return this.icon || global.config.site_static_host + '/static/img/nobody.png';
+  return this.icon || config.site_static_host + '/static/img/nobody.png';
 });
 
 UserSchema.virtual('isAdvanced').get(function () {

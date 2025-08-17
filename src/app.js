@@ -1,8 +1,8 @@
 //*****************************************************************************
 // load global variable
 //*****************************************************************************
-import './global.js';
-if (!global.config.debug && global.config.oneapm_key) {
+import config from './config/index.js';
+if (!config.debug && config.oneapm_key) {
   // import 'oneapm';
 }
 
@@ -51,17 +51,17 @@ const app = new Koa();
 koaonerror.onerror(app);
 
 //logger
-if (!fs.existsSync(global.config.log_dir)) {
-  fs.mkdirSync(global.config.log_dir, { recursive: true });
+if (!fs.existsSync(config.log_dir)) {
+  fs.mkdirSync(config.log_dir, { recursive: true });
 }
-if(global.config.debug) {
+if(config.debug) {
   app.use(midReqlog.reqlog);
   app.use(midRender.times);
 }
 
 //staticfile
 var staticDir = path.join(__dirname, '../static');
-if(global.config.diststatic){
+if(config.diststatic){
   staticDir = path.join(__dirname, '../dist/static');
 }
 app.use(koamount('/static', koastatic(staticDir)));
@@ -73,23 +73,23 @@ if (!fs.existsSync(uploadDir)) {
 app.use(koamount('/upload', koastatic(uploadDir)));
 
 // session
-app.keys = [global.config.session_secret];
+app.keys = [config.session_secret];
 const session_config = {
-  key: global.config.session_cookie_key, /** Cookie key (default is koa:sess) */
-  maxAge: global.config.session_max_age, /** Session expiration time in milliseconds */
+  key: config.session_cookie_key, /** Cookie key (default is koa:sess) */
+  maxAge: config.session_max_age, /** Session expiration time in milliseconds */
   autoCommit: true, /** Automatically add session to response header (default: true) */
   overwrite: true, /** Allow overwriting session cookie (default: true) */
   httpOnly: true, /** HTTPOnly to prevent JS access and reduce XSS risk (default: true) */
   signed: true, /** Sign the cookie (default: true) */
   rolling: false, /** Refresh session on every response (default: false) */
   renew: true, /** Renew session if it's about to expire (default: false) */
-  store: koaredis(global.config.koaredis_cfg), /** Use Redis as session store */
+  store: koaredis(config.koaredis_cfg), /** Use Redis as session store */
   sameSite: 'lax', /** (string) session cookie sameSite options (default null, don't set it) */
 };
 app.use(koasession.createSession(session_config, app));
 
 // csrf
-if (!global.config.debug) {
+if (!config.debug) {
   const csrf = new koacsrf();
   app.use(async (ctx, next) => {
     const path = ctx.path;
@@ -117,14 +117,14 @@ koapassport.serializeUser(function (user, done) {
 koapassport.deserializeUser(function (user, done) {
   done(null, user);
 });
-koapassport.use(new GitHubStrategy(global.config.GITHUB_OAUTH, midGithub.strategy));
+koapassport.use(new GitHubStrategy(config.GITHUB_OAUTH, midGithub.strategy));
 
 //ejs
 koaejs(app, {
   root: path.join(__dirname, 'views'),
   viewExt: 'ejs',
   layout: 'layout',
-  cache: global.config.cache,
+  cache: config.cache,
 });
 app.use(midRender.extend);
 
@@ -138,7 +138,7 @@ app.use(koabody.koaBody({
 }));
 
 //helmet
-if (!global.config.debug) {
+if (!config.debug) {
   app.use(
     koahelmet({
       contentSecurityPolicy: false,
@@ -203,5 +203,5 @@ router.all('/agent/(.*)', midProxy.proxy);
 //*****************************************************************************
 // start server
 //*****************************************************************************
-global.server = app.listen(global.config.port, "127.0.0.1");
+global.server = app.listen(config.port, "127.0.0.1");
 gracefulShutdown(global.server);

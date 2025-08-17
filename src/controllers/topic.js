@@ -5,6 +5,8 @@ import * as midAuth from '../middlewares/auth.js';
 import * as midLimit from '../middlewares/limit.js';
 import * as at from '../common/at.js';
 import * as cache from '../common/cache.js';
+
+import config from '../config/index.js';
 import logger from '../common/logger.js';
 
 import Router from '@koa/router';
@@ -17,20 +19,20 @@ router.get('/topic/create',
   midAuth.userRequired,
   async (ctx, next) => {
     return await ctx.render('topic/edit', {
-      tabs: global.config.tabs
+      tabs: config.tabs
     });
   }
 );
 
 router.post('/topic/create',
   midAuth.userRequired,
-  midLimit.peruserperday('create_topic', global.config.create_post_per_day, {showJson: false}),
+  midLimit.peruserperday('create_topic', config.create_post_per_day, {showJson: false}),
   async (ctx, next) => {
     const title = validator.trim(ctx.request.body.title || '');
     const tab = validator.trim(ctx.request.body.tab || '');
     const content = validator.trim(ctx.request.body.t_content || '');
 
-    const allTabs = global.config.tabs.map(t => t[0]);
+    const allTabs = config.tabs.map(t => t[0]);
 
     // 表单校验
     let editError;
@@ -48,7 +50,7 @@ router.post('/topic/create',
         edit_error: editError,
         title,
         content,
-        tabs: global.config.tabs
+        tabs: config.tabs
       });
     }
 
@@ -217,7 +219,7 @@ router.get('/topic/:tid/edit',
         title: topic.title,
         content: topic.content,
         tab: topic.tab,
-        tabs: global.config.tabs
+        tabs: config.tabs
       });
     } else {
       ctx.status = 403;
@@ -232,7 +234,7 @@ router.post('/topic/:tid/edit',
     const topic_id = ctx.params.tid;
     let { title, tab, t_content: content } = ctx.request.body;
 
-    const allTabs = global.config.tabs.map(tPair => tPair[0]);
+    const allTabs = config.tabs.map(tPair => tPair[0]);
 
     const {topic} = await proxyTopic.getTopicById(topic_id);
 
@@ -268,7 +270,7 @@ router.post('/topic/:tid/edit',
         edit_error: editError,
         topic_id: topic._id,
         content,
-        tabs: global.config.tabs
+        tabs: config.tabs
       });
     }
 

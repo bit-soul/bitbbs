@@ -5,17 +5,18 @@ import { pipeline } from 'stream/promises';
 import s3sdk from '@aws-sdk/client-s3';
 import s3presigner from '@aws-sdk/s3-request-presigner';
 
+import config from '../config/index.js';
 import * as tools from './tools.js';
 
 
 var s3_client = null;
-if (global.config.s3_client && global.config.s3_client.secretAccessKey) {
+if (config.s3_client && config.s3_client.secretAccessKey) {
   s3_client = new s3sdk.S3Client({
-    region: global.config.s3_client.region,
-    endpoint: global.config.s3_client.endpoint === '' ? null : global.config.s3_client.endpoint,
+    region: config.s3_client.region,
+    endpoint: config.s3_client.endpoint === '' ? null : config.s3_client.endpoint,
     credentials: {
-      accessKeyId: global.config.s3_client.accessKeyId,
-      secretAccessKey: global.config.s3_client.secretAccessKey,
+      accessKeyId: config.s3_client.accessKeyId,
+      secretAccessKey: config.s3_client.secretAccessKey,
     },
   });
 }
@@ -23,7 +24,7 @@ if (global.config.s3_client && global.config.s3_client.secretAccessKey) {
 async function createPresignedUrl(fileName, fileType, fileSize) {
   return await s3presigner.getSignedUrl(s3_client,
     new s3sdk.PutObjectCommand({
-      Bucket: global.config.s3_client.bucket,
+      Bucket: config.s3_client.bucket,
       Key: fileName,
       ACL: 'public-read',
       ContentType: fileType,
@@ -48,8 +49,8 @@ var local = {
     const newFilename =
       tools.md5(filename + String(Date.now())) + path.extname(filename);
 
-    const upload_path = global.config.upload.path;
-    const base_url = global.config.upload.url;
+    const upload_path = config.upload.path;
+    const base_url = config.upload.url;
     const filePath = path.join(upload_path, newFilename);
     const fileUrl = base_url + newFilename;
 

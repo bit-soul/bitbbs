@@ -1,6 +1,4 @@
-import config_default from './default.js';
-
-var config = {
+const config = {
   debug: false,
   cache: true,
   diststatic: true,
@@ -86,6 +84,4 @@ var config = {
   },
 };
 
-Object.assign(config_default, config);
-
-export default config_default;
+export default config;

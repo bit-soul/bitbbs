@@ -1,5 +1,6 @@
 import fs from 'fs';
 
+import config from '../config/index.js';
 import store from '../common/store.js';
 import logger from '../common/logger.js';
 import * as tools from '../common/tools.js';
@@ -29,16 +30,16 @@ router.get('/presignedurl',
     const userId = ctx.session.user_id;
     const formatDate = tools.getFormattedDate();
     const formatTime = tools.getFormattedTime();
-    const file_name = global.config.s3_client.prefix + userId + '/' + formatDate + '/' + formatTime + '_' + fileName
+    const file_name = config.s3_client.prefix + userId + '/' + formatDate + '/' + formatTime + '_' + fileName
     const url = await store.presignedUrl(file_name, fileType, fileSize);
     const uploadurl = new URL(url);
-    uploadurl.hostname = new URL(global.config.s3_client.proxypoint).hostname;
-    uploadurl.searchParams.set('bucketname', global.config.s3_client.bucket);
+    uploadurl.hostname = new URL(config.s3_client.proxypoint).hostname;
+    uploadurl.searchParams.set('bucketname', config.s3_client.bucket);
 
     ctx.body = {
       code: 0,
       data: {
-        readurl: global.config.s3_client.readpoint + '/' + file_name,
+        readurl: config.s3_client.readpoint + '/' + file_name,
         uploadurl: uploadurl.toString(),
       },
     };
@@ -58,7 +59,7 @@ router.post('/upload',
       return;
     }
 
-    const maxSize = global.config.file_limit;
+    const maxSize = config.file_limit;
     if (file.size > maxSize) {
       ctx.body = {
         success: false,

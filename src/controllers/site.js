@@ -4,6 +4,8 @@ import * as cache from '../common/cache.js';
 import * as helper from '../common/helper.js';
 import * as tools from '../common/tools.js';
 
+import config from '../config/index.js';
+
 import Router from '@koa/router';
 import moment from 'moment';
 import data2xml from 'data2xml';
@@ -30,7 +32,7 @@ router.get('/', async (ctx, next) => {
     query.create_at = { $gte: moment().subtract(1, 'years').toDate() };
   }
 
-  const limit = global.config.list_topic_count;
+  const limit = config.list_topic_count;
   const options = { skip: (page - 1) * limit, limit: limit, sort: '-top -last_reply_at' };
 
   const [
@@ -79,7 +81,7 @@ router.get('/', async (ctx, next) => {
     tops,
     no_reply_topics,
     pages,
-    tabs: global.config.tabs,
+    tabs: config.tabs,
     tab,
     pageTitle: tabName && (tabName + 'category')
   });

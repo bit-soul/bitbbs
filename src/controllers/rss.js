@@ -3,6 +3,8 @@ import * as cache from '../common/cache.js';
 import * as helper from '../common/helper.js';
 import * as tools from '../common/tools.js';
 
+import config from '../config/index.js';
+
 import Router from '@koa/router';
 import data2xml from 'data2xml';
 
@@ -11,7 +13,7 @@ const toxml = data2xml({ xmlDecl: { version: '1.0', encoding: 'UTF-8' } });
 const router = new Router();
 
 router.get('/rss', async (ctx, next) => {
-  if (!global.config.rss) {
+  if (!config.rss) {
     ctx.status = 404;
     ctx.body = 'Please set `rss` in config.js';
     return;
@@ -21,13 +23,13 @@ router.get('/rss', async (ctx, next) => {
 
   let rss = await cache.get('rss');
 
-  if (!global.config.debug && rss) {
+  if (!config.debug && rss) {
     ctx.body = rss;
     return;
   }
 
   const opt = {
-    limit: global.config.rss.max_rss_items,
+    limit: config.rss.max_rss_items,
     sort: '-create_at',
   };
 
@@ -36,10 +38,10 @@ router.get('/rss', async (ctx, next) => {
   const rss_obj = {
     _attr: { version: '2.0' },
     channel: {
-      title: global.config.rss.title,
-      link: global.config.rss.link,
-      language: global.config.rss.language,
-      description: global.config.rss.description,
+      title: config.rss.title,
+      link: config.rss.link,
+      language: config.rss.language,
+      description: config.rss.description,
       item: []
     }
   };
@@ -47,8 +49,8 @@ router.get('/rss', async (ctx, next) => {
   topics.forEach(function (topic) {
     rss_obj.channel.item.push({
       title: topic.title,
-      link: global.config.rss.link + '/topic/' + topic._id,
-      guid: global.config.rss.link + '/topic/' + topic._id,
+      link: config.rss.link + '/topic/' + topic._id,
+      guid: config.rss.link + '/topic/' + topic._id,
       description: helper.markdown(topic.content),
       author: topic.author.name,
       pubDate: topic.create_at.toUTCString()

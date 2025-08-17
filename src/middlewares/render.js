@@ -1,6 +1,7 @@
-import * as helper from '../common/helper.js';
-import logger from '../common/logger.js';
 import lodash from 'lodash';
+import config from '../config/index.js';
+import logger from '../common/logger.js';
+import * as helper from '../common/helper.js';
 
 
 export async function times(ctx, next) {
@@ -19,7 +20,7 @@ export async function times(ctx, next) {
 }
 
 export async function extend(ctx, next) {
-  ctx.state.config = global.config;
+  ctx.state.config = config;
   ctx.state.helper = helper;
   ctx.state.lodash = lodash;
   await next();

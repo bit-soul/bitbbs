@@ -4,6 +4,8 @@ const { Schema } = mongoose;
 const { ObjectId } = Schema;
 import BaseModel from './base_model.js';
 
+import config from '../config/index.js';
+
 const TopicSchema = new Schema({
   title: { type: String },
   content: { type: String },
@@ -31,7 +33,7 @@ TopicSchema.index({author_id: 1, create_at: -1});
 
 TopicSchema.virtual('tabName').get(function () {
   var tab  = this.tab;
-  var pair = lodash.find(global.config.tabs, function (_pair) {
+  var pair = lodash.find(config.tabs, function (_pair) {
     return _pair[0] === tab;
   });
 

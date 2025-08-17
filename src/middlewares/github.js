@@ -1,5 +1,7 @@
+import config from '../config/index.js';
+
 export async function github(ctx, next) {
-  if (global.config.GITHUB_OAUTH.clientID === 'your GITHUB_CLIENT_ID') {
+  if (config.GITHUB_OAUTH.clientID === 'your GITHUB_CLIENT_ID') {
     ctx.body = 'call the admin to set github oauth.';
     return;
   }

@@ -2,6 +2,7 @@ import modelUser from '../models/user.js';
 import * as proxyUser from '../proxys/user.js';
 import * as proxyMessage from '../proxys/message.js';
 
+import config from '../config/index.js';
 
 export async function adminRequired(ctx, next) {
   if (!ctx.session.user_id) {
@@ -52,7 +53,7 @@ export async function gen_session(ctx, userid, maxage) {
     httpOnly: true,
     sameSite: 'lax',
   };
-  ctx.cookies.set(global.config.auth_cookie_name, auth_token, opts);
+  ctx.cookies.set(config.auth_cookie_name, auth_token, opts);
 }
 
 
@@ -60,7 +61,7 @@ export async function authUser(ctx, next) {
   ctx.state.current_user = null;
 
   try {
-    if (global.config.debug && ctx.cookies.get('mock_user')) {
+    if (config.debug && ctx.cookies.get('mock_user')) {
       const mockUser = JSON.parse(ctx.cookies.get('mock_user'));
       const model_user = new modelUser(mockUser);
       await model_user.save();
@@ -78,7 +79,7 @@ export async function authUser(ctx, next) {
     if (ctx.session.user_id) {
       user = await proxyUser.getUserById(ctx.session.user_id);
     } else {
-      const auth_token = ctx.cookies.get(global.config.auth_cookie_name, { signed: true });
+      const auth_token = ctx.cookies.get(config.auth_cookie_name, { signed: true });
       if (auth_token) {
         const auth = auth_token.split('$$$$');
         const user_id = auth[0];
@@ -99,7 +100,7 @@ export async function authUser(ctx, next) {
     user = ctx.state.current_user = model_user;
 
     // eslint-disable-next-line no-prototype-builtins
-    if (global.config.admins.hasOwnProperty(user._id)) {
+    if (config.admins.hasOwnProperty(user._id)) {
       user.is_admin = true;
     }
 

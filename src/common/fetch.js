@@ -1,9 +1,11 @@
 import fetch from 'node-fetch';
 import proxyagent from 'socks-proxy-agent';
 
+import config from '../config/index.js';
+
 var agent = null;
-if (global.config.socks_proxy_url && global.config.socks_proxy_url !== '') {
-  agent = new proxyagent.SocksProxyAgent(global.config.proxyurl);
+if (config.socks_proxy_url && config.socks_proxy_url !== '') {
+  agent = new proxyagent.SocksProxyAgent(config.proxyurl);
 }
 
 async function fetchWithTimeout(url, options, timeout = 15000) {

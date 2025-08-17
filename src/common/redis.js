@@ -1,7 +1,8 @@
 import Redis from 'ioredis';
 import logger from './logger.js';
+import config from '../config/index.js';
 
-const client = new Redis(global.config.ioredis_cfg);
+const client = new Redis(config.ioredis_cfg);
 
 client.on('error', function (err) {
   if (err) {
