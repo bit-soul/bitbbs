@@ -1,13 +1,13 @@
-const message = require('../../src/common/message');
+import * as message from '../../src/common/message.js';
 
 describe('common/message', () => {
   let atUser, author, topic, reply;
 
   beforeAll(async () => {
-    atUser = support.normalUser;
+    atUser = global.support.normalUser;
     author = atUser;
     reply = {};
-    topic = await support.createTopic(author._id)
+    topic = await global.support.createTopic(author._id)
   });
 
   afterEach(() => {

@@ -1,10 +1,10 @@
-const tools = require('../../src/common/tools');
+import * as tools from '../../src/common/tools.js';
 
 describe('common/tools', () => {
   describe('formatDate', () => {
     test('should format date', () => {
       const result = tools.formatDate(new Date(0));
-      expect(result).toMatch(/1970\-01\-01 0\d:00/);
+      expect(result).toMatch(/1970-01-01 0\d:00/);
     });
 
     test('should format date friendly', () => {

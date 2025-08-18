@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   testEnvironment: 'node',
   testTimeout: 24*3600*1000,
   globalSetup: '<rootDir>/test/global.js',
@@ -22,4 +22,4 @@ module.exports = {
       ],
     }],
   },
-};
+}

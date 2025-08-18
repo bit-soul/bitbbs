@@ -1,4 +1,4 @@
-const helper = require('../../src/common/helper');
+import helper from '../../src/common/helper.js';
 
 describe('common/helper', () => {
   describe('markdown', () => {

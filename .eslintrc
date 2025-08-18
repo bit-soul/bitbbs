@@ -15,7 +15,7 @@
     "no-undef": "error",
     "no-unused-vars": "off",
     "no-process-exit": "off",
-    "node/no-missing-require": "off",
+    "node/no-missing-import": "off",
     "node/no-unsupported-features/es-syntax": "off"
   },
   "overrides": [
@@ -27,7 +27,8 @@
         "jest": true
       },
       "rules": {
-        "node/no-unpublished-require": "off"
+        "jest/expect-expect": "off",
+        "node/no-unpublished-import": "off"
       }
     }
   ]

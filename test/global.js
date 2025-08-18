@@ -1,7 +1,9 @@
-module.exports = async () => {
-  require('os').hostname=()=>"localhost"
-  require("../src/app.js");
+import os from 'os';
 
-  global.support = require('./support');
-  await support.initSupport();
+export default async () => {
+  os.hostname = ()=>"localhost";
+  await import("../src/app.js");
+
+  global.support = await import('./support.js');
+  await global.support.initSupport();
 }

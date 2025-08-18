@@ -1,4 +1,4 @@
-const midLimit = require('../../src/middlewares/limit');
+import * as midLimit from '../../src/middlewares/limit.js';
 
 describe('middlewares/limit', () => {
   describe('peripperday', () => {
@@ -11,11 +11,11 @@ describe('middlewares/limit', () => {
       };
       const midPerIPPerday = midLimit.peripperday('testapi', 3, { showJson: true });
 
-      midPerIPPerday(ctx, support.emptyFunction);
-      midPerIPPerday(ctx, support.emptyFunction);
-      midPerIPPerday(ctx, support.emptyFunction);
+      midPerIPPerday(ctx, global.support.emptyFunction);
+      midPerIPPerday(ctx, global.support.emptyFunction);
+      midPerIPPerday(ctx, global.support.emptyFunction);
       expect(ctx.status).toBeUndefined();
-      midPerIPPerday(ctx, support.emptyFunction);
+      midPerIPPerday(ctx, global.support.emptyFunction);
       expect(ctx.status).toequal(403);
     });
   });

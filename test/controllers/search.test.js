@@ -1,4 +1,4 @@
-const request = require('supertest');
+import request from 'supertest';
 
 describe('controllers/search', () => {
   test('should redirect to google search', async () => {

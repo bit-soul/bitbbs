@@ -1,13 +1,14 @@
-const lodash = require('lodash');
-const request = require('supertest');
-const proxyUser = require('../../src/proxys/user');
-const modelReply = require('../../src/models/reply');
+import lodash from 'lodash';
+import request from 'supertest';
+import modelReply from '../../src/models/reply.js';
+import * as proxyUser from '../../src/proxys/user.js';
+
 
 describe('controllers/user', () => {
   let testUser;
 
   beforeAll(async () => {
-    testUser = await support.createUser();
+    testUser = await global.support.createUser();
   });
 
   describe('/user/:uid', () => {
@@ -40,7 +41,7 @@ describe('controllers/user', () => {
     test('should show setting page', async () => {
       const res = await request(global.server)
         .get('/user/setting')
-        .set('Cookie', support.normalUserCookie);
+        .set('Cookie', global.support.normalUserCookie);
       expect(res.status).toBe(200);
       expect(res.text).toContain('同时决定了 Gravatar 头像');
       expect(res.text).toContain('Access Token');
@@ -50,7 +51,7 @@ describe('controllers/user', () => {
       const res = await request(global.server)
         .get('/user/setting')
         .query({ save: 'success' })
-        .set('Cookie', support.normalUserCookie);
+        .set('Cookie', global.support.normalUserCookie);
       expect(res.status).toBe(200);
       expect(res.text).toContain('保存成功。');
     });
@@ -65,15 +66,15 @@ describe('controllers/user', () => {
         location: 'west lake',
         github: '@alsotang',
         signature: '仍然很懒',
-        name: support.normalUser.loginname,
-        email: support.normalUser.email,
+        name: global.support.normalUser.loginname,
+        email: global.support.normalUser.email,
       };
     });
 
     test('should change user setting', async () => {
       const res = await request(global.server)
         .post('/user/setting')
-        .set('Cookie', support.normalUserCookie)
+        .set('Cookie', global.support.normalUserCookie)
         .send({ ...userInfo, action: 'change_setting' });
       expect(res.status).toBe(302);
       expect(res.headers.location).toBe('/user/setting?save=success');
@@ -82,7 +83,7 @@ describe('controllers/user', () => {
     test('should change user password', async () => {
       const res = await request(global.server)
         .post('/user/setting')
-        .set('Cookie', support.normalUserCookie)
+        .set('Cookie', global.support.normalUserCookie)
         .send({ ...userInfo, action: 'change_password', old_pass: 'pass', new_pass: 'passwordchanged' });
       expect(res.status).toBe(200);
       expect(res.text).toContain('密码已被修改。');
@@ -91,7 +92,7 @@ describe('controllers/user', () => {
     test('should not change user password when old_pass is wrong', async () => {
       const res = await request(global.server)
         .post('/user/setting')
-        .set('Cookie', support.normalUserCookie)
+        .set('Cookie', global.support.normalUserCookie)
         .send({ ...userInfo, action: 'change_password', old_pass: 'wrong_old_pass', new_pass: 'passwordchanged' });
       expect(res.status).toBe(200);
       expect(res.text).toContain('当前密码不正确。');
@@ -102,7 +103,7 @@ describe('controllers/user', () => {
     test('should not set star user when no user_id', async () => {
       const res = await request(global.server)
         .post('/user/set_star')
-        .set('Cookie', support.adminUserCookie);
+        .set('Cookie', global.support.adminUserCookie);
       expect(res.status).toBe(500);
       expect(res.text).toContain('user is not exists');
     });
@@ -110,13 +111,13 @@ describe('controllers/user', () => {
     test('should set star user', async () => {
       const res = await request(global.server)
         .post('/user/set_star')
-        .send({ user_id: support.normalUser._id })
-        .set('Cookie', support.adminUserCookie);
+        .send({ user_id: global.support.normalUser._id })
+        .set('Cookie', global.support.adminUserCookie);
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ status: 'success' });
 
       const user = await new Promise((resolve, reject) => {
-        proxyUser.getUserById(support.normalUser._id, (err, user) => err ? reject(err) : resolve(user));
+        proxyUser.getUserById(global.support.normalUser._id, (err, user) => err ? reject(err) : resolve(user));
       });
       expect(user.is_star).toBe(true);
     });
@@ -124,13 +125,13 @@ describe('controllers/user', () => {
     test('should unset star user', async () => {
       const res = await request(global.server)
         .post('/user/set_star')
-        .send({ user_id: support.normalUser._id })
-        .set('Cookie', support.adminUserCookie);
+        .send({ user_id: global.support.normalUser._id })
+        .set('Cookie', global.support.adminUserCookie);
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ status: 'success' });
 
       const user = await new Promise((resolve, reject) => {
-        proxyUser.getUserById(support.normalUser._id, (err, user) => err ? reject(err) : resolve(user));
+        proxyUser.getUserById(global.support.normalUser._id, (err, user) => err ? reject(err) : resolve(user));
       });
       expect(user.is_star).toBe(false);
     });
@@ -138,7 +139,7 @@ describe('controllers/user', () => {
 
   describe('#getCollectTopics', () => {
     test('should get /user/:name/collections ok', async () => {
-      const res = await request(global.server).get(`/user/${support.normalUser.loginname}/collections`);
+      const res = await request(global.server).get(`/user/${global.support.normalUser.loginname}/collections`);
       expect(res.status).toBe(200);
       expect(res.text).toContain('收藏的话题');
     });
@@ -154,7 +155,7 @@ describe('controllers/user', () => {
 
   describe('#list_topics', () => {
     test('should get /user/:name/topics ok', async () => {
-      const res = await request(global.server).get(`/user/${support.normalUser.loginname}/topics`);
+      const res = await request(global.server).get(`/user/${global.support.normalUser.loginname}/topics`);
       expect(res.status).toBe(200);
       expect(res.text).toContain('创建的话题');
     });
@@ -162,21 +163,21 @@ describe('controllers/user', () => {
 
   describe('#listReplies', () => {
     test('should get /user/:name/replies ok', async () => {
-      const res = await request(global.server).get(`/user/${support.normalUser.loginname}/replies`);
+      const res = await request(global.server).get(`/user/${global.support.normalUser.loginname}/replies`);
       expect(res.status).toBe(200);
-      expect(res.text).toContain(`${support.normalUser.loginname} 参与的话题`);
+      expect(res.text).toContain(`${global.support.normalUser.loginname} 参与的话题`);
     });
   });
 
   describe('#block', () => {
     test('should block user', async () => {
       const newuser = await new Promise((resolve, reject) => {
-        support.createUser((err, user) => err ? reject(err) : resolve(user));
+        global.support.createUser((err, user) => err ? reject(err) : resolve(user));
       });
       const res = await request(global.server)
         .post(`/user/${newuser.loginname}/block`)
         .send({ action: 'set_block' })
-        .set('Cookie', support.adminUserCookie);
+        .set('Cookie', global.support.adminUserCookie);
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ status: 'success' });
 
@@ -188,9 +189,9 @@ describe('controllers/user', () => {
 
     test('should unblock user', async () => {
       const res = await request(global.server)
-        .post(`/user/${support.normalUser.loginname}/block`)
+        .post(`/user/${global.support.normalUser.loginname}/block`)
         .send({ action: 'cancel_block' })
-        .set('Cookie', support.adminUserCookie);
+        .set('Cookie', global.support.adminUserCookie);
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ status: 'success' });
     });
@@ -199,7 +200,7 @@ describe('controllers/user', () => {
       const res = await request(global.server)
         .post('/user/not_exists_user/block')
         .send({ action: 'set_block' })
-        .set('Cookie', support.adminUserCookie);
+        .set('Cookie', global.support.adminUserCookie);
       expect(res.status).toBe(500);
       expect(res.text).toContain('user is not exists');
     });
@@ -208,7 +209,7 @@ describe('controllers/user', () => {
   describe('#delete_all', () => {
     test('should delete all ups', async () => {
       const user = await new Promise((resolve, reject) => {
-        support.createUser((err, user) => err ? reject(err) : resolve(user));
+        global.support.createUser((err, user) => err ? reject(err) : resolve(user));
       });
 
       const reply = await modelReply.findOne();
@@ -218,7 +219,7 @@ describe('controllers/user', () => {
 
       const res = await request(global.server)
         .post(`/user/${user.loginname}/delete_all`)
-        .set('Cookie', support.adminUserCookie);
+        .set('Cookie', global.support.adminUserCookie);
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ status: 'success' });
 

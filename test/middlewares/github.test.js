@@ -1,18 +1,19 @@
-const midGithub  = require('../../src/middlewares/github');
+import config from '../config/index.js';
+import * as midGithub from '../../src/middlewares/github.js';
 
 describe('middlewares/github', () => {
   describe('github', () => {
     test('should alert no github oauth', async () => {
       let ctx = {};
 
-      const originalClientID = global.config.GITHUB_OAUTH.clientID;
-      global.config.GITHUB_OAUTH.clientID = 'your GITHUB_CLIENT_ID';
+      const originalClientID = config.GITHUB_OAUTH.clientID;
+      config.GITHUB_OAUTH.clientID = 'your GITHUB_CLIENT_ID';
 
-      await midGithub.github(ctx, support.emptyFunction);
+      await midGithub.github(ctx, global.support.emptyFunction);
       expect(ctx.body).toBe('call the admin to set github oauth.');
 
       // restore original value
-      global.config.GITHUB_OAUTH.clientID = originalClientID;
+      config.GITHUB_OAUTH.clientID = originalClientID;
     });
   });
 });

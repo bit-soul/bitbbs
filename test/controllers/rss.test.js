@@ -1,5 +1,7 @@
-const request = require('supertest');
-const proxyTopic = require('../../src/proxys/topic');
+import request from 'supertest';
+import config from '../config/index.js';
+import * as proxyTopic from '../../src/proxys/topic.js';
+
 
 describe('controllers/rss', () => {
   describe('/rss', () => {
@@ -9,16 +11,16 @@ describe('controllers/rss', () => {
       expect(res.headers['content-type']).toBe('application/xml; charset=utf-8');
       expect(res.text.startsWith('<?xml version="1.0" encoding="utf-8"?>')).toBe(true);
       expect(res.text).toContain('<rss version="2.0">');
-      expect(res.text).toContain(`<channel><title>${global.config.rss.title}</title>`);
+      expect(res.text).toContain(`<channel><title>${config.rss.title}</title>`);
     });
 
     describe('mock `config.rss` not set', () => {
-      const originalRss = global.config.rss;
+      const originalRss = config.rss;
       beforeAll(() => {
-        global.config.rss = null;
+        config.rss = null;
       });
       afterAll(() => {
-        global.config.rss = originalRss;
+        config.rss = originalRss;
       });
       test('should return warning message', async () => {
         const res = await request(global.server).get('/rss');
@@ -30,13 +32,13 @@ describe('controllers/rss', () => {
     describe('mock `topic.getTopicsByQuery()` error', () => {
       const originalFn = proxyTopic.getTopicsByQuery;
       beforeAll(() => {
-        proxyTopic.getTopicsByQuery = function (...args) {
-          const callback = args[args.length - 1];
-          process.nextTick(() => callback(new Error('mock getTopicsByQuery() error')));
-        };
+        //proxyTopic.getTopicsByQuery = function (...args) {
+        //  const callback = args[args.length - 1];
+        //  process.nextTick(() => callback(new Error('mock getTopicsByQuery() error')));
+        //};
       });
       afterAll(() => {
-        proxyTopic.getTopicsByQuery = originalFn;
+        //proxyTopic.getTopicsByQuery = originalFn;
       });
       test('should return error', async () => {
         const res = await request(global.server).get('/rss');

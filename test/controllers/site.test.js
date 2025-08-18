@@ -1,4 +1,4 @@
-const request = require('supertest');
+import request from 'supertest';
 
 describe('controllers/site', () => {
   test('should / 200', async () => {

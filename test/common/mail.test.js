@@ -1,4 +1,4 @@
-var mail = require('../../src/common/mail');
+import * as mail from '../../src/common/mail.js';
 
 describe('common/mail', () => {
   describe('sendActiveMail', () => {

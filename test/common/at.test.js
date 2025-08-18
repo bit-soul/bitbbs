@@ -1,5 +1,6 @@
-var at      = require('../../src/common/at');
-var message = require('../../src/common/message');
+import * as at from '../../src/common/at.js';
+import * as message from '../../src/common/message.js';
+
 
 var matched_users = ['A-aZ-z0-9_', 'begin_with_spaces',
   'multi_in_oneline', 'around_text', 'end_with_no_space',
@@ -85,8 +86,8 @@ describe('common/at', function () {
     });
 
     test('should send message to all mention users', async () => {
-      const text = `@${adminUser.name} @${normalUser2.name} @notexitstuser Hello BitBBS`;
-      const atUserIds = [String(adminUser._id), String(normalUser2._id)];
+      const text = `@${global.support.adminUser.name} @${global.support.normalUser2.name} @notexitstuser Hello BitBBS`;
+      const atUserIds = [String(global.support.adminUser._id), String(global.support.normalUser2._id)];
       const receivedUserIds = [];
 
       jest.spyOn(message, 'sendAtMessage').mockImplementation(
@@ -95,7 +96,7 @@ describe('common/at', function () {
         }
       );
 
-      await at.sendMessageToMentionUsers(text, testTopic._id, normalUser._id);
+      await at.sendMessageToMentionUsers(text, global.support.testTopic._id, global.support.normalUser._id);
       expect(receivedUserIds.sort()).toEqual(atUserIds.sort());
     });
 
@@ -105,16 +106,16 @@ describe('common/at', function () {
         throw new Error('should not call me');
       });
 
-      await at.sendMessageToMentionUsers(text, testTopic._id, normalUser._id);
+      await at.sendMessageToMentionUsers(text, global.support.testTopic._id, global.support.normalUser._id);
     });
 
     test('should not send at msg to author', async () => {
-      const text = `@${normalUser.name} hello`;
+      const text = `@${global.support.normalUser.name} hello`;
       jest.spyOn(message, 'sendAtMessage').mockImplementation(() => {
         throw new Error('should not call me');
       });
 
-      await at.sendMessageToMentionUsers(text, testTopic._id, normalUser._id);
+      await at.sendMessageToMentionUsers(text, global.support.testTopic._id, global.support.normalUser._id);
     });
   });
 

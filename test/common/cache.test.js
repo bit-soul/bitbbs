@@ -1,5 +1,6 @@
-var cache = require('../../src/common/cache');
-var tools = require('../../src/common/tools');
+import * as cache from '../../src/common/cache.js';
+import * as tools from '../../src/common/tools.js';
+
 
 describe('common/cache', () => {
   test('set then get', async () => {
