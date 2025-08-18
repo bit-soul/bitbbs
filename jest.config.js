@@ -13,7 +13,7 @@ export default {
       retainLines: true,
       sourceMaps: 'inline',
       inputSourceMap: true,
-      presets: [],
+      presets: ['@babel/preset-env'],
       overrides: [
         {
           test: ['src/**/*.js'],

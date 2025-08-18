@@ -1,4 +1,4 @@
-import config from '../config/index.js';
+import config from '../../src/config/index.js';
 import * as midGithub from '../../src/middlewares/github.js';
 
 describe('middlewares/github', () => {

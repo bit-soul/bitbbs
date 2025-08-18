@@ -1,4 +1,4 @@
-import config from '../config/index.js';
+import config from '../../src/config/index.js';
 import modelUser from '../../src/models/user.js';
 
 describe('models/user', () => {

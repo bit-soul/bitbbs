@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { pipeline } from 'stream/promises';
 
-import s3sdk from '@aws-sdk/client-s3';
-import s3presigner from '@aws-sdk/s3-request-presigner';
+import * as s3sdk from '@aws-sdk/client-s3';
+import * as s3presigner from '@aws-sdk/s3-request-presigner';
 
 import config from '../config/index.js';
 import * as tools from './tools.js';

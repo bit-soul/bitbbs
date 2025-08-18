@@ -1,5 +1,5 @@
 import request from 'supertest';
-import config from '../config/index.js';
+import config from '../../src/config/index.js';
 import * as proxyTopic from '../../src/proxys/topic.js';
 
 
