@@ -1,8 +1,8 @@
 const config = {
+  port: 3000,
   debug: false,
   cache: true,
   diststatic: true,
-  port: 3000,
   proxyurl: 'socks5://host.docker.internal:40000',
 
   tabs: [

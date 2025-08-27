@@ -1,8 +1,8 @@
 const config = {
+  port: 3000,
   debug: true,
   cache: false,
   diststatic: false,
-  port: 3000,
   proxyurl: 'socks://127.0.0.1:7890',
 
   session_secret: process.env.session_secret,

@@ -1,8 +1,8 @@
 const config = {
+  port: 3000,
   debug: true,
   cache: false,
   diststatic: false,
-  port: 3000,
   proxyurl: 'socks://127.0.0.1:7890',
 
   tabs: [
@@ -70,15 +70,6 @@ const config = {
     max_rss_items: 50
   },
 
-  //s3_client: {
-  //  region: 'us-east-1',
-  //  bucket: process.env.bitbbs_store_bucket_name,
-  //  prefix: '_S3_DEV/',
-  //  endpoint: null,
-  //  readpoint: 'https://bitbbsstore.bitsoul.xyz',
-  //  accessKeyId: process.env.s3_access_key,
-  //  secretAccessKey: process.env.s3_Secret_access_key,
-  //},
   s3_client: {
     region: 'auto',
     bucket: process.env.bitbbs_store_bucket_name,

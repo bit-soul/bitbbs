@@ -1,3 +1,4 @@
+import fs from 'fs';
 import url from 'url';
 import path from 'path';
 
@@ -9,12 +10,13 @@ import config_unittest from './unittest.js';
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const __projdir = path.join(__dirname, "../../");
 
 let config_default = {
+  port: 3000,
   debug: false,
   cache: true,
   diststatic: true,
-  port: 3000,
   proxyurl: null,
 
   bbsname: 'BitBBS',
@@ -45,7 +47,7 @@ let config_default = {
   session_cookie_key: 'koa:sess',
   auth_cookie_name: 'bitbbs',
 
-  log_dir: path.join(__dirname, '../../logs'),
+  log_dir: path.join(__projdir, 'logs'),
   admins: { user_id: true }, // admin 可删除话题，编辑标签。把 user_id 换成你的id
   allow_sign_up: true, // 是否允许直接注册（否则只能走 github 的方式）
 
@@ -105,7 +107,7 @@ let config_default = {
 
   // file upload config, if s3_client setted, then use s3 instead
   upload: {
-    path: path.join(__dirname, '../../upload/'),
+    dir: path.join(__projdir, 'upload'),
     url: '/upload/'
   },
 
@@ -116,6 +118,8 @@ let config_default = {
   create_user_per_ip: 10, // 每个 ip 每天可以注册账号的次数
   visit_per_day: 1000, // 每个 ip 每天能访问的次数
 };
+
+config_default.__projdir = __projdir;
 
 switch (process.env.APP_ENV) {
 case 'dev':
@@ -147,5 +151,18 @@ if(process.env.admins) {
 
 var urlinfo = new url.URL(config_default.host);
 config_default.hostname = urlinfo.hostname || config_default.host;
+
+if(config_default.diststatic){
+  config_default.static_dir = path.join(__projdir, 'dist/static');
+} else {
+  config_default.static_dir = path.join(__projdir, 'static');
+}
+
+if (!fs.existsSync(config_default.log_dir)) {
+  fs.mkdirSync(config_default.log_dir, { recursive: true });
+}
+if (!fs.existsSync(config_default.upload.dir)) {
+  fs.mkdirSync(config_default.upload.dir, { recursive: true });
+}
 
 export default config_default;

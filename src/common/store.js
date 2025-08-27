@@ -49,9 +49,9 @@ var local = {
     const newFilename =
       tools.md5(filename + String(Date.now())) + path.extname(filename);
 
-    const upload_path = config.upload.path;
     const base_url = config.upload.url;
-    const filePath = path.join(upload_path, newFilename);
+    const upload_dir = config.upload.dir;
+    const filePath = path.join(upload_dir, newFilename);
     const fileUrl = base_url + newFilename;
 
     await pipeline(file, fs.createWriteStream(filePath));

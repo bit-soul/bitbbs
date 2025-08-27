@@ -14,7 +14,6 @@ import './global.js';
 import fs from 'fs';
 import url from 'url';
 import path from 'path';
-import lodash from 'lodash';
 
 import Koa from 'koa';
 import koarouter from '@koa/router';
@@ -41,9 +40,6 @@ import * as midGithub from './middlewares/github.js';
 
 import logger from './common/logger.js';
 
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 //*****************************************************************************
 // create app and load middlewares
 //*****************************************************************************
@@ -52,27 +48,15 @@ const app = new Koa();
 // onerror
 koaonerror.onerror(app);
 
-//logger
-if (!fs.existsSync(config.log_dir)) {
-  fs.mkdirSync(config.log_dir, { recursive: true });
-}
+// logger
 if(config.debug) {
   app.use(midReqlog.reqlog);
   app.use(midRender.times);
 }
 
-//staticfile
-var staticDir = path.join(__dirname, '../static');
-if(config.diststatic){
-  staticDir = path.join(__dirname, '../dist/static');
-}
-app.use(koamount('/static', koastatic(staticDir)));
-
-var uploadDir = path.join(__dirname, '../upload');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-app.use(koamount('/upload', koastatic(uploadDir)));
+// static files
+app.use(koamount('/static', koastatic(config.static_dir)));
+app.use(koamount('/upload', koastatic(config.upload.dir)));
 
 // session
 app.keys = [config.session_secret];
@@ -123,7 +107,7 @@ koapassport.use(new GitHubStrategy(config.GITHUB_OAUTH, midGithub.strategy));
 
 //ejs
 koaejs(app, {
-  root: path.join(__dirname, 'views'),
+  root: path.join(config.__projdir, 'src/views'),
   viewExt: 'ejs',
   layout: 'layout',
   cache: config.cache,
@@ -168,7 +152,7 @@ router.all('/agent/(.*)', midProxy.proxy);
 //load routers recursively
 (async function(){
 
-  await loadRouters(path.join(__dirname, './controllers'));
+  await loadRouters(path.join(config.__projdir, 'src/controllers'));
 
   async function loadRouters(router_path)
   {
