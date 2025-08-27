@@ -29,7 +29,7 @@ import koacors from '@koa/cors';
 import koacsrf from 'koa-csrf';
 import koahelmet from 'koa-helmet';
 import koapassport from 'koa-passport';
-import { Strategy as GitHubStrategy } from 'passport-github';
+import passportGithub from 'passport-github';
 import gracefulShutdown from 'http-graceful-shutdown';
 
 import * as midAuth from './middlewares/auth.js';
@@ -97,13 +97,13 @@ app.use(midAuth.blockUser);
 
 // oauth middleware
 app.use(koapassport.initialize());
-koapassport.serializeUser(function (user, done) {
+koapassport.serializeUser((user, done) => {
   done(null, user);
 });
-koapassport.deserializeUser(function (user, done) {
+koapassport.deserializeUser((user, done) => {
   done(null, user);
 });
-koapassport.use(new GitHubStrategy(config.GITHUB_OAUTH, midGithub.strategy));
+koapassport.use(new passportGithub.Strategy(config.GITHUB_OAUTH, midGithub.strategy));
 
 //ejs
 koaejs(app, {
@@ -159,15 +159,15 @@ router.all('/agent/(.*)', midProxy.proxy);
     //if router_path is a directory, then call loadRouters for each of it's items
     if(fs.lstatSync(router_path).isDirectory())
     {
-      var items=fs.readdirSync(router_path);
-      items.forEach(function(item, index, array){
+      const items=fs.readdirSync(router_path);
+      items.forEach((item, index, array) => {
         loadRouters(path.join(router_path, item));
       });
     }
     //if router_path is js file, then load it as router
     else if(router_path.slice(-3) === '.js')
     {
-      var router_handler = (await import(url.pathToFileURL(router_path))).default;
+      const router_handler = (await import(url.pathToFileURL(router_path))).default;
       if(router_handler.routes !== undefined)
       {
         app.use(router_handler.routes(), router_handler.allowedMethods());

@@ -58,7 +58,7 @@
           <%= topic.title %>
         </span>
         <% const safeTitle = topic.title.replace(/'/g, "\\'").replace(/"/g, '\\"'); %>
-        <span class="share_topic" title="share to twitter" 
+        <span class="share_topic" title="share to twitter"
           onclick="share2twitter('<%=safeTitle%>', '', '<%=config.host%>/topic/<%=topic._id%>', '<%= helper.tabName(topic.tab)%>')">
           <svg style="width: 22px; height: 22px; vertical-align: middle; fill: gray;"><use xlink:href="/static/img/icons.svg#twitter" /></svg>
         </span>
@@ -80,13 +80,13 @@
         </span>
         <% } %>
         <% if (topic.tab) { %>
-        <span> 
+        <span>
           From <%= topic.tabName %>
         </span>
         <% } %>
         <% if (current_user) { %>
-        <input class="span-common <%= is_mark ? '' : 'span-success' %> pull-right mark_btn" type="submit" 
-               value="<%= is_mark ? 'unMark' : 'Mark' %>" action="<%= is_mark ? 'unmark' : 'mark' %>" 
+        <input class="span-common <%= is_mark ? '' : 'span-success' %> pull-right mark_btn" type="submit"
+               value="<%= is_mark ? 'unMark' : 'Mark' %>" action="<%= is_mark ? 'unmark' : 'mark' %>"
         />
         <% } %>
       </div>

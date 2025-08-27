@@ -3,7 +3,7 @@ import proxyagent from 'socks-proxy-agent';
 
 import config from '../config/index.js';
 
-var agent = null;
+let agent = null;
 if (config.socks_proxy_url && config.socks_proxy_url !== '') {
   agent = new proxyagent.SocksProxyAgent(config.proxyurl);
 }

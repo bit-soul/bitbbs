@@ -9,7 +9,7 @@ import config from '../config/index.js';
 import * as tools from './tools.js';
 
 
-var s3_client = null;
+let s3_client = null;
 if (config.s3_client && config.s3_client.secretAccessKey) {
   s3_client = new s3sdk.S3Client({
     region: config.s3_client.region,
@@ -33,12 +33,12 @@ async function createPresignedUrl(fileName, fileType, fileSize) {
     { expiresIn: 600, signableHeaders: new Set(['content-type', 'content-length']) });
 }
 
-var s3cloud = {
+const s3cloud = {
   presignedUrl: createPresignedUrl,
 };
 
 
-var local = {
+const local = {
   presignedurl: function () {
     return '/upload';
   },

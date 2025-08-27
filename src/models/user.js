@@ -42,11 +42,11 @@ const UserSchema = new Schema({
 
 UserSchema.plugin(BaseModel);
 
-UserSchema.virtual('avatar_url').get(function () {
+UserSchema.virtual('avatar_url').get(function() {
   return this.icon || config.site_static_host + '/static/img/nobody.png';
 });
 
-UserSchema.virtual('isAdvanced').get(function () {
+UserSchema.virtual('isAdvanced').get(function() {
   return this.score > 1000 || this.is_advance;
 });
 
@@ -56,10 +56,9 @@ UserSchema.index({score: -1});
 UserSchema.index({githubId: 1});
 UserSchema.index({accessToken: 1});
 
-UserSchema.pre('save', function(next){
-  var now = new Date();
+UserSchema.pre('save', async function() {
+  const now = new Date();
   this.update_at = now;
-  next();
 });
 
 export default mongoose.model('User', UserSchema);

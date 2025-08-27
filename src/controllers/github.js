@@ -26,7 +26,7 @@ router.get('/auth/github/callback', passport.authenticate('github', { failureRed
     return await ctx.render('sign/no_github_email');
   }
 
-  let user = await modelUser.findOne({ githubId: profile.id });
+  const user = await modelUser.findOne({ githubId: profile.id });
 
   if (user) {
     // 已注册，更新信息

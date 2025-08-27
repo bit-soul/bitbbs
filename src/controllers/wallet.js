@@ -10,7 +10,7 @@ import brcsoul from 'brcsoul-sdk';
 
 const router = new Router();
 
-var notJump = [
+const notJump = [
   '/active_account', //active page
   '/reset_pass',     //reset password page, avoid to reset twice
   '/signup',         //regist page

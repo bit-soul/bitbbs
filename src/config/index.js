@@ -12,7 +12,7 @@ const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const __projdir = path.join(__dirname, "../../");
 
-let config_default = {
+const config_default = {
   port: 3000,
   debug: false,
   cache: true,
@@ -149,7 +149,7 @@ if(process.env.admins) {
   });
 }
 
-var urlinfo = new url.URL(config_default.host);
+const urlinfo = new url.URL(config_default.host);
 config_default.hostname = urlinfo.hostname || config_default.host;
 
 if(config_default.diststatic){

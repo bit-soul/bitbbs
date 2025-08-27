@@ -31,9 +31,9 @@ TopicSchema.index({create_at: -1});
 TopicSchema.index({top: -1, last_reply_at: -1});
 TopicSchema.index({author_id: 1, create_at: -1});
 
-TopicSchema.virtual('tabName').get(function () {
-  var tab  = this.tab;
-  var pair = lodash.find(config.tabs, function (_pair) {
+TopicSchema.virtual('tabName').get(function() {
+  const tab  = this.tab;
+  const pair = lodash.find(config.tabs, function (_pair) {
     return _pair[0] === tab;
   });
 

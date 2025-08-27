@@ -14,7 +14,7 @@ const router = new Router();
  * define some page when login just jump to the home page
  * @type {Array}
  */
-var notJump = [
+const notJump = [
   '/active_account', //active page
   '/reset_pass',     //reset password page, avoid to reset twice
   '/signup',         //regist page

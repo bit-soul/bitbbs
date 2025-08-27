@@ -2,13 +2,13 @@ import * as at from '../../src/common/at.js';
 import * as message from '../../src/common/message.js';
 
 
-var matched_users = ['A-aZ-z0-9_', 'begin_with_spaces',
+const matched_users = ['A-aZ-z0-9_', 'begin_with_spaces',
   'multi_in_oneline', 'around_text', 'end_with_no_space',
   'begin_with_no_spaces', 'end_with_no_space2',
   'begin_with_no_spaces2', 'alsotang', 'alsotang2',
   'tangzhanli', 'liveinjs'];
 
-var text =
+const text =
 `
   @A-aZ-z0-9_
   @中文

@@ -4,8 +4,8 @@
   <div class="panel">
     <div class="header">
       <% [['all', 'All'], ['good', 'Good']].concat(tabs).forEach(pair => {
-        var value = pair[0];
-        var text = pair[1]; %>
+        const value = pair[0];
+        const text = pair[1]; %>
         <a href="<%= value ? '/?tab=' + value : '/' %>"
           class="topic-tab <%= value === tab ? 'current-tab' : '' %>"><%= text %></a>
       <% }) %>

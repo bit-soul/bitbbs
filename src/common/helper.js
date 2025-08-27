@@ -1,7 +1,7 @@
 import jsxss from 'xss';
 import lodash from 'lodash';
-import MarkdownIt from 'markdown-it';
 import validator from 'validator';
+import MarkdownIt from 'markdown-it';
 
 import config from '../config/index.js';
 
@@ -16,8 +16,8 @@ md.set({
 });
 
 md.renderer.rules.fence = function (tokens, idx) {
-  var token    = tokens[idx];
-  var language = token.info && ('language-' + token.info) || '';
+  const token    = tokens[idx];
+  let language = token.info && ('language-' + token.info) || '';
   language     = validator.escape(language);
 
   return '<pre class="prettyprint ' + language + '">'
@@ -26,14 +26,13 @@ md.renderer.rules.fence = function (tokens, idx) {
 };
 
 md.renderer.rules.code_block = function (tokens, idx /*, options*/) {
-  var token    = tokens[idx];
-
+  const token    = tokens[idx];
   return '<pre class="prettyprint">'
     + '<code>' + validator.escape(token.content) + '</code>'
     + '</pre>';
 };
 
-var myxss = new jsxss.FilterXSS({
+const myxss = new jsxss.FilterXSS({
   onIgnoreTagAttr: function (tag, name, value, isWhiteAttr) {
     // let prettyprint work
     if (tag === 'pre' && name === 'class') {
@@ -47,7 +46,7 @@ export function markdown(text) {
 }
 
 export function escapeBiog(biog) {
-  return biog.split('\n').map(function (p) {
+  return biog.split('\n').map((p) => {
     return lodash.escape(p);
   }).join('<br>');
 }
@@ -60,7 +59,7 @@ export function staticFile(filePath) {
 }
 
 export function tabName(tab) {
-  var pair = lodash.find(config.tabs, function (pair) {
+  const pair = lodash.find(config.tabs, function (pair) {
     return pair[0] === tab;
   });
   if (pair) {

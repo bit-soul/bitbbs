@@ -8,25 +8,25 @@ export async function fetchUserIds(text) {
     return [];
   }
 
-  var ignoreRegexs = [
+  const ignoreRegexs = [
     /```.+?```/g, // 去除单行的 ```
     /^```[\s\S]+?^```/gm, // ``` 里面的是 pre 标签内容
     /`[\s\S]+?`/g, // 同一行中，`some code` 中内容也不该被解析
     /^ {4}.*/gm, // 4个空格也是 pre 标签，在这里 . 不会匹配换行
   ];
 
-  ignoreRegexs.forEach(function (ignore_regex) {
+  ignoreRegexs.forEach((ignore_regex) => {
     text = text.replace(ignore_regex, '');
   });
 
-  var results = text.match(/\[@[a-z0-9\-_]+\]\(\/user\/[a-f0-9]{24}\)/igm);
-  var uids = [];
+  const results = text.match(/\[@[a-z0-9\-_]+\]\(\/user\/[a-f0-9]{24}\)/igm);
+  let uids = [];
   if (results) {
-    for (var i = 0, l = results.length; i < l; i++) {
-      var result = results[i];
-      var startIndex = result.indexOf('(/user/')+7;
-      var endIndex = result.indexOf(')', startIndex);
-      var uid = result.substring(startIndex, endIndex);
+    for (let i = 0, l = results.length; i < l; i++) {
+      const result = results[i];
+      const startIndex = result.indexOf('(/user/')+7;
+      const endIndex = result.indexOf(')', startIndex);
+      const uid = result.substring(startIndex, endIndex);
       uids.push(uid);
     }
   }

@@ -31,12 +31,12 @@ mongoose.connect(config.mongodb_cfg.db, {
 });
 
 if (config.debug) {
-  var traceMQuery = function (method, info, query) {
+  const traceMQuery = function (method, info, query) {
     return function (err, result, millis) {
       if (err) {
         console.log('traceMQuery error:', err)
       }
-      var infos = [];
+      const infos = [];
       infos.push(query._collection.collection.name + "." + method);
       infos.push(JSON.stringify(info));
       infos.push((millis + 'ms'));

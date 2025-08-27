@@ -46,7 +46,7 @@ router.get('/rss', async (ctx, next) => {
     }
   };
 
-  topics.forEach(function (topic) {
+  topics.forEach((topic) => {
     rss_obj.channel.item.push({
       title: topic.title,
       link: config.rss.link + '/topic/' + topic._id,
