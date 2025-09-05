@@ -1,10 +1,10 @@
-var gulp = require('gulp');
-var clean = require('gulp-clean');
-var concat= require('gulp-concat');
+import gulp from 'gulp';
+import clean from 'gulp-clean';
+import concat from 'gulp-concat';
+import uglify from 'gulp-uglify';
+import less from 'gulp-less';
+import minifyCss from 'gulp-minify-css';
 
-var uglify = require('gulp-uglify');
-var less = require('gulp-less');
-var minify_css = require('gulp-minify-css');
 
 //*********************************************
 //               build
@@ -49,7 +49,7 @@ gulp.task('compress-css', function(){
         './static/css/responsive.less',
         ])
         .pipe(less())
-        .pipe(minify_css())
+        .pipe(minifyCss())
         .pipe(concat('css.css'))
         .pipe(gulp.dest('./dist/static/css/'))
 });

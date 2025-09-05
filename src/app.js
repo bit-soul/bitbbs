@@ -190,4 +190,5 @@ router.all('/agent/(.*)', midProxy.proxy);
 // start server
 //*****************************************************************************
 global.server = app.listen(config.port, "127.0.0.1");
+console.log("server listening on port %d...", config.port);
 gracefulShutdown(global.server);

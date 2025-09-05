@@ -70,6 +70,6 @@
     "debug": "cross-env NODE_ENV=local APP_ENV=local node --inspect main.js",
     "test": "dotenvx -q run --env-file=env/unittest.env -- cross-env NODE_ENV=test APP_ENV=unittest jest --runInBand --forceExit --colors",
     "cov": "dotenvx -q run --env-file=env/unittest.env -- cross-env NODE_ENV=test APP_ENV=unittest jest --runInBand --forceExit --colors --coverage",
-    "postinstall": "patch-package"
+    "postinstall": "node -e \"const { execSync } = require('child_process'); try { execSync('npx --no-install patch-package', { stdio: ['inherit','inherit','ignore'] }) } catch(e) { console.log('skip patch-package') }\""
   }
 }
