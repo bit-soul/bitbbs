@@ -138,7 +138,7 @@ case 'unittest':
   Object.assign(config_default, config_unittest);
   break;
 default:
-  Object.assign(config_default, config_local);
+  Object.assign(config_default, config_prod);
   break;
 }
 
