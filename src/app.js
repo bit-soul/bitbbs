@@ -74,22 +74,24 @@ const session_config = {
 };
 app.use(koasession.createSession(session_config, app));
 
+//body
+app.use(koabody.koaBody({
+  multipart: true,
+  formidable: {
+    maxFileSize: 1 * 1024 * 1024, // 1MB
+    keepExtensions: true
+  }
+}));
+
 // csrf
 if (!config.debug) {
-  const csrf = new koacsrf();
-  app.use(async (ctx, next) => {
-    const path = ctx.path;
-    if (path !== '/api' && !path.startsWith('/api/')) {
-      await csrf.middleware()(ctx, next);
-    } else {
-      await next();
-    }
-  });
+  app.use(new koacsrf({
+    disableQuery: false,
+    ignoredPathGlobs: ['/api', '/api/**'],
+    excludedMethods: ['GET', 'HEAD', 'OPTIONS'],
+    errorHandler(ctx) { return ctx.throw(403, 'Invalid CSRF token'); },
+  }));
 }
-app.use(async (ctx, next) => {
-  ctx.state.csrf = ctx.csrf || '';
-  await next();
-});
 
 // auth user
 app.use(midAuth.authUser);
@@ -113,15 +115,6 @@ koaejs(app, {
   cache: config.cache,
 });
 app.use(midRender.extend);
-
-//body
-app.use(koabody.koaBody({
-  multipart: true,
-  formidable: {
-    maxFileSize: 1 * 1024 * 1024, // 1MB
-    keepExtensions: true
-  }
-}));
 
 //helmet
 if (!config.debug) {
@@ -189,6 +182,6 @@ router.all('/agent/(.*)', midProxy.proxy);
 //*****************************************************************************
 // start server
 //*****************************************************************************
-global.server = app.listen(config.port, "127.0.0.1");
+global.server = app.listen(config.port, "0.0.0.0");
 console.log("server listening on port %d...", config.port);
 gracefulShutdown(global.server);

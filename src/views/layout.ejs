@@ -23,7 +23,7 @@
   <% } %>
 
   <meta content="_csrf" name="csrf-param">
-  <meta content="<%= csrf %>" name="csrf-token">
+  <meta content="<%= _csrf %>" name="csrf-token">
 
   <% if (typeof(topic) !== 'undefined') { %>
   <title><%= topic.title %> - <%= config.bbsname %></title>
@@ -86,7 +86,7 @@
               <% if (current_user.messages_count) { %>
                 <span class="big messages_count"><%= current_user.messages_count %></span>
               <% } %>
-              Message 
+              Message
             </a>
         </li>
         <% } %>

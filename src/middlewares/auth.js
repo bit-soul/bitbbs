@@ -66,7 +66,6 @@ export async function authUser(ctx, next) {
       const model_user = new modelUser(mockUser);
       await model_user.save();
       ctx.session.user_id = model_user._id.toString();
-    console.log(ctx.session.user_id);
       ctx.session.is_block = model_user.is_block;
       if (mockUser.is_admin) {
         ctx.session.is_admin = true;
@@ -95,7 +94,6 @@ export async function authUser(ctx, next) {
     const model_user = new modelUser(user);
     await model_user.save();
     ctx.session.user_id = model_user._id.toString();
-    console.log(ctx.session.user_id);
     ctx.session.is_block = model_user.is_block;
     user = ctx.state.current_user = model_user;
 

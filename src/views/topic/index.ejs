@@ -189,7 +189,7 @@
             </div>
           </div>
         </div>
-        <input type="hidden" name="_csrf" id="_csrf" value="<%= csrf %>"/>
+        <input type="hidden" name="_csrf" id="_csrf" value="<%= _csrf %>"/>
       </form>
     </div>
   </div>
@@ -212,9 +212,9 @@
 document.addEventListener('DOMContentLoaded', function () {
   $('textarea.editor').each(initEditor);
   $('#content').on('click', '.reply2_btn', e => commentReply(e));
-  $('#content').on('click', '.delete_reply_btn, .delete_reply2_btn', e => deleteReply(e, '<%= csrf %>'));
+  $('#content').on('click', '.delete_reply_btn, .delete_reply2_btn', e => deleteReply(e, '<%= _csrf %>'));
   $('.up_btn').click(upReply);
-  $('.mark_btn').click(e => markTopic(e, '<%= topic._id %>', '<%= csrf %>'));
+  $('.mark_btn').click(e => markTopic(e, '<%= topic._id %>', '<%= _csrf %>'));
   $('.delete_topic_btn').click(deleteTopic);
   initReplyHistory();
   initImgPreviewModal();

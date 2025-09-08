@@ -321,7 +321,6 @@ router.post('/topic/:tid/delete',
 
       ctx.body = { success: true, message: 'proxyTopic is deleted' };
     } catch (err) {
-      console.log(err);
       ctx.body = { success: false, message: err.message };
     }
   }
