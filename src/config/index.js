@@ -155,6 +155,7 @@ config_default.hostname = urlinfo.hostname || config_default.host;
 if(config_default.diststatic){
   config_default.static_dir = path.join(__projdir, 'dist/static');
 } else {
+  config_default.site_static_host = ''; //it use local static files
   config_default.static_dir = path.join(__projdir, 'static');
 }
 

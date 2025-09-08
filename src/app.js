@@ -92,6 +92,10 @@ if (!config.debug) {
     errorHandler(ctx) { return ctx.throw(403, 'Invalid CSRF token'); },
   }));
 }
+app.use(async (ctx, next) => {
+  ctx.state._csrf ||= '';
+  await next();
+});
 
 // auth user
 app.use(midAuth.authUser);
