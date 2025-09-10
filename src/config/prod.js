@@ -20,6 +20,7 @@ const config = {
 
   host: 'https://bitbbs.bitsoul.xyz',
   site_static_host: 'https://bitbbsres.bitsoul.xyz',
+  google_tracker_id: process.env.google_tracker_id,
 
   session_secret: process.env.session_secret,
   session_max_age: 1000 * 60 * 60 * 24 * 30, // 30 days for production
